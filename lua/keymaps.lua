@@ -52,6 +52,11 @@ map('n', 'K', ':m-2<CR>', opts)
 map('n', 'k', 'v:count == 0 ? "gk" : "k"', expr)
 map('n', 'j', 'v:count == 0 ? "gj" : "j"', expr)
 
+-- resizes windows with Ctrl+<arrow>
+map("n", "<C-Up>", ":resize +2<CR>", opts)
+map("n", "<C-Down>", ":resize -2<CR>", opts)
+map("n", "<C-Left>", ":vertical resize -2<CR>", opts)
+map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
 --[[
     Terminal mode
