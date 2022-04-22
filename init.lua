@@ -3,3 +3,6 @@
 -- Configuration options
 require('options')
 
+-- Keymaps
+require('keymaps')
+
