@@ -52,6 +52,9 @@ require('plugins.packer')
 -- Themes
 require('plugins.nightfox')
 
+-- Status Bars
+require('plugins.lualine')
+
 --[[
     Configuration setup
 --]]
