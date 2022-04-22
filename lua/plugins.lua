@@ -49,6 +49,9 @@ packer.reset()
 --]]
 require('plugins.packer')
 
+-- Themes
+require('plugins.nightfox')
+
 --[[
     Configuration setup
 --]]

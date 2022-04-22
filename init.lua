@@ -12,3 +12,6 @@ require('commands')
 -- Plugins
 require('plugins')
 
+-- Bootstrap
+require('bootstrap')
+
