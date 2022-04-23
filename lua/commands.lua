@@ -1,13 +1,5 @@
 -- lua/commands.lua
 
--- starts NetRw on current dir if NeoVim is opened without parameters
-vim.cmd([[
-augroup netrw-auto-open-if-no-params
-  autocmd!
-  autocmd VimEnter * if argc() == 0 | :Lexplore | endif
-augroup END
-]])
-
 -- prevents new line to also start with a comment
 vim.api.nvim_exec(
     [[

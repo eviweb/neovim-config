@@ -55,6 +55,9 @@ require('plugins.nightfox')
 -- Status Bars
 require('plugins.lualine')
 
+-- File Browser
+require('plugins.nvim-tree')
+
 --[[
     Configuration setup
 --]]

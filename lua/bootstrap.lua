@@ -10,3 +10,6 @@ if not status_ok then
 else
     lualine.setup()
 end
+
+-- setups nvim-tree
+require('config.nvim-tree')

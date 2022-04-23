@@ -37,8 +37,8 @@ map('n', '<Space>', '<Nop>', opts)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- toggles NetRW (Lexplore)
-map('n', '<Leader>le', ':Lexplore<CR>', opts)
+-- toggles NvimTree (NvimTreeToggle)
+map('n', '<Leader>n', ':NvimTreeToggle<CR>', opts)
 
 -- keeps search matches in the middle of the window
 map('n', 'n', 'nzzzv', opts)
