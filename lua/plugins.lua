@@ -58,6 +58,9 @@ require('plugins.lualine')
 -- File Browser
 require('plugins.nvim-tree')
 
+-- Parsers
+require('plugins.treesitter')
+
 --[[
     Configuration setup
 --]]
