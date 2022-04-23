@@ -59,6 +59,12 @@ map("n", "<C-Left>", ":vertical resize -2<CR>", opts)
 map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 
 --[[
+    Insert mode
+--]]
+-- saves the current file
+map('i', '<C-s>', '<Esc>:w<CR>A', opts)
+
+--[[
     Terminal mode
 --]]
 -- double ESC or <C-s> to go to normal mode in terminal
