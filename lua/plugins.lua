@@ -61,6 +61,9 @@ require('plugins.nvim-tree')
 -- Parsers
 require('plugins.treesitter')
 
+-- Utils
+require('plugins.nvim-gps')
+
 --[[
     Configuration setup
 --]]
