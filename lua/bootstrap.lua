@@ -3,6 +3,10 @@
 -- enables nightfox theme
 vim.cmd([[silent! colorscheme nightfox]])
 
--- enables lualine statusbar
-require('lualine').setup()
-
+-- securely enables lualine statusbar
+local status_ok, lualine = pcall(require, 'lualine')
+if not status_ok then
+    return
+else
+    lualine.setup()
+end
