@@ -1,4 +1,4 @@
--- lua/plugins/config/nightfox.lua
+-- lua/config/nightfox.lua
 
 local nightfox = require('nightfox')
 
