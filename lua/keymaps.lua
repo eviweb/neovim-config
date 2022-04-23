@@ -1,6 +1,6 @@
 -- lua/keymaps.lua
 
---[[ 
+--[[
     Modes
 
 normal_mode:        'n'
@@ -64,3 +64,12 @@ map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 -- double ESC or <C-s> to go to normal mode in terminal
 map('t', '<C-s>', '<C-\\><C-n>', opts)
 map('t', '<Esc><Esc>', '<C-\\><C-n>', opts)
+
+--[[
+    Plugin Mappings
+--]]
+-- Telescope
+map('n', '<Leader>ff', ':lua require("telescope.builtin").find_files()<CR>', opts)
+map('n', '<Leader>fg', ':lua require("telescope.builtin").live_grep()<CR>', opts)
+map('n', '<Leader>fb', ':lua require("telescope.builtin").buffers()<CR>', opts)
+map('n', '<Leader>fh', ':lua require("telescope.builtin").help_tags()<CR>', opts)

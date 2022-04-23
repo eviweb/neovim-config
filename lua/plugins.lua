@@ -63,6 +63,7 @@ require('plugins.treesitter')
 
 -- Utils
 require('plugins.nvim-gps')
+require('plugins.telescope')
 
 --[[
     Configuration setup
