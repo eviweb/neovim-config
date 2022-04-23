@@ -3,7 +3,7 @@
 local treesitter = require('nvim-treesitter.configs')
 
 treesitter.setup({
-    ensure_installed = "maintained",
+    ensure_installed = "all",
     sync_installed = true,
     highlight = {
         enable = true,
