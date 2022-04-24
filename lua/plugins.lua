@@ -65,6 +65,9 @@ require('plugins.treesitter')
 require('plugins.nvim-gps')
 require('plugins.telescope')
 
+-- Completion
+require('plugins.nvim-cmp')
+
 --[[
     Configuration setup
 --]]
