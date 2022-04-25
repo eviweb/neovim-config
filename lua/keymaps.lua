@@ -61,6 +61,9 @@ map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
 --[[
     Insert mode
 --]]
+-- remaps the <Esc> key to jk
+map('i', 'jk', '<Esc>', opts)
+
 -- saves the current file
 map('i', '<C-s>', '<Esc>:w<CR>A', opts)
 
