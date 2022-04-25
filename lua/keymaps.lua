@@ -45,8 +45,8 @@ map('n', 'n', 'nzzzv', opts)
 map('n', 'N', 'Nzzzv', opts)
 
 -- moves line up and down with J/K
-map('n', 'J', ':m+<CR>', opts)
-map('n', 'K', ':m-2<CR>', opts)
+map('n', 'JJ', ':m+<CR>', opts)
+map('n', 'KK', ':m-2<CR>', opts)
 
 -- modifies j and k when a line is wrapped. Jump to next VISUAL line
 map('n', 'k', 'v:count == 0 ? "gk" : "k"', expr)
