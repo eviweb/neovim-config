@@ -5,19 +5,30 @@ local gps = require('nvim-gps')
 
 lualine.setup({
     sections = {
-      lualine_a = { "mode" },
-      lualine_b = { "branch", "diff", "diagnostics" },
-      lualine_c = {
-        { "filename" },
-        {
-          gps.get_location,
-          cond = gps.is_available,
-          color = { fg = "#f3ca28" },
+        lualine_a = { 'mode' },
+        lualine_b = { 'branch', 'diff', 'diagnostics' },
+        lualine_c = {
+            {
+                'filename',
+                file_status = true,
+                path = 1,
+                shortingf_target = 40,
+                symbols = { modified = '[]', readonly = ' ' },
+            },
+            {
+                gps.get_location,
+                cond = gps.is_available,
+                color = { fg = '#f3ca28' },
+            },
         },
-      },
-      lualine_x = { "encoding", "fileformat", "filetype" },
-      lualine_y = { "progress" },
-      lualine_z = { "location" },
+        lualine_x = {
+            { 'diagnostics', sources = { 'nvim_diagnostic' } },
+            'encoding',
+            'fileformat',
+            'filetype'
+        },
+        lualine_y = { 'progress' },
+        lualine_z = { 'location' },
     },
 })
 
