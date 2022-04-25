@@ -82,3 +82,11 @@ map('n', '<Leader>ff', ':lua require("telescope.builtin").find_files()<CR>', opt
 map('n', '<Leader>fg', ':lua require("telescope.builtin").live_grep()<CR>', opts)
 map('n', '<Leader>fb', ':lua require("telescope.builtin").buffers()<CR>', opts)
 map('n', '<Leader>fh', ':lua require("telescope.builtin").help_tags()<CR>', opts)
+
+-- Trouble
+map('n', '<Leader>dx', ':Trouble<CR>', opts)
+map('n', '<Leader>dw', ':Trouble workspace_diagnostics<CR>', opts)
+map('n', '<Leader>dd', ':Trouble document_diagnostics<CR>', opts)
+map('n', '<Leader>dl', ':Trouble loclist<CR>', opts)
+map('n', '<Leader>dq', ':Trouble quickfix<CR>', opts)
+map('n', 'gR', ':Trouble lsp_references<CR>', opts)

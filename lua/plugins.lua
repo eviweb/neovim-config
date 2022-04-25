@@ -71,6 +71,9 @@ require('plugins.nvim-cmp')
 -- LSP Configuration
 require('plugins.lsp')
 
+-- Diagnostics
+require('plugins.trouble')
+
 --[[
     Configuration setup
 --]]
