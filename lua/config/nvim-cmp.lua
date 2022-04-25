@@ -44,10 +44,12 @@ cmp.setup({
         end,
     },
     sources = cmp.config.sources({
-        { name = 'buffer' },
-        { name = 'path' },
+        { name = 'nvim_lua' },
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
+        { name = 'path' },
+    }, {
+        { name = 'buffer' },
     }),
     formatting = {
         format = lspkind.cmp_format({
@@ -62,6 +64,7 @@ cmp.setup({
         }),
     },
     experimental = {
+        native_menu = false,
         ghost_text = true,
     },
 })
