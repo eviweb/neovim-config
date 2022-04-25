@@ -68,6 +68,9 @@ require('plugins.telescope')
 -- Completion
 require('plugins.nvim-cmp')
 
+-- LSP Configuration
+require('plugins.lsp')
+
 --[[
     Configuration setup
 --]]
