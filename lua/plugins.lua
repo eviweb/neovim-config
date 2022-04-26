@@ -68,6 +68,7 @@ require('plugins.nvim-autopairs')
 require('plugins.which-key')
 require('plugins.vim-surround')
 require('plugins.comment')
+require('plugins.emmet')
 
 -- Completion
 require('plugins.nvim-cmp')
