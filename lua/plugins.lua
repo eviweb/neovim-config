@@ -74,6 +74,9 @@ require('plugins.lsp')
 -- Diagnostics
 require('plugins.trouble')
 
+-- Text Objects
+require('plugins.treesitter-textobjects')
+
 --[[
     Configuration setup
 --]]
