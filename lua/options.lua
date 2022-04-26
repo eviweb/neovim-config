@@ -39,6 +39,8 @@ vim.opt.shortmess:append("c") -- prevents messages to be passed to |ins-completi
 vim.opt.showmatch = true -- highlights matching brackets
 vim.opt.swapfile = false -- prevents the use of swap files for buffers
 vim.opt.wrap = false -- disables wrapping
+vim.opt.sessionoptions = vim.opt.sessionoptions + 'globals' -- tracks global variables
+vim.opt.showcmd = true -- shows commands
 
 -- Timers
 vim.opt.updatetime = 750 -- sets the time of the update trigger in milliseconds
