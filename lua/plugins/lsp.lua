@@ -8,6 +8,7 @@ use({
         'williamboman/nvim-lsp-installer',
         'onsails/lspkind-nvim',
         'b0o/schemastore.nvim',
+        'onsails/diaglist.nvim',
     },
     config = function()
         require('config.lsp')

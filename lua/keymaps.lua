@@ -90,3 +90,8 @@ map('n', '<Leader>dd', ':Trouble document_diagnostics<CR>', opts)
 map('n', '<Leader>dl', ':Trouble loclist<CR>', opts)
 map('n', '<Leader>dq', ':Trouble quickfix<CR>', opts)
 map('n', 'gR', ':Trouble lsp_references<CR>', opts)
+
+-- Diaglist
+map('n', '<Leader>lda', ':lua require("diaglist").open_all_diagnostics()<CR>', opts)
+map('n', '<Leader>ldb', ':lua require("diaglist").open_buffer_diagnostics()<CR>', opts)
+
