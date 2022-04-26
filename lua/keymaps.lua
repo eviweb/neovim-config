@@ -44,28 +44,45 @@ map('n', '<Leader>n', ':NvimTreeToggle<CR>', opts)
 map('n', 'n', 'nzzzv', opts)
 map('n', 'N', 'Nzzzv', opts)
 
--- moves line up and down with J/K
-map('n', 'JJ', ':m+<CR>', opts)
-map('n', 'KK', ':m-2<CR>', opts)
-
 -- modifies j and k when a line is wrapped. Jump to next VISUAL line
 map('n', 'k', 'v:count == 0 ? "gk" : "k"', expr)
 map('n', 'j', 'v:count == 0 ? "gj" : "j"', expr)
 
 -- resizes windows with Ctrl+<arrow>
-map("n", "<C-Up>", ":resize +2<CR>", opts)
-map("n", "<C-Down>", ":resize -2<CR>", opts)
-map("n", "<C-Left>", ":vertical resize -2<CR>", opts)
-map("n", "<C-Right>", ":vertical resize +2<CR>", opts)
+map('n', '<C-Up>', ':resize -2<CR>', opts)
+map('n', '<C-Down>', ':resize +2<CR>', opts)
+map('n', '<C-Left>', ':vertical resize +2<CR>', opts)
+map('n', '<C-Right>', ':vertical resize -2<CR>', opts)
+
+-- navigates between windows
+map('n', '<C-h>', '<C-w>h', opts)
+map('n', '<C-j>', '<C-w>j', opts)
+map('n', '<C-k>', '<C-w>k', opts)
+map('n', '<C-l>', '<C-w>l', opts)
+
+-- moves current line/block up and down with Alt-j/k a la vscode
+map('n', '<A-j>', ':m .+1<CR>==', opts)
+map('n', '<A-k>', ':m .-2<CR>==', opts)
+
+-- maps undo to Ctrl-z
+map('n', '<C-z>', 'u', opts)
 
 --[[
     Insert mode
 --]]
--- remaps the <Esc> key to jk
-map('i', 'jk', '<Esc>', opts)
+-- remaps the <Esc> key to jj
+map('i', 'jj', '<Esc>', opts)
+
+-- moves current line/block up and down with Alt-j/k a la vscode
+map('i', '<A-j>', '<Esc>:m .+1<CR>==gi', opts)
+map('i', '<A-k>', '<Esc>:m .-2<CR>==gi', opts)
 
 -- saves the current file
 map('i', '<C-s>', '<Esc>:w<CR>A', opts)
+
+-- maps undo/redo to Ctrl-z/Ctrl-r
+map('i', '<C-z>', '<Esc>ui', opts)
+map('i', '<C-r>', '<Esc><C-r>i', opts)
 
 --[[
     Terminal mode
@@ -94,4 +111,3 @@ map('n', 'gR', ':Trouble lsp_references<CR>', opts)
 -- Diaglist
 map('n', '<Leader>lda', ':lua require("diaglist").open_all_diagnostics()<CR>', opts)
 map('n', '<Leader>ldb', ':lua require("diaglist").open_buffer_diagnostics()<CR>', opts)
-
