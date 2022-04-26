@@ -9,7 +9,7 @@ use({
         'kyazdani42/nvim-web-devicons'
     },
     config = function ()
-        require('bufferline').setup{}
+        require('config.bufferline')
     end
 })
 
