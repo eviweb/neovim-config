@@ -65,6 +65,7 @@ require('plugins.treesitter')
 require('plugins.nvim-gps')
 require('plugins.telescope')
 require('plugins.nvim-autopairs')
+require('plugins.which-key')
 
 -- Completion
 require('plugins.nvim-cmp')
