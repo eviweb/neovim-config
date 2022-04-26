@@ -67,6 +67,7 @@ require('plugins.telescope')
 require('plugins.nvim-autopairs')
 require('plugins.which-key')
 require('plugins.vim-surround')
+require('plugins.comment')
 
 -- Completion
 require('plugins.nvim-cmp')
