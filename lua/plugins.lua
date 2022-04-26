@@ -82,6 +82,9 @@ require('plugins.trouble')
 -- Text Objects
 require('plugins.treesitter-textobjects')
 
+-- Views/Tabs
+require('plugins.bufferline')
+
 --[[
     Configuration setup
 --]]

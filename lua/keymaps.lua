@@ -111,3 +111,8 @@ map('n', 'gR', ':Trouble lsp_references<CR>', opts)
 -- Diaglist
 map('n', '<Leader>lda', ':lua require("diaglist").open_all_diagnostics()<CR>', opts)
 map('n', '<Leader>ldb', ':lua require("diaglist").open_buffer_diagnostics()<CR>', opts)
+
+-- Bufferline
+map('n', '<S-l>', ':BufferLineCycleNext<CR>', opts)
+map('n', '<S-h>', ':BufferLineCyclePrev<CR>', opts)
+
