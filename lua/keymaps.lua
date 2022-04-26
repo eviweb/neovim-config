@@ -85,6 +85,24 @@ map('i', '<C-z>', '<Esc>ui', opts)
 map('i', '<C-r>', '<Esc><C-r>i', opts)
 
 --[[
+    Visual mode
+--]]
+-- indents
+map('v', '<', '<gv', opts)
+map('v', '>', '>gv', opts)
+
+--[[
+    Visual block mode
+--]]
+-- moves selected line/block up and down in visual mode
+map('x', 'K', ':move \'<-2<CR>gv-gv', opts)
+map('x', 'J', ':move \'>+1<CR>gv-gv', opts)
+
+-- moves current line/block up and down with Alt-j/k a la vscode
+map('x', '<A-j>', ':m \'>+1<CR>gv-gv', opts)
+map('x', '<A-k>', ':m \'<-2<CR>gv-gv', opts)
+
+--[[
     Terminal mode
 --]]
 -- double ESC or <C-s> to go to normal mode in terminal
