@@ -1,0 +1,51 @@
+# TODO
+
+## Phase 0 - Repository Hygiene
+
+- [x] Replace the old install script with a real CLI in `bin/`
+- [x] Add a dedicated test runner under `tests/`
+- [x] Rename `TODO` to `TODO.md`
+- [x] Remove exploratory Lua files not used by the runtime config
+- [ ] Decide whether `.tmux.conf` belongs in this repository
+- [ ] Add `LICENSE.md` after validating the license choice
+
+## Phase 1 - Safety Net
+
+- [x] Add a first failing smoke-level CLI test suite
+- [x] Make the initial CLI tests pass
+- [ ] Add a Neovim startup smoke test for `init.lua`
+- [ ] Add regression tests for startup failures fixed in the config
+
+## Phase 2 - Startup Stability
+
+- [ ] Fix invalid `null-ls` sources
+- [ ] Remove or replace deprecated `nvim-tree` options
+- [ ] Remove references to plugins or features that are not installed
+- [ ] Audit keymaps that depend on optional plugins
+
+## Phase 3 - LSP And Completion
+
+- [ ] Replace `nvim-lsp-installer` with a maintained setup
+- [ ] Update deprecated LSP capability and formatting calls
+- [ ] Validate `nvim-cmp` and `LuaSnip` end-to-end
+- [ ] Add regression coverage for LSP bootstrap failures
+
+## Phase 4 - Treesitter And UI Reliability
+
+- [ ] Replace `ensure_installed = 'all'` with an explicit parser list
+- [ ] Remove unsupported Treesitter modules or add the missing plugins
+- [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
+
+## Phase 5 - Install And Portability
+
+- [x] Add bash completion support to the CLI
+- [ ] Add zsh completion support to the CLI
+- [ ] Add fish completion support to the CLI
+- [ ] Rewrite `install` to cover symlink/bootstrap flows explicitly
+- [ ] Document external dependencies required by the Neovim config
+
+## Phase 6 - Optional Modernization
+
+- [ ] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
+- [ ] Normalize plugin declarations and config loading patterns
+- [ ] Reduce eager startup side effects where not needed

@@ -1,0 +1,218 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+SCRIPT_NAME="nvim-config"
+VERSION_FILE="${PROJECT_DIR}/VERSION"
+
+QUIET=0
+VERBOSE=0
+DRY_RUN=0
+DEBUG=0
+NO_COLOR=0
+NO_LOG=0
+COMMAND=""
+COMPLETION_SHELL=""
+
+LOG_DIR_DEFAULT="${NVIM_CONFIG_LOG_DIR:-${HOME}/.local/state/${SCRIPT_NAME}/logs}"
+LOG_DIR="${LOG_DIR_DEFAULT}"
+LOG_FILE=""
+
+print_usage() {
+  cat <<'EOF'
+Usage:
+  nvim-config [global-options] <command>
+  nvim-config [global-options] --show-completion bash
+  nvim-config [global-options] --install-completion bash
+
+Commands:
+  install               Install required system dependencies
+
+Global options:
+  -h, --help            Display usage and exit
+  -V, --version         Display version and exit
+  -v, --verbose         Enable debug-level output
+  -q, --quiet           Suppress terminal output
+      --debug           Enable shell trace mode
+      --dry-run         Simulate execution without making any changes
+      --no-color        Disable colored output
+      --no-log          Disable file logging
+      --log-dir <path>  Override the log directory
+      --show-completion bash
+                        Print the bash completion script
+      --install-completion bash
+                        Install bash completion for the current user
+EOF
+}
+
+read_version() {
+  tr -d '\n' < "${VERSION_FILE}"
+}
+
+setup_logging() {
+  if [ "${NO_LOG}" -eq 0 ]; then
+    mkdir -p "${LOG_DIR}"
+    LOG_FILE="${LOG_DIR}/${SCRIPT_NAME}-$(date +%F).log"
+    : > "${LOG_FILE}"
+  fi
+}
+
+log_message() {
+  local level="$1"
+  shift
+  local message="$*"
+  local timestamp
+  timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
+  local line="[${timestamp}] [${level}] ${message}"
+
+  if [ "${QUIET}" -eq 0 ]; then
+    printf '%s\n' "${line}"
+  fi
+
+  if [ -n "${LOG_FILE}" ]; then
+    printf '%s\n' "${line}" >> "${LOG_FILE}"
+  fi
+}
+
+run_command() {
+  local command_text="$*"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "${command_text}"
+    return 0
+  fi
+
+  log_message "INFO" "${command_text}"
+  "$@"
+}
+
+show_completion() {
+  local shell_name="$1"
+  if [ "${shell_name}" != "bash" ]; then
+    printf 'Only bash completion is supported in this version.\n' >&2
+    return 1
+  fi
+
+  cat <<'EOF'
+_nvim_config_completions() {
+  local current_word previous_word
+  current_word="${COMP_WORDS[COMP_CWORD]}"
+  previous_word="${COMP_WORDS[COMP_CWORD-1]}"
+
+  case "${previous_word}" in
+    --show-completion|--install-completion)
+      COMPREPLY=( $(compgen -W "bash" -- "${current_word}") )
+      return 0
+      ;;
+  esac
+
+  if [ "${COMP_CWORD}" -eq 1 ]; then
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install" -- "${current_word}") )
+    return 0
+  fi
+
+  COMPREPLY=()
+}
+
+complete -F _nvim_config_completions nvim-config
+EOF
+}
+
+install_completion() {
+  local shell_name="$1"
+  if [ "${shell_name}" != "bash" ]; then
+    printf 'Only bash completion is supported in this version.\n' >&2
+    return 1
+  fi
+
+  local completion_dir="${HOME}/.local/share/bash-completion/completions"
+  mkdir -p "${completion_dir}"
+  show_completion bash > "${completion_dir}/${SCRIPT_NAME}"
+  log_message "INFO" "Installed bash completion to ${completion_dir}/${SCRIPT_NAME}"
+}
+
+run_install() {
+  run_command sudo apt update
+  run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat
+}
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    -h|--help)
+      print_usage
+      exit 0
+      ;;
+    -V|--version)
+      read_version
+      exit 0
+      ;;
+    -v|--verbose)
+      VERBOSE=1
+      shift
+      ;;
+    -q|--quiet)
+      QUIET=1
+      shift
+      ;;
+    --debug)
+      DEBUG=1
+      shift
+      ;;
+    --dry-run)
+      DRY_RUN=1
+      shift
+      ;;
+    --no-color)
+      NO_COLOR=1
+      shift
+      ;;
+    --no-log)
+      NO_LOG=1
+      shift
+      ;;
+    --log-dir)
+      LOG_DIR="${2:?Missing value for --log-dir}"
+      shift 2
+      ;;
+    --show-completion)
+      COMPLETION_SHELL="${2:?Missing shell name for --show-completion}"
+      COMMAND="show-completion"
+      shift 2
+      ;;
+    --install-completion)
+      COMPLETION_SHELL="${2:?Missing shell name for --install-completion}"
+      COMMAND="install-completion"
+      shift 2
+      ;;
+    install)
+      COMMAND="install"
+      shift
+      ;;
+    *)
+      printf 'Unknown argument: %s\n' "$1" >&2
+      exit 1
+      ;;
+  esac
+done
+
+if [ "${DEBUG}" -eq 1 ]; then
+  set -x
+fi
+
+setup_logging
+
+case "${COMMAND}" in
+  show-completion)
+    show_completion "${COMPLETION_SHELL}"
+    ;;
+  install-completion)
+    install_completion "${COMPLETION_SHELL}"
+    ;;
+  install)
+    run_install
+    ;;
+  *)
+    print_usage
+    exit 1
+    ;;
+esac
