@@ -16,12 +16,6 @@ telescope.setup({
         },
         color_devicons = true,
     },
-    extensions = {
-        tele_tabby = {
-            use_highlighter = true,
-        }
-    },
 })
 
 telescope.load_extension("node_modules")
-

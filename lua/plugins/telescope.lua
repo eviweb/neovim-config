@@ -11,12 +11,8 @@ use({
             run = 'make',
         },
         'nvim-telescope/telescope-node-modules.nvim',
-        'TC72/telescope-tele-tabby.nvim',
-        'nvim-telescope/telescope-live-grep-raw.nvim',
-        'nvim-telescope/telescope-symbols.nvim',
     },
     config = function()
         require('config.telescope')
     end,
 })
-

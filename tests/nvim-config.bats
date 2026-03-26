@@ -151,3 +151,23 @@ setup() {
   run grep -n "diaglist.nvim" lua/plugins/lsp.lua
   [ "$status" -eq 1 ]
 }
+
+@test "telescope plugin does not include unused tele-tabby extension" {
+  run grep -n "tele-tabby" lua/plugins/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope plugin does not include unused live-grep-raw extension" {
+  run grep -n "live-grep-raw" lua/plugins/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope plugin does not include unused symbols extension" {
+  run grep -n "telescope-symbols" lua/plugins/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope config does not configure or load removed extensions" {
+  run grep -n "tele_tabby" lua/config/telescope.lua
+  [ "$status" -eq 1 ]
+}

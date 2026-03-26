@@ -40,6 +40,8 @@
 - [x] Remove unsupported Treesitter modules or add the missing plugins
 - [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
 - [ ] Replace `nvim-tree` with `neo-tree.nvim`
+- [ ] Decide whether `nvim-gps` should be replaced with a more maintainable navigation plugin such as `aerial.nvim`
+- [ ] Reassess whether `lsp-colors.nvim` still adds value with the current theme and Neovim version
 - [ ] Audit Telescope extensions and remove unused or redundant integrations
 
 ## Phase 5 - Install And Portability
@@ -59,3 +61,6 @@
 - [ ] Evaluate whether `trouble.nvim` should remain standalone or be consolidated later with a broader UI/tooling choice
 - [ ] Design project profiles so Neovim can enable only relevant tooling per repository
 - [ ] Decide whether the CLI should manage project profiles or only bootstrap them
+- [ ] Move frontend-only tooling such as `emmet-vim` behind project profiles
+- [ ] Move Node-specific Telescope integrations behind project profiles
+- [ ] Decide whether `none-ls.nvim` should remain global or have profile-driven sources
