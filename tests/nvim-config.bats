@@ -107,3 +107,18 @@ setup() {
   run grep -n "jose-elias-alvarez/null-ls.nvim" lua/plugins/null-ls.lua
   [ "$status" -eq 1 ]
 }
+
+@test "treesitter config does not install every parser indiscriminately" {
+  run grep -n "ensure_installed = 'all'" lua/config/treesitter.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "treesitter config does not enable rainbow without a declared plugin" {
+  run grep -n "rainbow =" lua/config/treesitter.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "treesitter config does not reference undefined custom captures" {
+  run grep -n "@custom-capture" lua/config/treesitter.lua
+  [ "$status" -eq 1 ]
+}

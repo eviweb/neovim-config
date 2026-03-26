@@ -3,7 +3,21 @@
 local treesitter = require('nvim-treesitter.configs')
 
 treesitter.setup({
-    ensure_installed = 'all',
+    ensure_installed = {
+        'bash',
+        'css',
+        'html',
+        'javascript',
+        'json',
+        'lua',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'typescript',
+        'vim',
+        'vimdoc',
+        'yaml',
+    },
     sync_installed = true,
     highlight = {
         enable = true,
@@ -21,18 +35,11 @@ treesitter.setup({
             node_decremental = 'grm',
         },
     },
-    rainbow = {
-        enable = true,
-        disable = {},
-        extended_mode = true,
-        max_file_lines = nil,
-    },
     textobjects = {
         select = {
             enable = true,
             lookahead = true,
             keymaps = {
-                ['aF'] = '@custom-capture',
                 ['af'] = '@function.outer',
                 ['if'] = '@function.inner',
                 ['ac'] = '@class.outer',
@@ -85,4 +92,3 @@ vim.cmd([[
     set foldmethod=expr
     set foldexpr=nvim_treesitter#foldexpr()
 ]])
-

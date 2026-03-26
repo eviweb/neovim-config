@@ -35,10 +35,10 @@
 
 ## Phase 4 - Treesitter And UI Reliability
 
-- [ ] Replace `ensure_installed = 'all'` with an explicit parser list
-- [ ] Remove unsupported Treesitter modules or add the missing plugins
+- [x] Replace `ensure_installed = 'all'` with an explicit parser list
+- [x] Remove unsupported Treesitter modules or add the missing plugins
 - [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
-- [ ] Decide whether to keep `nvim-tree` or replace it with `neo-tree.nvim`
+- [ ] Replace `nvim-tree` with `neo-tree.nvim`
 
 ## Phase 5 - Install And Portability
 
