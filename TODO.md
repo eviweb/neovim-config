@@ -23,6 +23,7 @@
 - [x] Migrate legacy `kyazdani42` plugin namespaces to maintained repositories
 - [x] Replace `null-ls.nvim` with the maintained `none-ls.nvim` repository
 - [ ] Remove references to plugins or features that are not installed
+- [x] Consolidate diagnostics UX on `trouble.nvim` and remove `diaglist`
 - [ ] Audit keymaps that depend on optional plugins
 
 ## Phase 3 - LSP And Completion
@@ -39,6 +40,7 @@
 - [x] Remove unsupported Treesitter modules or add the missing plugins
 - [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
 - [ ] Replace `nvim-tree` with `neo-tree.nvim`
+- [ ] Audit Telescope extensions and remove unused or redundant integrations
 
 ## Phase 5 - Install And Portability
 

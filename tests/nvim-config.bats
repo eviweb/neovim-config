@@ -141,3 +141,13 @@ setup() {
   run grep -n "sandbox" README.md
   [ "$status" -eq 0 ]
 }
+
+@test "keymaps do not expose diaglist commands anymore" {
+  run grep -n "diaglist" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lsp plugin does not depend on diaglist anymore" {
+  run grep -n "diaglist.nvim" lua/plugins/lsp.lua
+  [ "$status" -eq 1 ]
+}
