@@ -5,7 +5,8 @@ local use = require('packer').use
 use({
     'neovim/nvim-lspconfig',
     requires = {
-        'williamboman/nvim-lsp-installer',
+        'williamboman/mason.nvim',
+        'williamboman/mason-lspconfig.nvim',
         'onsails/lspkind-nvim',
         'b0o/schemastore.nvim',
         'onsails/diaglist.nvim',
@@ -14,4 +15,3 @@ use({
         require('config.lsp')
     end
 })
-

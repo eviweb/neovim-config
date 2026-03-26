@@ -1,19 +1,15 @@
--- lua/config/lsp.lua
-
--- lua/config/lsp.lua
-
-local lsp_installer = require('nvim-lsp-installer')
+local mason = require('mason')
+local mason_lspconfig = require('mason-lspconfig')
+local lspconfig = require('lspconfig')
 local lspkind = require('lspkind')
 local schemastore = require('schemastore')
 local opts = { noremap = true, silent = true }
 
--- adds icon to the popup
 lspkind.init({
     mode = 'symbol',
 })
 
--- maps the current keys after the language server attaches to the current buffer
-local on_attach = function(client, bufnr)
+local on_attach = function(_, bufnr)
     vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
 
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
@@ -34,58 +30,57 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>rn', '<cmd>lua vim.lsp.buf.rename()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>ca', '<cmd>lua vim.lsp.buf.code_action()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gr', '<cmd>lua vim.lsp.buf.references()<CR>', opts)
-    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.formatting()<CR>', opts)
+    vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({ async = true })<CR>', opts)
 end
 
--- configuration settings passed to the LSP's
-local settings = {
-    Lua = {
-        diagnostics = {
-            globals = { 'vim' },
-        },
-    },
-    json = {
-        schemas = schemastore.json.schemas(),
-    },
-}
-
--- shows popup borders on hover
 local handlers = {
     ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
     ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded' }),
 }
 
--- adds capabilities
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-
--- extends capabilities if completion engine is installed
 local is_cmp_nvim_lsp_present, cmp_nvim_lsp = pcall(require, 'cmp_nvim_lsp')
 if is_cmp_nvim_lsp_present then
-    capabilities = cmp_nvim_lsp.update_capabilities(capabilities)
+    capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 end
 
--- configures a server
-lsp_installer.on_server_ready(function(server)
-    server:setup({
-        on_attach = on_attach,
-        flags = flags,
-        settings = settings,
-        handlers = handlers,
-        capabilities = capabilities,
-    })
-end)
+local server_configs = {
+    jsonls = {
+        settings = {
+            json = {
+                schemas = schemastore.json.schemas(),
+            },
+        },
+    },
+    lua_ls = {
+        settings = {
+            Lua = {
+                diagnostics = {
+                    globals = { 'vim' },
+                },
+            },
+        },
+    },
+}
 
--- installs LSP's
-local servers = vim.g.lsp_servers or {}
-for _, name in pairs(servers) do
-    local is_server_found, server = lsp_installer.get_server(name)
-    if is_server_found and not server:is_installed() then
-        print('Installing ' .. name)
-        server:install()
-    end
-end
+local default_server_config = {
+    on_attach = on_attach,
+    handlers = handlers,
+    capabilities = capabilities,
+}
 
--- hides diagnostic messages
+mason.setup()
+mason_lspconfig.setup({
+    ensure_installed = vim.tbl_keys(server_configs),
+})
+
+mason_lspconfig.setup_handlers({
+    function(server_name)
+        local server_config = server_configs[server_name] or {}
+        lspconfig[server_name].setup(vim.tbl_deep_extend('force', default_server_config, server_config))
+    end,
+})
+
 vim.diagnostic.config({
     virtual_text = false,
     float = {
@@ -93,10 +88,8 @@ vim.diagnostic.config({
     },
 })
 
--- changes letters in the diagnostics gutter to symboles
 local signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' }
 for type, icon in pairs(signs) do
     local hl = 'DiagnosticSign' .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
 end
-

@@ -58,3 +58,39 @@ setup() {
   run grep -n "luasnip\\.loaders\\.from_vscode" lua/config/nvim-cmp.lua
   [ "$status" -eq 1 ]
 }
+
+@test "lsp plugin does not depend on nvim-lsp-installer" {
+  run grep -n "nvim-lsp-installer" lua/plugins/lsp.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lsp plugin uses mason and mason-lspconfig" {
+  run grep -n "williamboman/mason.nvim" lua/plugins/lsp.lua
+  [ "$status" -eq 0 ]
+
+  run grep -n "williamboman/mason-lspconfig.nvim" lua/plugins/lsp.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp config does not use deprecated capability helper" {
+  run grep -n "update_capabilities" lua/config/lsp.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lsp config does not use deprecated formatting call" {
+  run grep -n "vim\\.lsp\\.buf\\.formatting(" lua/config/lsp.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lsp config does not depend on global lsp server list" {
+  run grep -n "vim\\.g\\.lsp_servers" lua/config/lsp.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lsp config defines explicit default servers" {
+  run grep -n "lua_ls" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+
+  run grep -n "jsonls" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+}
