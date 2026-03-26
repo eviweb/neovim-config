@@ -18,15 +18,18 @@
 
 ## Phase 2 - Startup Stability
 
-- [ ] Fix invalid `null-ls` sources
-- [ ] Remove or replace deprecated `nvim-tree` options
+- [x] Fix invalid `null-ls` sources
+- [x] Remove or replace deprecated `nvim-tree` options
+- [x] Migrate legacy `kyazdani42` plugin namespaces to maintained repositories
+- [x] Replace `null-ls.nvim` with the maintained `none-ls.nvim` repository
 - [ ] Remove references to plugins or features that are not installed
 - [ ] Audit keymaps that depend on optional plugins
 
 ## Phase 3 - LSP And Completion
 
-- [ ] Replace `nvim-lsp-installer` with a maintained setup
-- [ ] Update deprecated LSP capability and formatting calls
+- [x] Replace `nvim-lsp-installer` with a maintained setup
+- [x] Update deprecated LSP capability and formatting calls
+- [x] Define an explicit maintained baseline for default LSP servers
 - [ ] Validate `nvim-cmp` and `LuaSnip` end-to-end
 - [ ] Add regression coverage for LSP bootstrap failures
 
@@ -35,6 +38,7 @@
 - [ ] Replace `ensure_installed = 'all'` with an explicit parser list
 - [ ] Remove unsupported Treesitter modules or add the missing plugins
 - [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
+- [ ] Decide whether to keep `nvim-tree` or replace it with `neo-tree.nvim`
 
 ## Phase 5 - Install And Portability
 
@@ -49,3 +53,4 @@
 - [ ] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
 - [ ] Normalize plugin declarations and config loading patterns
 - [ ] Reduce eager startup side effects where not needed
+- [ ] Evaluate whether `trouble.nvim` should remain standalone or be consolidated later with a broader UI/tooling choice

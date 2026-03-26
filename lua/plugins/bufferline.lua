@@ -6,10 +6,9 @@ use({
     'akinsho/bufferline.nvim',
     tag = "*",
     requires = {
-        'kyazdani42/nvim-web-devicons'
+        'nvim-tree/nvim-web-devicons'
     },
     config = function ()
         require('config.bufferline')
     end
 })
-

@@ -3,7 +3,7 @@
 local use = require('packer').use
 
 use({
-    'jose-elias-alvarez/null-ls.nvim',
+    'nvimtools/none-ls.nvim',
     requires = {
         'nvim-lua/plenary.nvim',
     },
@@ -11,4 +11,3 @@ use({
         require('config.null-ls')
     end
 })
-

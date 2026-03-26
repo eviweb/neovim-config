@@ -94,3 +94,16 @@ setup() {
   run grep -n "jsonls" lua/config/lsp.lua
   [ "$status" -eq 0 ]
 }
+
+@test "plugin declarations do not use the legacy kyazdani42 namespace" {
+  run grep -R -n "kyazdani42/" lua/plugins
+  [ "$status" -eq 1 ]
+}
+
+@test "null-ls plugin uses the maintained none-ls repository" {
+  run grep -n "nvimtools/none-ls.nvim" lua/plugins/null-ls.lua
+  [ "$status" -eq 0 ]
+
+  run grep -n "jose-elias-alvarez/null-ls.nvim" lua/plugins/null-ls.lua
+  [ "$status" -eq 1 ]
+}
