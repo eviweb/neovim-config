@@ -8,10 +8,8 @@ null_ls.setup({
     root_dir = utils.root_pattern('.git', 'README.md', 'CHANGELOG.md', 'composer.json', 'package.json', 'init.lua'),
     diagnostics_format = '#{m} (#{c}) [#{s}]',
     sources = {
-        null_ls.builtins.formatting.luasnip,
         null_ls.builtins.completion.spell,
         null_ls.builtins.completion.tags,
         null_ls.builtins.hover.dictionary,
     },
  })
-

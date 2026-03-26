@@ -38,3 +38,13 @@ setup() {
   [ "$status" -eq 0 ]
   [ -f "$HOME/.local/share/bash-completion/completions/nvim-config" ]
 }
+
+@test "null-ls config does not reference invalid luasnip formatter" {
+  run grep -n "null_ls\\.builtins\\.formatting\\.luasnip" lua/config/null-ls.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "nvim-tree config does not use removed open_on_setup option" {
+  run grep -n "open_on_setup" lua/config/nvim-tree.lua
+  [ "$status" -eq 1 ]
+}
