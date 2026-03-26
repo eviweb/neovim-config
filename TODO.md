@@ -47,6 +47,7 @@
 - [ ] Add fish completion support to the CLI
 - [ ] Rewrite `install` to cover symlink/bootstrap flows explicitly
 - [ ] Document external dependencies required by the Neovim config
+- [ ] Document bootstrap limitations in sandboxed or Snap-based environments
 
 ## Phase 6 - Optional Modernization
 
@@ -54,3 +55,5 @@
 - [ ] Normalize plugin declarations and config loading patterns
 - [ ] Reduce eager startup side effects where not needed
 - [ ] Evaluate whether `trouble.nvim` should remain standalone or be consolidated later with a broader UI/tooling choice
+- [ ] Design project profiles so Neovim can enable only relevant tooling per repository
+- [ ] Decide whether the CLI should manage project profiles or only bootstrap them

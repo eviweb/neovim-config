@@ -122,3 +122,22 @@ setup() {
   run grep -n "@custom-capture" lua/config/treesitter.lua
   [ "$status" -eq 1 ]
 }
+
+@test "readme documents neovim dependencies and plugin managers" {
+  run grep -n "Neovim Dependencies" README.md
+  [ "$status" -eq 0 ]
+
+  run grep -n "packer.nvim" README.md
+  [ "$status" -eq 0 ]
+
+  run grep -n "mason.nvim" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents sandbox and snap limitations" {
+  run grep -n "Snap" README.md
+  [ "$status" -eq 0 ]
+
+  run grep -n "sandbox" README.md
+  [ "$status" -eq 0 ]
+}
