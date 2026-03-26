@@ -71,6 +71,7 @@ require('plugins.comment')
 require('plugins.emmet')
 
 -- Completion
+require('plugins.luasnip')
 require('plugins.nvim-cmp')
 
 -- LSP Configuration

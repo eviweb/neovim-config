@@ -48,3 +48,13 @@ setup() {
   run grep -n "open_on_setup" lua/config/nvim-tree.lua
   [ "$status" -eq 1 ]
 }
+
+@test "plugins list loads the dedicated luasnip plugin module" {
+  run grep -n "require('plugins\\.luasnip')" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-cmp config does not lazy-load vscode snippets directly" {
+  run grep -n "luasnip\\.loaders\\.from_vscode" lua/config/nvim-cmp.lua
+  [ "$status" -eq 1 ]
+}
