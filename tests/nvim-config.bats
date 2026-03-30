@@ -15,7 +15,7 @@ setup() {
 @test "version reads VERSION file" {
   run ./bin/nvim-config --version
   [ "$status" -eq 0 ]
-  [ "$output" = "0.1.0" ]
+  [ "$output" = "$(cat VERSION)" ]
 }
 
 @test "install dry-run prints planned commands" {

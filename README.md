@@ -2,9 +2,15 @@
 
 Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
+## Supported Platforms
+
+- **OS**: Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
+- **Shell**: Bash 5+
+- **Neovim**: 0.9+
+
 ## Requirements
 
-- Bash
+- Bash 5+
 - `bats` for the test suite
 
 ## Neovim Dependencies
