@@ -9,7 +9,3 @@ use({
         require('trouble').setup({})
     end
 })
-
-use({
-    'folke/lsp-colors.nvim'
-})

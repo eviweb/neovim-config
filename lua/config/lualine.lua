@@ -1,7 +1,7 @@
 -- lua/config/lualine.lua
 
 local lualine = require('lualine')
-local gps = require('nvim-gps')
+local navic = require('nvim-navic')
 
 lualine.setup({
     sections = {
@@ -16,8 +16,8 @@ lualine.setup({
                 symbols = { modified = '[]', readonly = ' ' },
             },
             {
-                gps.get_location,
-                cond = gps.is_available,
+                navic.get_location,
+                cond = navic.is_available,
                 color = { fg = '#f3ca28' },
             },
         },

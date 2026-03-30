@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `nvim-navic` (LSP-based breadcrumb) replaces archived `nvim-gps`; attached in LSP `on_attach` and rendered in lualine
+
+### Removed
+- `nvim-gps` (archived upstream, superseded by `nvim-navic`)
+- `lsp-colors.nvim` (redundant with Neovim 0.9+ built-in diagnostic highlight groups)
+
 ## [0.2.0] - 2026-03-30
 
 ### Added

@@ -171,3 +171,28 @@ setup() {
   run grep -n "tele_tabby" lua/config/telescope.lua
   [ "$status" -eq 1 ]
 }
+
+@test "plugins list does not load archived nvim-gps" {
+  run grep -n "nvim-gps" lua/plugins.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lualine config does not reference nvim-gps" {
+  run grep -n "nvim-gps\|nvim_gps" lua/config/lualine.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lualine config uses nvim-navic for breadcrumb" {
+  run grep -n "nvim-navic" lua/config/lualine.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp config attaches nvim-navic in on_attach" {
+  run grep -n "navic.attach" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "trouble plugin does not declare lsp-colors" {
+  run grep -n "lsp-colors" lua/plugins/trouble.lua
+  [ "$status" -eq 1 ]
+}

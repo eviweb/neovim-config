@@ -7,7 +7,7 @@
 - [x] Rename `TODO` to `TODO.md`
 - [x] Remove exploratory Lua files not used by the runtime config
 - [ ] Decide whether `.tmux.conf` belongs in this repository
-- [ ] Add `LICENSE.md` after validating the license choice
+- [x] Add `LICENSE.md` after validating the license choice
 
 ## Phase 1 - Safety Net
 
@@ -39,9 +39,10 @@
 - [x] Replace `ensure_installed = 'all'` with an explicit parser list
 - [x] Remove unsupported Treesitter modules or add the missing plugins
 - [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
+- [ ] Migrate Trouble keymaps from v1 API (`workspace_diagnostics`, `document_diagnostics`) to current API
 - [ ] Replace `nvim-tree` with `neo-tree.nvim`
-- [ ] Decide whether `nvim-gps` should be replaced with a more maintainable navigation plugin such as `aerial.nvim`
-- [ ] Reassess whether `lsp-colors.nvim` still adds value with the current theme and Neovim version
+- [x] Decide whether `nvim-gps` should be replaced with `nvim-navic` or `aerial.nvim`
+- [x] Remove `lsp-colors.nvim` (redundant with Neovim 0.9+ built-in diagnostic highlights)
 - [ ] Audit Telescope extensions and remove unused or redundant integrations
 
 ## Phase 5 - Install And Portability

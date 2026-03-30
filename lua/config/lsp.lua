@@ -1,3 +1,5 @@
+local is_navic_present, navic = pcall(require, 'nvim-navic')
+
 local mason = require('mason')
 local mason_lspconfig = require('mason-lspconfig')
 local lspconfig = require('lspconfig')
@@ -9,8 +11,12 @@ lspkind.init({
     mode = 'symbol',
 })
 
-local on_attach = function(_, bufnr)
+local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_option(bufnr, 'omnifunc', 'v:lua.vim.lsp.omnifunc')
+
+    if is_navic_present and client.server_capabilities.documentSymbolProvider then
+        navic.attach(client, bufnr)
+    end
 
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<CR>', opts)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>', opts)

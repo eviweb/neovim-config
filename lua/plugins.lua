@@ -62,7 +62,7 @@ require('plugins.nvim-tree')
 require('plugins.treesitter')
 
 -- Utils
-require('plugins.nvim-gps')
+require('plugins.nvim-navic')
 require('plugins.telescope')
 require('plugins.nvim-autopairs')
 require('plugins.which-key')
