@@ -48,20 +48,29 @@ The script is installed to:
 
 ## Tests
 
-Run the test suite with:
+### Static regression tests
+
+`tests/nvim-config.bats` contains grep-based tests that verify structural invariants without needing a running Neovim process: deprecated options, removed plugins, namespace migrations, and similar one-way ratchets.
+
+### Structural integrity tests
+
+`tests/startup.bats` verifies that every `require()` call in `init.lua`, `plugins.lua`, and `bootstrap.lua` has a matching file on disk.  These tests catch "file deleted but require() not updated" regressions at the source level.
+
+### Headless startup smoke tests
+
+`tests/startup.bats` also runs `nvim --headless` against `init.lua` and the core modules (`options.lua`, `keymaps.lua`) to detect hard Lua errors at startup.  The headless tests are skipped automatically when nvim is installed via Snap.  To force-enable them:
 
 ```bash
-bash tests/run
+NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run
 ```
 
 ## Notes
 
 - The current CLI scope is intentionally small and focused on the `install` command.
 - Bash completion is implemented in this version. Zsh and fish remain roadmap items.
-- The repository is validated in this project mainly through text-based regression tests because a full Neovim startup test is not always available in sandboxed environments.
 
 ## Environment Limitations
 
-- Snap-packaged Neovim can fail in restricted sandbox environments, which blocks reliable headless startup validation there.
+- Snap-packaged Neovim can fail in restricted sandbox environments, which causes the headless startup tests to be skipped automatically in that environment.
 - Some workflows that depend on external agents, sockets, or mounted key material can behave differently in a sandbox than on the host system.
-- For this reason, bootstrap and plugin wiring are currently guarded first by targeted regression tests and incremental config cleanup.
+- For this reason, bootstrap and plugin wiring are guarded by both targeted static regression tests and headless smoke tests where the environment permits.
