@@ -1,13 +1,9 @@
 -- lua/plugins/null-ls.lua
 
-local use = require('packer').use
-
-use({
+return {
     'nvimtools/none-ls.nvim',
-    requires = {
-        'nvim-lua/plenary.nvim',
-    },
-    config = function ()
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
         require('config.null-ls')
-    end
-})
+    end,
+}

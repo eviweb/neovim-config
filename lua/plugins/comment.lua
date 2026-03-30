@@ -1,11 +1,8 @@
 -- lua/plugins/comment.lua
 
-local use = require('packer').use
-
-use({
+return {
     'numToStr/Comment.nvim',
-    config = function ()
+    config = function()
         require('Comment').setup()
-    end
-})
-
+    end,
+}

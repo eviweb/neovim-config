@@ -1,16 +1,14 @@
 -- lua/plugins/neo-tree.lua
 
-local use = require('packer').use
-
-use({
+return {
     'nvim-neo-tree/neo-tree.nvim',
     branch = 'v3.x',
-    requires = {
+    dependencies = {
         'nvim-lua/plenary.nvim',
         'nvim-tree/nvim-web-devicons',
         'MunifTanjim/nui.nvim',
     },
     config = function()
         require('config.neo-tree')
-    end
-})
+    end,
+}

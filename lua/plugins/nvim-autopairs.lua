@@ -1,11 +1,9 @@
 -- lua/plugins/nvim-autopairs.lua
 
-local use = require('packer').use
-
-use({
+return {
     'windwp/nvim-autopairs',
-    config = function ()
+    event = 'InsertEnter',
+    config = function()
         require('nvim-autopairs').setup{}
-    end
-})
-
+    end,
+}

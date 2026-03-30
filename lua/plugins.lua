@@ -1,95 +1,52 @@
 -- lua/plugins.lua
 
---[[
-    Paths
---]]
-package.path = package.path .. ';../?.lua'
-local install_path = vim.fn.resolve(vim.fn.stdpath('data') .. '/site/pack/packer/start/packer.nvim')
-local compile_path = vim.fn.resolve(vim.fn.stdpath('config') .. '/.packer/packer_compiled.lua')
-
---[[
-    Packer install
---]]
--- installs from Github if needed
-if vim.fn.empty(vim.fn.glob(install_path)) > 0 then
-    PACKER_BOOTSTRAP = vim.fn.system({
-        'git', 'clone', '--depth', '1', 'https://github.com/wbthomason/packer.nvim', install_path
+local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
+if not vim.loop.fs_stat(lazypath) then
+    vim.fn.system({
+        'git', 'clone', '--filter=blob:none',
+        'https://github.com/folke/lazy.nvim.git',
+        '--branch=stable',
+        lazypath,
     })
 end
+vim.opt.rtp:prepend(lazypath)
 
--- automatically runs :PackerCompile whenever this file is updated
-vim.cmd([[
-    augroup packer_user_config
-        autocmd!
-        autocmd BufWritePost plugins.lua source <afile> | :PackerSync
-    augroup end
-]])
+require('lazy').setup({
+    -- Themes
+    require('plugins.nightfox'),
 
--- securely requires packer
-local status_ok, packer = pcall(require, 'packer')
-if not status_ok then
-    return
-end
+    -- Status bar
+    require('plugins.lualine'),
 
--- diplays packer messages in a popup
-packer.init({
-    compile_path = compile_path,
-    display = {
-        open_fn = function()
-            return require('packer.util').float({ border = 'rounded' })
-        end,
-    },
+    -- File browser
+    require('plugins.neo-tree'),
+
+    -- Parsers
+    require('plugins.treesitter'),
+
+    -- Utils
+    require('plugins.nvim-navic'),
+    require('plugins.telescope'),
+    require('plugins.nvim-autopairs'),
+    require('plugins.which-key'),
+    require('plugins.vim-surround'),
+    require('plugins.comment'),
+    require('plugins.emmet'),
+
+    -- Completion
+    require('plugins.luasnip'),
+    require('plugins.nvim-cmp'),
+
+    -- LSP Configuration
+    require('plugins.lsp'),
+    require('plugins.null-ls'),
+
+    -- Diagnostics
+    require('plugins.trouble'),
+
+    -- Text Objects
+    require('plugins.treesitter-textobjects'),
+
+    -- Views/Tabs
+    require('plugins.bufferline'),
 })
-
---
-packer.reset()
-
---[[
-    Plugins install
---]]
-require('plugins.packer')
-
--- Themes
-require('plugins.nightfox')
-
--- Status Bars
-require('plugins.lualine')
-
--- File Browser
-require('plugins.neo-tree')
-
--- Parsers
-require('plugins.treesitter')
-
--- Utils
-require('plugins.nvim-navic')
-require('plugins.telescope')
-require('plugins.nvim-autopairs')
-require('plugins.which-key')
-require('plugins.vim-surround')
-require('plugins.comment')
-require('plugins.emmet')
-
--- Completion
-require('plugins.luasnip')
-require('plugins.nvim-cmp')
-
--- LSP Configuration
-require('plugins.lsp')
-require('plugins.null-ls')
-
--- Diagnostics
-require('plugins.trouble')
-
--- Text Objects
-require('plugins.treesitter-textobjects')
-
--- Views/Tabs
-require('plugins.bufferline')
-
---[[
-    Configuration setup
---]]
-if PACKER_BOOTSTRAP then
-    require('packer').sync()
-end

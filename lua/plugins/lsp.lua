@@ -1,10 +1,8 @@
--- lua/plugins/lspconfig.lua
+-- lua/plugins/lsp.lua
 
-local use = require('packer').use
-
-use({
+return {
     'neovim/nvim-lspconfig',
-    requires = {
+    dependencies = {
         'williamboman/mason.nvim',
         'williamboman/mason-lspconfig.nvim',
         'onsails/lspkind-nvim',
@@ -12,5 +10,5 @@ use({
     },
     config = function()
         require('config.lsp')
-    end
-})
+    end,
+}

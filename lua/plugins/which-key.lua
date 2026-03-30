@@ -1,11 +1,8 @@
 -- lua/plugins/which-key.lua
 
-local use = require('packer').use
-
-use({
+return {
     'folke/which-key.nvim',
-    config = function ()
+    config = function()
         require('config.which-key')
-    end
-})
-
+    end,
+}

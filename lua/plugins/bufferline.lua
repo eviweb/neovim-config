@@ -1,14 +1,10 @@
 -- lua/plugins/bufferline.lua
 
-local use = require('packer').use
-
-use({
+return {
     'akinsho/bufferline.nvim',
-    tag = "*",
-    requires = {
-        'nvim-tree/nvim-web-devicons'
-    },
-    config = function ()
+    version = '*',
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
         require('config.bufferline')
-    end
-})
+    end,
+}

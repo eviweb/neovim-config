@@ -127,7 +127,7 @@ setup() {
   run grep -n "Neovim Dependencies" README.md
   [ "$status" -eq 0 ]
 
-  run grep -n "packer.nvim" README.md
+  run grep -n "lazy.nvim" README.md
   [ "$status" -eq 0 ]
 
   run grep -n "mason.nvim" README.md

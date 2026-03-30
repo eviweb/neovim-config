@@ -1,18 +1,16 @@
 -- lua/plugins/telescope.lua
 
-local use = require('packer').use
-
-use({
+return {
     'nvim-telescope/telescope.nvim',
-    requires = {
+    dependencies = {
         'nvim-lua/plenary.nvim',
         {
             'nvim-telescope/telescope-fzf-native.nvim',
-            run = 'make',
+            build = 'make',
         },
         'nvim-telescope/telescope-node-modules.nvim',
     },
     config = function()
         require('config.telescope')
     end,
-})
+}

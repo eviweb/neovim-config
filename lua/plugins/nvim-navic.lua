@@ -1,8 +1,6 @@
 -- lua/plugins/nvim-navic.lua
 
-local use = require('packer').use
-
-use({
+return {
     'SmiteshP/nvim-navic',
-    requires = 'neovim/nvim-lspconfig',
-})
+    dependencies = { 'neovim/nvim-lspconfig' },
+}

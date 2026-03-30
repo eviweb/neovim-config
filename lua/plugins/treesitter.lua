@@ -1,12 +1,9 @@
 -- lua/plugins/treesitter.lua
 
-local use = require('packer').use
-
-use({
+return {
     'nvim-treesitter/nvim-treesitter',
-	run = ':TSUpdate',
+    build = ':TSUpdate',
     config = function()
-        require("config.treesitter")
+        require('config.treesitter')
     end,
-})
-
+}

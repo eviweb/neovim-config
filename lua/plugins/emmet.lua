@@ -1,11 +1,6 @@
 -- lua/plugins/emmet.lua
 
-local use = require('packer').use
-
-use({
+return {
     'mattn/emmet-vim',
-    requires = {
-        'mattn/webapi-vim',
-    },
-})
-
+    dependencies = { 'mattn/webapi-vim' },
+}

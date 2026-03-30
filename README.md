@@ -17,7 +17,7 @@ Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
 The Neovim configuration currently depends on:
 
-- `packer.nvim` for plugin management
+- `lazy.nvim` for plugin management
 - `mason.nvim` and `mason-lspconfig.nvim` for LSP bootstrap
 - `nvim-treesitter` with an explicit parser baseline
 - external tools commonly expected by the config and CLI such as `git`, `curl`, `ripgrep`, `fd`, `xsel`, and `xclip`

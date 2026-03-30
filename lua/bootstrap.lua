@@ -1,15 +1,6 @@
 -- lua/bootstrap.lua
-
--- enables nightfox theme
-vim.cmd([[silent! colorscheme nightfox]])
-
--- securely enables lualine statusbar
-local status_ok, lualine = pcall(require, 'lualine')
-if not status_ok then
-    return
-else
-    require('config.lualine')
-end
-
--- setups neo-tree
-require('config.neo-tree')
+--
+-- Post-load initialization.
+-- Colorscheme and primary UI setup are handled by plugin config callbacks.
+-- This file is kept for any post-load initialization that does not
+-- belong to a specific plugin.

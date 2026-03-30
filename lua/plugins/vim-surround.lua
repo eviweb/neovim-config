@@ -1,11 +1,6 @@
 -- lua/plugins/vim-surround.lua
 
-local use = require('packer').use
-
-use({
+return {
     'tpope/vim-surround',
-    requires = {
-        'tpope/vim-repeat',
-    }
-})
-
+    dependencies = { 'tpope/vim-repeat' },
+}

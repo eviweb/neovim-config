@@ -61,8 +61,8 @@
 
 ## Phase 8 - Optional Modernization
 
-- [ ] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
-- [ ] Normalize plugin declarations and config loading patterns
+- [x] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
+- [x] Normalize plugin declarations and config loading patterns
 - [ ] Reduce eager startup side effects where not needed
 - [ ] Evaluate whether `trouble.nvim` should remain standalone or be consolidated later with a broader UI/tooling choice
 - [ ] Design project profiles so Neovim can enable only relevant tooling per repository

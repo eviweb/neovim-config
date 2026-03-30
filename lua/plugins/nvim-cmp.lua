@@ -1,10 +1,8 @@
 -- lua/plugins/nvim-cmp.lua
 
-local use = require('packer').use
-
-use({
+return {
     'hrsh7th/nvim-cmp',
-    requires = {
+    dependencies = {
         'onsails/lspkind-nvim',
         'hrsh7th/cmp-nvim-lsp',
         'hrsh7th/cmp-nvim-lua',
@@ -17,5 +15,4 @@ use({
     config = function()
         require('config.nvim-cmp')
     end,
-})
-
+}

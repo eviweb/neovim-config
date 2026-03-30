@@ -1,11 +1,9 @@
 -- lua/plugins/trouble.lua
 
-local use = require('packer').use
-
-use({
+return {
     'folke/trouble.nvim',
-    requires = 'nvim-tree/nvim-web-devicons',
-    config = function ()
+    dependencies = { 'nvim-tree/nvim-web-devicons' },
+    config = function()
         require('trouble').setup({})
-    end
-})
+    end,
+}

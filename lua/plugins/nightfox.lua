@@ -1,12 +1,11 @@
 -- lua/plugins/nightfox.lua
 
-local use = require('packer').use
-
-use({
+return {
     'EdenEast/nightfox.nvim',
+    lazy = false,
+    priority = 1000,
     config = function()
         require('config.nightfox')
-    end
-
-})
-
+        vim.cmd([[colorscheme nightfox]])
+    end,
+}

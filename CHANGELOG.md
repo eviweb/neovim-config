@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-03-30
+
 ### Added
 - `nvim-navic` (LSP-based breadcrumb) replaces archived `nvim-gps`; attached in LSP `on_attach` and rendered in lualine
 - `neo-tree.nvim` (v3.x) replaces `nvim-tree.lua` as the file explorer
@@ -41,6 +43,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `CHANGELOG.md` reformatted to Keep a Changelog with typed sections and bracketed version headers
 - ERROR-level log messages now also written to stderr
 
+## [0.2.0] - 2026-03-30
+
+### Added
+- `nvim-navic` (LSP-based breadcrumb) replaces archived `nvim-gps`; attached in LSP `on_attach` and rendered in lualine
+- `neo-tree.nvim` (v3.x) replaces `nvim-tree.lua` as the file explorer
+- Regression tests for LSP bootstrap, nvim-cmp mapping API, neo-tree migration, Trouble v3 keymaps, and Telescope extension loading
+
+### Fixed
+- `cmp.mapping.close()` replaced with `cmp.mapping.abort()` (current API)
+- `<Tab>`/`<S-Tab>` cmp mappings now declare `{ 'i', 's' }` modes so LuaSnip jump works in select mode
+- `require('nvim-navic')` in lualine config guarded with `pcall`
+- Trouble keymaps migrated from v1 API to v3 (`diagnostics`, `qflist`)
+- Telescope trouble integration updated to `trouble.sources.telescope` (v3), guarded with `pcall`
+- Telescope `fzf` extension now explicitly loaded; `node_modules` load wrapped in `pcall`
+- Bufferline offset filetype updated from `NvimTree` to `neo-tree`
+
+### Removed
+- `nvim-gps` (archived upstream, superseded by `nvim-navic`)
+- `lsp-colors.nvim` (redundant with Neovim 0.9+ built-in diagnostic highlight groups)
+- `lua/config/nvim-tree.lua` (replaced by `lua/config/neo-tree.lua`)
+
 ## [0.1.0] - 2026-03-26
 
 ### Added
@@ -54,6 +77,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/username/neovim-config/compare/0.2.0...HEAD
-[0.2.0]: https://github.com/username/neovim-config/compare/0.1.0...0.2.0
-[0.1.0]: https://github.com/username/neovim-config/releases/tag/0.1.0
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.3.0...HEAD
+[0.3.0]: https://github.com/eviweb/neovim-config/compare/0.2.0...0.3.0
+[0.2.0]: https://github.com/eviweb/neovim-config/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/eviweb/neovim-config/releases/tag/0.1.0
