@@ -2,6 +2,7 @@
 
 return {
     'hrsh7th/nvim-cmp',
+    event = 'InsertEnter',
     dependencies = {
         'onsails/lspkind-nvim',
         'hrsh7th/cmp-nvim-lsp',

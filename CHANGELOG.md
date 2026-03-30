@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `install config` subcommand: symlinks `~/.config/nvim` to the repository; aborts safely if target exists and is not a symlink to this repo
+- `install deps` subcommand: installs apt packages only
+- `install all` (default): runs deps then config
+- Bash completion for `install` subcommands (`deps`, `config`, `all`)
+- 5 new tests covering install subcommands, symlink detection, and completion
+
+### Changed
+- Plugin loading deferred with lazy.nvim triggers: `neo-tree` and `trouble` on `cmd`; `telescope` on `cmd`; `treesitter`, `lsp`, `null-ls` on `BufReadPre/BufNewFile`; `nvim-cmp` on `InsertEnter`; `comment` and `vim-surround` on `BufReadPost`; `which-key` on `VeryLazy`; `emmet` on web filetypes only; `bufferline` explicitly `lazy = false`
+
 ## [0.3.0] - 2026-03-30
 
 ### Added

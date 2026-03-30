@@ -25,6 +25,43 @@ setup() {
   [[ "$output" == *"sudo apt install curl ripgrep fd-find xsel xclip lolcat"* ]]
 }
 
+@test "install deps dry-run installs apt packages" {
+  run ./bin/nvim-config --dry-run install deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"sudo apt update"* ]]
+}
+
+@test "install config dry-run prints symlink command" {
+  run ./bin/nvim-config --dry-run install config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"ln -s"* ]]
+}
+
+@test "install config links existing symlink without error" {
+  local nvim_config_dir="${HOME}/.config/nvim"
+  local project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}/.config"
+  ln -s "${project_dir}" "${nvim_config_dir}"
+  run ./bin/nvim-config install config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already linked"* ]]
+}
+
+@test "install config aborts if target exists and is not a symlink" {
+  mkdir -p "${HOME}/.config/nvim"
+  run ./bin/nvim-config install config
+  [ "$status" -eq 1 ]
+}
+
+@test "completion includes install subcommands" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deps"* ]]
+  [[ "$output" == *"config"* ]]
+  [[ "$output" == *"all"* ]]
+}
+
 @test "show-completion bash prints completion script" {
   run ./bin/nvim-config --show-completion bash
   [ "$status" -eq 0 ]

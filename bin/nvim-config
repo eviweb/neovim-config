@@ -18,6 +18,7 @@ else
 fi
 NO_LOG=0
 COMMAND=""
+SUBCOMMAND=""
 COMPLETION_SHELL=""
 
 LOG_DIR_DEFAULT="${NVIM_CONFIG_LOG_DIR:-${HOME}/.local/state/${SCRIPT_NAME}/logs}"
@@ -27,12 +28,16 @@ LOG_FILE=""
 print_usage() {
   cat <<'EOF'
 Usage:
-  nvim-config [global-options] <command>
+  nvim-config [global-options] <command> [subcommand]
   nvim-config [global-options] --show-completion bash
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install               Install required system dependencies
+  install [deps|config|all]
+                        Install system dependencies and/or config symlink
+                          deps   — install apt packages only
+                          config — symlink ~/.config/nvim to this repository
+                          all    — deps then config (default)
 
 Global options:
   -h, --help            Display usage and exit
@@ -126,6 +131,10 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "bash" -- "${current_word}") )
       return 0
       ;;
+    install)
+      COMPREPLY=( $(compgen -W "deps config all" -- "${current_word}") )
+      return 0
+      ;;
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
@@ -153,9 +162,54 @@ install_completion() {
   log_message "INFO" "Installed bash completion to ${completion_dir}/${SCRIPT_NAME}"
 }
 
-run_install() {
+run_install_deps() {
   run_command sudo apt update
   run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat
+}
+
+run_install_config() {
+  local nvim_config_dir="${HOME}/.config/nvim"
+
+  if [ -L "${nvim_config_dir}" ]; then
+    local current_target
+    current_target="$(readlink -f "${nvim_config_dir}")"
+    if [ "${current_target}" = "${PROJECT_DIR}" ]; then
+      log_message "INFO" "${nvim_config_dir} is already linked to ${PROJECT_DIR}"
+      return 0
+    fi
+    log_message "ERROR" "${nvim_config_dir} is a symlink to ${current_target}, not ${PROJECT_DIR} — remove it manually first"
+    return 1
+  fi
+
+  if [ -e "${nvim_config_dir}" ]; then
+    log_message "ERROR" "${nvim_config_dir} exists and is not a symlink — remove it manually first"
+    return 1
+  fi
+
+  run_command mkdir -p "${HOME}/.config"
+  run_command ln -s "${PROJECT_DIR}" "${nvim_config_dir}"
+  log_message "INFO" "Linked ${nvim_config_dir} → ${PROJECT_DIR}"
+}
+
+run_install() {
+  local subcommand="${1:-all}"
+  case "${subcommand}" in
+    deps)
+      run_install_deps
+      ;;
+    config)
+      run_install_config
+      ;;
+    all)
+      run_install_deps
+      run_install_config
+      ;;
+    *)
+      printf 'Unknown install subcommand: %s\n' "${subcommand}" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
 }
 
 while [ "$#" -gt 0 ]; do
@@ -209,6 +263,10 @@ while [ "$#" -gt 0 ]; do
     install)
       COMMAND="install"
       shift
+      if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+        SUBCOMMAND="$1"
+        shift
+      fi
       ;;
     *)
       printf 'Unknown argument: %s\n' "$1" >&2
@@ -231,7 +289,7 @@ case "${COMMAND}" in
     install_completion "${COMPLETION_SHELL}"
     ;;
   install)
-    run_install
+    run_install "${SUBCOMMAND}"
     ;;
   *)
     print_usage
