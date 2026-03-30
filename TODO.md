@@ -38,12 +38,12 @@
 
 - [x] Replace `ensure_installed = 'all'` with an explicit parser list
 - [x] Remove unsupported Treesitter modules or add the missing plugins
-- [ ] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
-- [ ] Migrate Trouble keymaps from v1 API (`workspace_diagnostics`, `document_diagnostics`) to current API
-- [ ] Replace `nvim-tree` with `neo-tree.nvim`
+- [x] Verify `lualine`, `bufferline`, `telescope`, and `trouble` startup paths
+- [x] Migrate Trouble keymaps from v1 API (`workspace_diagnostics`, `document_diagnostics`) to current API
+- [x] Replace `nvim-tree` with `neo-tree.nvim`
 - [x] Decide whether `nvim-gps` should be replaced with `nvim-navic` or `aerial.nvim`
 - [x] Remove `lsp-colors.nvim` (redundant with Neovim 0.9+ built-in diagnostic highlights)
-- [ ] Audit Telescope extensions and remove unused or redundant integrations
+- [x] Audit Telescope extensions and remove unused or redundant integrations
 
 ## Phase 5 - Documentation
 

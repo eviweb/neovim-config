@@ -56,7 +56,7 @@ require('plugins.nightfox')
 require('plugins.lualine')
 
 -- File Browser
-require('plugins.nvim-tree')
+require('plugins.neo-tree')
 
 -- Parsers
 require('plugins.treesitter')

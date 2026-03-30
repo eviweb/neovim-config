@@ -37,8 +37,8 @@ map('n', '<Space>', '<Nop>', opts)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
--- toggles NvimTree (NvimTreeToggle)
-map('n', '<Leader>n', ':NvimTreeToggle<CR>', opts)
+-- toggles neo-tree file explorer
+map('n', '<Leader>n', ':Neotree toggle<CR>', opts)
 
 -- keeps search matches in the middle of the window
 map('n', 'n', 'nzzzv', opts)
@@ -119,11 +119,11 @@ map('n', '<Leader>fb', ':lua require("telescope.builtin").buffers()<CR>', opts)
 map('n', '<Leader>fh', ':lua require("telescope.builtin").help_tags()<CR>', opts)
 
 -- Trouble
-map('n', '<Leader>dx', ':Trouble<CR>', opts)
-map('n', '<Leader>dw', ':Trouble workspace_diagnostics<CR>', opts)
-map('n', '<Leader>dd', ':Trouble document_diagnostics<CR>', opts)
+map('n', '<Leader>dx', ':Trouble diagnostics<CR>', opts)
+map('n', '<Leader>dw', ':Trouble diagnostics<CR>', opts)
+map('n', '<Leader>dd', ':Trouble diagnostics filter.buf=0<CR>', opts)
 map('n', '<Leader>dl', ':Trouble loclist<CR>', opts)
-map('n', '<Leader>dq', ':Trouble quickfix<CR>', opts)
+map('n', '<Leader>dq', ':Trouble qflist<CR>', opts)
 map('n', 'gR', ':Trouble lsp_references<CR>', opts)
 
 -- Bufferline

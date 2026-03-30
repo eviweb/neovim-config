@@ -9,16 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `nvim-navic` (LSP-based breadcrumb) replaces archived `nvim-gps`; attached in LSP `on_attach` and rendered in lualine
-- Regression tests for LSP bootstrap: `on_attach`, `setup_handlers`, and `vim.diagnostic.config` presence
+- `neo-tree.nvim` (v3.x) replaces `nvim-tree.lua` as the file explorer
+- Regression tests for LSP bootstrap, nvim-cmp mapping API, neo-tree migration, Trouble v3 keymaps, and Telescope extension loading
 
 ### Fixed
 - `cmp.mapping.close()` replaced with `cmp.mapping.abort()` (current API)
 - `<Tab>`/`<S-Tab>` cmp mappings now declare `{ 'i', 's' }` modes so LuaSnip jump works in select mode
 - `require('nvim-navic')` in lualine config guarded with `pcall` to prevent crash when plugin is not yet installed
+- Trouble keymaps migrated from v1 API (`workspace_diagnostics`, `document_diagnostics`, `quickfix`) to v3 (`diagnostics`, `qflist`)
+- Telescope trouble integration updated from `open_with_trouble` to `trouble.sources.telescope` (v3 API), guarded with `pcall`
+- Telescope `fzf` extension now explicitly loaded via `load_extension`
+- Telescope `node_modules` extension load wrapped in `pcall` to tolerate missing build
+- Bufferline offset filetype updated from `NvimTree` to `neo-tree`
 
 ### Removed
 - `nvim-gps` (archived upstream, superseded by `nvim-navic`)
 - `lsp-colors.nvim` (redundant with Neovim 0.9+ built-in diagnostic highlight groups)
+- `lua/config/nvim-tree.lua` (replaced by `lua/config/neo-tree.lua`)
 
 ## [0.2.0] - 2026-03-30
 

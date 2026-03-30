@@ -11,5 +11,5 @@ else
     require('config.lualine')
 end
 
--- setups nvim-tree
-require('config.nvim-tree')
+-- setups neo-tree
+require('config.neo-tree')

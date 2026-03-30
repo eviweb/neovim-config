@@ -45,7 +45,7 @@ setup() {
 }
 
 @test "nvim-tree config does not use removed open_on_setup option" {
-  run grep -n "open_on_setup" lua/config/nvim-tree.lua
+  run grep -rn "open_on_setup" lua/config/
   [ "$status" -eq 1 ]
 }
 
@@ -225,4 +225,54 @@ setup() {
 @test "trouble plugin does not declare lsp-colors" {
   run grep -n "lsp-colors" lua/plugins/trouble.lua
   [ "$status" -eq 1 ]
+}
+
+@test "plugins list loads neo-tree instead of nvim-tree" {
+  run grep -n "require('plugins.neo-tree')" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list does not load nvim-tree" {
+  run grep -n "require('plugins.nvim-tree')" lua/plugins.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps use Neotree command instead of NvimTreeToggle" {
+  run grep -n "NvimTreeToggle" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not use trouble v1 workspace_diagnostics" {
+  run grep -n "workspace_diagnostics" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not use trouble v1 document_diagnostics" {
+  run grep -n "document_diagnostics" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not use trouble v1 quickfix command" {
+  run grep -n "Trouble quickfix" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope config loads fzf extension" {
+  run grep -n "load_extension('fzf')" lua/config/telescope.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "telescope config guards node_modules extension with pcall" {
+  run grep -n "pcall(telescope.load_extension, 'node_modules')" lua/config/telescope.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "telescope config does not use trouble v1 open_with_trouble" {
+  run grep -n "open_with_trouble" lua/config/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "bufferline config uses neo-tree filetype offset" {
+  run grep -n "neo-tree" lua/config/bufferline.lua
+  [ "$status" -eq 0 ]
 }
