@@ -13,8 +13,8 @@
 
 - [x] Add a first failing smoke-level CLI test suite
 - [x] Make the initial CLI tests pass
-- [ ] Add a Neovim startup smoke test for `init.lua`
-- [ ] Add regression tests for startup failures fixed in the config
+- [x] Add a Neovim startup smoke test for `init.lua`
+- [x] Add regression tests for startup failures fixed in the config
 
 ## Phase 2 - Startup Stability
 
