@@ -45,7 +45,12 @@
 - [x] Remove `lsp-colors.nvim` (redundant with Neovim 0.9+ built-in diagnostic highlights)
 - [ ] Audit Telescope extensions and remove unused or redundant integrations
 
-## Phase 5 - Install And Portability
+## Phase 5 - Documentation
+
+- [ ] Write a keybindings cheatsheet covering all custom mappings and plugin shortcuts
+- [ ] Write extended usage documentation (LSP workflow, completion, diagnostics, telescope, bufferline)
+
+## Phase 7 - Install And Portability
 
 - [x] Add bash completion support to the CLI
 - [ ] Add zsh completion support to the CLI
@@ -54,7 +59,7 @@
 - [ ] Document external dependencies required by the Neovim config
 - [ ] Document bootstrap limitations in sandboxed or Snap-based environments
 
-## Phase 6 - Optional Modernization
+## Phase 8 - Optional Modernization
 
 - [ ] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
 - [ ] Normalize plugin declarations and config loading patterns
