@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `nvim-navic` (LSP-based breadcrumb) replaces archived `nvim-gps`; attached in LSP `on_attach` and rendered in lualine
+- Regression tests for LSP bootstrap: `on_attach`, `setup_handlers`, and `vim.diagnostic.config` presence
+
+### Fixed
+- `cmp.mapping.close()` replaced with `cmp.mapping.abort()` (current API)
+- `<Tab>`/`<S-Tab>` cmp mappings now declare `{ 'i', 's' }` modes so LuaSnip jump works in select mode
+- `require('nvim-navic')` in lualine config guarded with `pcall` to prevent crash when plugin is not yet installed
 
 ### Removed
 - `nvim-gps` (archived upstream, superseded by `nvim-navic`)

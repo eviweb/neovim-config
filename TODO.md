@@ -31,8 +31,8 @@
 - [x] Replace `nvim-lsp-installer` with a maintained setup
 - [x] Update deprecated LSP capability and formatting calls
 - [x] Define an explicit maintained baseline for default LSP servers
-- [ ] Validate `nvim-cmp` and `LuaSnip` end-to-end
-- [ ] Add regression coverage for LSP bootstrap failures
+- [x] Validate `nvim-cmp` and `LuaSnip` end-to-end
+- [x] Add regression coverage for LSP bootstrap failures
 
 ## Phase 4 - Treesitter And UI Reliability
 

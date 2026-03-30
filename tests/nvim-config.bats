@@ -192,6 +192,31 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "nvim-cmp config does not use deprecated mapping.close" {
+  run grep -n "cmp.mapping.close" lua/config/nvim-cmp.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "nvim-cmp tab mappings declare insert and select modes" {
+  run grep -n "{ 'i', 's' }" lua/config/nvim-cmp.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp config defines on_attach and passes it to server setup" {
+  run grep -n "on_attach" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp config calls mason_lspconfig setup_handlers" {
+  run grep -n "setup_handlers" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp config calls vim.diagnostic.config" {
+  run grep -n "vim.diagnostic.config" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "lsp config attaches nvim-navic in on_attach" {
   run grep -n "navic.attach" lua/config/lsp.lua
   [ "$status" -eq 0 ]
