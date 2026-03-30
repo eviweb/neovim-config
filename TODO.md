@@ -22,9 +22,9 @@
 - [x] Remove or replace deprecated `nvim-tree` options
 - [x] Migrate legacy `kyazdani42` plugin namespaces to maintained repositories
 - [x] Replace `null-ls.nvim` with the maintained `none-ls.nvim` repository
-- [ ] Remove references to plugins or features that are not installed
+- [x] Remove references to plugins or features that are not installed
 - [x] Consolidate diagnostics UX on `trouble.nvim` and remove `diaglist`
-- [ ] Audit keymaps that depend on optional plugins
+- [x] Audit keymaps that depend on optional plugins
 
 ## Phase 3 - LSP And Completion
 

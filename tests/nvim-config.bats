@@ -187,6 +187,11 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "lualine config guards nvim-navic with pcall" {
+  run grep -n "pcall(require, 'nvim-navic')" lua/config/lualine.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "lsp config attaches nvim-navic in on_attach" {
   run grep -n "navic.attach" lua/config/lsp.lua
   [ "$status" -eq 0 ]
