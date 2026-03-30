@@ -64,9 +64,21 @@
 - [x] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
 - [x] Normalize plugin declarations and config loading patterns
 - [x] Reduce eager startup side effects where not needed
-- [ ] Evaluate whether `trouble.nvim` should remain standalone or be consolidated later with a broader UI/tooling choice
 - [ ] Design project profiles so Neovim can enable only relevant tooling per repository
 - [ ] Decide whether the CLI should manage project profiles or only bootstrap them
 - [ ] Move frontend-only tooling such as `emmet-vim` behind project profiles
 - [ ] Move Node-specific Telescope integrations behind project profiles
 - [ ] Decide whether `none-ls.nvim` should remain global or have profile-driven sources
+
+## Phase 9 - UI Consolidation (Long-term)
+
+> Evaluate adopting a unified UI suite (e.g. `snacks.nvim`) that would replace several
+> standalone plugins. These items are low priority and should be revisited together as a
+> single design decision, not piecemeal.
+
+- [ ] Evaluate replacing `trouble.nvim` with native diagnostics UI or a unified suite
+- [ ] Evaluate replacing `telescope.nvim` with `snacks.nvim` picker or `fzf-lua`
+- [ ] Evaluate replacing `lualine.nvim` with `mini.statusline` or a built-in statusline
+- [ ] Evaluate replacing `bufferline.nvim` with native tabs or a unified suite tabline
+- [ ] Evaluate adopting `snacks.nvim` as a unified dashboard / notifier / picker layer
+- [ ] Evaluate replacing `nvim-navic` breadcrumb with `aerial.nvim` or `snacks.nvim` equivalent
