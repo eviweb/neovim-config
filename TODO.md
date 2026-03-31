@@ -88,13 +88,22 @@
 
 ## Phase 9 - UI Consolidation (Long-term)
 
-> Evaluate adopting a unified UI suite (e.g. `snacks.nvim`) that would replace several
-> standalone plugins. These items are low priority and should be revisited together as a
-> single design decision, not piecemeal.
+> Two interchangeable UI variants: `classic` (current stack) and `modern` (unified suite
+> e.g. `snacks.nvim`). Variant chosen at Neovim startup. Default is `classic` unless
+> `.nvim-ui` exists at the config root. CLI manages the file; `.nvim-ui` is gitignored.
+>
+> Design: Option B — independent of the profile system.
+> Layout:
+>   lua/ui/variant.lua  — reads .nvim-ui, returns 'classic' (default) or 'modern'
+>   lua/ui/shared.lua   — colorscheme and settings common to both variants
+>   lua/ui/classic.lua  — telescope, lualine, bufferline, trouble, nvim-navic
+>   lua/ui/modern.lua   — snacks.nvim (picker, statusline, notifier, dashboard)
+>
+> CLI: nvim-config ui set classic|modern  /  nvim-config ui unset
 
-- [ ] Evaluate replacing `trouble.nvim` with native diagnostics UI or a unified suite
-- [ ] Evaluate replacing `telescope.nvim` with `snacks.nvim` picker or `fzf-lua`
-- [ ] Evaluate replacing `lualine.nvim` with `mini.statusline` or a built-in statusline
-- [ ] Evaluate replacing `bufferline.nvim` with native tabs or a unified suite tabline
-- [ ] Evaluate adopting `snacks.nvim` as a unified dashboard / notifier / picker layer
-- [ ] Evaluate replacing `nvim-navic` breadcrumb with `aerial.nvim` or `snacks.nvim` equivalent
+- [ ] Evaluate `snacks.nvim` as the modern variant foundation (picker, statusline, notifier, dashboard, breadcrumb)
+- [ ] Implement `lua/ui/` structure (variant, shared, classic, modern)
+- [ ] Move current UI plugins into `lua/ui/classic.lua`
+- [ ] Implement `lua/ui/modern.lua` once evaluation is done
+- [ ] Add `nvim-config ui set|unset` CLI subcommand
+- [ ] Add `.nvim-ui` to `.gitignore`
