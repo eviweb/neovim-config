@@ -50,6 +50,8 @@
 
 - [x] Write a keybindings cheatsheet covering all custom mappings and plugin shortcuts
 - [ ] Write extended usage documentation (LSP workflow, completion, diagnostics, telescope, bufferline)
+- [ ] Add `<Leader>?` keymap to open Telescope keymaps picker (in-Neovim discoverability)
+- [ ] Annotate which-key groups with descriptions (`<Leader>f` = Find, `<Leader>d` = Diagnostics, etc.)
 
 ## Phase 7 - Install And Portability
 
@@ -59,6 +61,9 @@
 - [x] Rewrite `install` to cover symlink/bootstrap flows explicitly
 - [x] Document external dependencies required by the Neovim config
 - [x] Document bootstrap limitations in sandboxed or Snap-based environments
+- [ ] Document Neovim installation (minimum version, recommended method per platform)
+- [ ] Document first-run initialization sequence (lazy.nvim bootstrap → plugin install → Mason LSP server install)
+- [ ] Document full end-to-end setup flow for a new machine in README
 
 ## Phase 8 - Optional Modernization
 
