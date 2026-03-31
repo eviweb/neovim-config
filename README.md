@@ -183,6 +183,7 @@ your plugin state across machines.
 
 ## Documentation
 
+- [Usage guide](docs/usage.md) — LSP workflow, completion, diagnostics, Telescope, Bufferline
 - [Keymaps cheatsheet](docs/keymaps.md) — all custom mappings and plugin shortcuts
 
 ## Usage

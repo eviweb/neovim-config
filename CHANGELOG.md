@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `docs/usage.md`: extended usage guide covering LSP workflow, completion, diagnostics, Telescope, and Bufferline
 - `install config` subcommand: symlinks `~/.config/nvim` to the repository; aborts safely if target exists and is not a symlink to this repo
 - `install deps` subcommand: installs apt packages only
 - `install all` (default): runs deps then config
