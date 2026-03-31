@@ -82,6 +82,10 @@
 - [x] Move Node-specific Telescope integrations behind project profiles
 - [x] Decide whether `none-ls.nvim` should remain global or have profile-driven sources
 
+## Phase 10 - Test Suite Maintenance
+
+- [ ] Split `tests/nvim-config.bats` by domain (CLI, profiles, LSP/completion, UI/plugins, docs) for readability
+
 ## Phase 9 - UI Consolidation (Long-term)
 
 > Evaluate adopting a unified UI suite (e.g. `snacks.nvim`) that would replace several
