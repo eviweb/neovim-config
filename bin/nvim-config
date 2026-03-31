@@ -10,6 +10,8 @@ QUIET=0
 VERBOSE=0
 DRY_RUN=0
 DEBUG=0
+PROFILE_SUBCOMMAND=""
+PROFILE_NAME=""
 # Respect NO_COLOR env var (https://no-color.org)
 if [[ -n "${NO_COLOR:-}" ]]; then
   NO_COLOR=1
@@ -56,6 +58,14 @@ Commands:
                           nvim    — refresh Neovim (snap or apt, auto-detected)
                           plugins — run Lazy! sync headlessly
                           all     — nvim then plugins (default)
+
+  profile [list|detect|set|unset|create] [<name>]
+                        Manage per-project Neovim profiles
+                          list   — list available profiles
+                          detect — detect profiles for the current directory
+                          set    — write .nvim-profile in the current directory
+                          unset  — remove .nvim-profile from the current directory
+                          create — generate a new profile template in lua/profiles/
 
 Global options:
   -h, --help            Display usage and exit
@@ -151,10 +161,14 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "nvim plugins all" -- "${current_word}") )
       return 0
       ;;
+    profile|list|detect|set|unset|create)
+      COMPREPLY=( $(compgen -W "list detect set unset create" -- "${current_word}") )
+      return 0
+      ;;
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update" -- "${current_word}") )
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile" -- "${current_word}") )
     return 0
   fi
 
@@ -208,12 +222,29 @@ _nvim_config() {
     'all:Update nvim then plugins (default)'
   )
 
+  profile_subcmds=(
+    'list:List available profiles'
+    'detect:Detect profiles for the current directory'
+    'set:Write .nvim-profile in the current directory'
+    'unset:Remove .nvim-profile from the current directory'
+    'create:Generate a new profile template in lua/profiles/'
+  )
+
+  commands=(
+    'install:Install system dependencies and/or config symlinks'
+    'update:Update Neovim and/or plugins'
+    'profile:Manage per-project Neovim profiles'
+  )
+
   case "${words[2]}" in
     install)
       _arguments : "${install_subcmds[@]}"
       ;;
     update)
       _arguments : "${update_subcmds[@]}"
+      ;;
+    profile)
+      _arguments : "${profile_subcmds[@]}"
       ;;
     *)
       _arguments : "${global_opts[@]}" "${commands[@]}"
@@ -314,6 +345,131 @@ run_update() {
       ;;
     *)
       printf 'Unknown update subcommand: %s\n' "${subcommand}" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
+}
+
+run_profile_list() {
+  local profiles_dir="${PROJECT_DIR}/lua/profiles"
+  if [ ! -d "${profiles_dir}" ]; then
+    log_message "ERROR" "No profiles directory found at ${profiles_dir}"
+    return 1
+  fi
+  for f in "${profiles_dir}"/*.lua; do
+    local name
+    name="$(basename "$f" .lua)"
+    if [ "${name}" != "init" ]; then
+      log_message "INFO" "${name}"
+    fi
+  done
+}
+
+run_profile_detect() {
+  local detected=()
+  if [ -f "package.json" ]; then
+    detected+=("web")
+  fi
+  if [ -f "Cargo.toml" ]; then
+    detected+=("rust")
+  fi
+  if [ -f "composer.json" ]; then
+    if grep -q "laravel/framework" composer.json 2>/dev/null; then
+      detected+=("laravel")
+    else
+      detected+=("php")
+    fi
+  fi
+  if [ "${#detected[@]}" -eq 0 ]; then
+    log_message "INFO" "No profiles detected — using base"
+  else
+    log_message "INFO" "Detected profiles: ${detected[*]}"
+  fi
+}
+
+run_profile_set() {
+  local name="${1:?Missing profile name for: profile set}"
+  local profile_file="${PWD}/.nvim-profile"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "printf '%s\\n' '${name}' > ${profile_file}"
+    return 0
+  fi
+  printf '%s\n' "${name}" > "${profile_file}"
+  log_message "INFO" "Profile '${name}' written to ${profile_file}"
+}
+
+run_profile_unset() {
+  local profile_file="${PWD}/.nvim-profile"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "rm -f ${profile_file}"
+    return 0
+  fi
+  if [ -f "${profile_file}" ]; then
+    rm -f "${profile_file}"
+    log_message "INFO" "Removed ${profile_file}"
+  else
+    log_message "INFO" "${profile_file} does not exist — nothing to do"
+  fi
+}
+
+run_profile_create() {
+  local name="${1:?Missing profile name for: profile create}"
+  local profile_file="${PROJECT_DIR}/lua/profiles/${name}.lua"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "Generate profile template: lua/profiles/${name}.lua"
+    return 0
+  fi
+  if [ -f "${profile_file}" ]; then
+    log_message "ERROR" "${profile_file} already exists — remove it first"
+    return 1
+  fi
+  cat > "${profile_file}" << LUAEOF
+-- lua/profiles/${name}.lua
+
+return {
+    name = '${name}',
+    extends = {},
+
+    lsp_servers = {},
+
+    plugins = {},
+
+    null_ls_sources = function(null_ls)
+        return {}
+    end,
+}
+LUAEOF
+  log_message "INFO" "Profile template created: ${profile_file}"
+}
+
+run_profile() {
+  case "${PROFILE_SUBCOMMAND:-list}" in
+    list)
+      run_profile_list
+      ;;
+    detect)
+      run_profile_detect
+      ;;
+    set)
+      if [ -z "${PROFILE_NAME}" ]; then
+        printf 'Missing profile name for: profile set\n' >&2
+        exit 1
+      fi
+      run_profile_set "${PROFILE_NAME}"
+      ;;
+    unset)
+      run_profile_unset
+      ;;
+    create)
+      if [ -z "${PROFILE_NAME}" ]; then
+        printf 'Missing profile name for: profile create\n' >&2
+        exit 1
+      fi
+      run_profile_create "${PROFILE_NAME}"
+      ;;
+    *)
+      printf 'Unknown profile subcommand: %s\n' "${PROFILE_SUBCOMMAND}" >&2
       print_usage
       exit 1
       ;;
@@ -483,6 +639,18 @@ while [ "$#" -gt 0 ]; do
         shift
       fi
       ;;
+    profile)
+      COMMAND="profile"
+      shift
+      if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+        PROFILE_SUBCOMMAND="$1"
+        shift
+        if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+          PROFILE_NAME="$1"
+          shift
+        fi
+      fi
+      ;;
     *)
       printf 'Unknown argument: %s\n' "$1" >&2
       exit 1
@@ -508,6 +676,9 @@ case "${COMMAND}" in
     ;;
   update)
     run_update "${SUBCOMMAND}"
+    ;;
+  profile)
+    run_profile
     ;;
   *)
     print_usage

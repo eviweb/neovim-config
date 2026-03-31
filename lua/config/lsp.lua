@@ -1,3 +1,4 @@
+local profiles = require('profiles')
 local is_navic_present, navic = pcall(require, 'nvim-navic')
 local lspkind = require('lspkind')
 local schemastore = require('schemastore')
@@ -80,7 +81,7 @@ vim.lsp.config('lua_ls', {
 
 require('mason').setup()
 require('mason-lspconfig').setup({
-    ensure_installed = { 'jsonls', 'lua_ls' },
+    ensure_installed = vim.list_extend({ 'jsonls', 'lua_ls' }, profiles.get_lsp_servers()),
 })
 
 vim.diagnostic.config({

@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Project profile system: `lua/profiles/` with additive profiles `web`, `php`, `laravel` (extends php), `rust`; auto-detected from `package.json`, `composer.json`, `Cargo.toml`; overridable via `.nvim-profile` at project root
+- `lua/profiles/init.lua`: profile manager with `detect`, `is_active`, `get_plugins`, `get_lsp_servers`, `get_null_ls_sources`
+- CLI `profile` command: `list`, `detect`, `set`, `unset`, `create` subcommands
+- Bash and zsh completions updated with `profile` command and subcommands
+- `emmet-vim` and `telescope-node_modules` moved from global plugins to `web` profile
+- none-ls sources are now profile-driven: PHP QA tools (phpstan, phpcs, phpmd, php-cs-fixer), Prettier/ESLint, rustfmt, blade-formatter
+- Profile-driven LSP: `ts_ls`, `volar`, `svelte-language-server` (web); `intelephense` (php); `rust_analyzer` (rust)
+- 28 new tests covering profile structure, definitions, integration, and CLI commands (128 total)
 - `docs/usage.md`: extended usage guide covering LSP workflow, completion, diagnostics, Telescope, and Bufferline
 - `install config` subcommand: symlinks `~/.config/nvim` to the repository; aborts safely if target exists and is not a symlink to this repo
 - `install deps` subcommand: installs apt packages only

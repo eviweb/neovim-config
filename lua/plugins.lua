@@ -11,7 +11,9 @@ if not vim.loop.fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
-require('lazy').setup({
+local profiles = require('profiles')
+
+local base_plugins = {
     -- Themes
     require('plugins.nightfox'),
 
@@ -31,7 +33,6 @@ require('lazy').setup({
     require('plugins.which-key'),
     require('plugins.vim-surround'),
     require('plugins.comment'),
-    require('plugins.emmet'),
 
     -- Completion
     require('plugins.luasnip'),
@@ -49,4 +50,6 @@ require('lazy').setup({
 
     -- Views/Tabs
     require('plugins.bufferline'),
-})
+}
+
+require('lazy').setup(vim.list_extend(base_plugins, profiles.get_plugins()))

@@ -75,12 +75,12 @@
 - [x] Decide whether to keep `packer.nvim` or migrate to a maintained plugin manager
 - [x] Normalize plugin declarations and config loading patterns
 - [x] Reduce eager startup side effects where not needed
-- [ ] Design project profiles so Neovim can enable only relevant tooling per repository
-- [ ] Decide whether the CLI should manage project profiles or only bootstrap them
+- [x] Design project profiles so Neovim can enable only relevant tooling per repository
+- [x] Decide whether the CLI should manage project profiles or only bootstrap them
 - [ ] Add in-Neovim profile switcher: `:NvimProfile <name>` user command + Telescope picker (depends on profile design)
-- [ ] Move frontend-only tooling such as `emmet-vim` behind project profiles
-- [ ] Move Node-specific Telescope integrations behind project profiles
-- [ ] Decide whether `none-ls.nvim` should remain global or have profile-driven sources
+- [x] Move frontend-only tooling such as `emmet-vim` behind project profiles
+- [x] Move Node-specific Telescope integrations behind project profiles
+- [x] Decide whether `none-ls.nvim` should remain global or have profile-driven sources
 
 ## Phase 9 - UI Consolidation (Long-term)
 
