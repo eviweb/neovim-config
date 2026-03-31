@@ -12,8 +12,9 @@ wk.setup({
 
 -- Group labels shown in the which-key popup when a prefix is pressed.
 wk.add({
-    { '<Leader>f', group = 'Find' },
-    { '<Leader>d', group = 'Diagnostics' },
-    { '<Leader>n', desc = 'Toggle file explorer' },
-    { '<Leader>?', desc = 'Browse keymaps' },
+    { '<Leader>f',  group = 'Find' },
+    { '<Leader>d',  group = 'Diagnostics' },
+    { '<Leader>n',  desc = 'Toggle file explorer' },
+    { '<Leader>?',  desc = 'Browse keymaps' },
+    { '<Leader>fp', desc = 'Browse profiles' },
 })

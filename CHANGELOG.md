@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `:NvimProfile [name]` user command: activates a profile at runtime (LSP + null-ls immediate, plugins require restart); no argument opens Telescope picker
+- `<Leader>fp` keymap: opens profile picker (which-key annotated)
+- `lua/profiles/picker.lua`: Telescope picker showing active (●) / inactive (○) profiles
+- `lua/profiles/init.lua`: `activate()` function for runtime profile switching
 - Project profile system: `lua/profiles/` with additive profiles `web`, `php`, `laravel` (extends php), `rust`; auto-detected from `package.json`, `composer.json`, `Cargo.toml`; overridable via `.nvim-profile` at project root
 - `lua/profiles/init.lua`: profile manager with `detect`, `is_active`, `get_plugins`, `get_lsp_servers`, `get_null_ls_sources`
 - CLI `profile` command: `list`, `detect`, `set`, `unset`, `create` subcommands

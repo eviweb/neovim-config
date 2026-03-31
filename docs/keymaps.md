@@ -105,6 +105,7 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 | `<Leader>fg` | Live grep |
 | `<Leader>fb` | List open buffers |
 | `<Leader>fh` | Search help tags |
+| `<Leader>fp` | Browse profiles (activate with `<CR>`) |
 | `<Leader>?` | Browse all keymaps (live search) |
 
 ### Trouble (diagnostics)

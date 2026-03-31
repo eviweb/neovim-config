@@ -77,7 +77,7 @@
 - [x] Reduce eager startup side effects where not needed
 - [x] Design project profiles so Neovim can enable only relevant tooling per repository
 - [x] Decide whether the CLI should manage project profiles or only bootstrap them
-- [ ] Add in-Neovim profile switcher: `:NvimProfile <name>` user command + Telescope picker (depends on profile design)
+- [x] Add in-Neovim profile switcher: `:NvimProfile <name>` user command + Telescope picker (depends on profile design)
 - [x] Move frontend-only tooling such as `emmet-vim` behind project profiles
 - [x] Move Node-specific Telescope integrations behind project profiles
 - [x] Decide whether `none-ls.nvim` should remain global or have profile-driven sources

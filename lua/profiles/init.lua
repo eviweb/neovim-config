@@ -173,4 +173,68 @@ function M.get_null_ls_sources()
     return sources
 end
 
+-- Activate a profile at runtime (additive only).
+-- Loads LSP servers and null-ls sources immediately.
+-- Plugin changes take effect only after a restart.
+function M.activate(name)
+    local resolved = resolve({ name })
+    local to_add = {}
+    for _, n in ipairs(resolved) do
+        if not M.is_active(n) then
+            table.insert(to_add, n)
+        end
+    end
+
+    if #to_add == 0 then
+        vim.notify("Profile '" .. name .. "' is already active", vim.log.levels.INFO)
+        return
+    end
+
+    for _, n in ipairs(to_add) do
+        table.insert(_active_profiles, n)
+    end
+
+    -- Enable LSP servers
+    local servers = {}
+    for _, n in ipairs(to_add) do
+        local ok, profile = pcall(require, 'profiles.' .. n)
+        if ok and profile.lsp_servers then
+            for _, server in ipairs(profile.lsp_servers) do
+                table.insert(servers, server)
+            end
+        end
+    end
+    if #servers > 0 then
+        vim.lsp.enable(servers)
+    end
+
+    -- Register null-ls sources
+    local ok_null_ls, null_ls = pcall(require, 'null-ls')
+    if ok_null_ls then
+        for _, n in ipairs(to_add) do
+            local ok, profile = pcall(require, 'profiles.' .. n)
+            if ok and profile.null_ls_sources then
+                local sources = profile.null_ls_sources(null_ls)
+                if #sources > 0 then
+                    null_ls.register(sources)
+                end
+            end
+        end
+    end
+
+    local msg = 'Profile activated: ' .. table.concat(to_add, ', ')
+    local has_plugins = false
+    for _, n in ipairs(to_add) do
+        local ok, profile = pcall(require, 'profiles.' .. n)
+        if ok and profile.plugins and #profile.plugins > 0 then
+            has_plugins = true
+            break
+        end
+    end
+    if has_plugins then
+        msg = msg .. '\nPlugin changes require a restart.'
+    end
+    vim.notify(msg, vim.log.levels.INFO)
+end
+
 return M

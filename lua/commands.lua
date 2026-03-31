@@ -27,6 +27,37 @@ vim.cmd([[
   augroup end
 ]])
 
+-- :NvimProfile [name] — activate a profile or open the profile picker
+vim.api.nvim_create_user_command('NvimProfile', function(opts)
+    local name = vim.trim(opts.args)
+    if name == '' then
+        require('profiles.picker').pick()
+    else
+        require('profiles').activate(name)
+    end
+end, {
+    nargs = '?',
+    complete = function()
+        local names = {}
+        local profiles_dir = vim.fn.stdpath('config') .. '/lua/profiles'
+        local handle = vim.loop.fs_scandir(profiles_dir)
+        if handle then
+            while true do
+                local fname, ftype = vim.loop.fs_scandir_next(handle)
+                if not fname then break end
+                if ftype == 'file' and fname:match('%.lua$') then
+                    local stem = fname:sub(1, -5)
+                    if stem ~= 'init' and stem ~= 'picker' then
+                        table.insert(names, stem)
+                    end
+                end
+            end
+        end
+        return names
+    end,
+    desc = 'Activate a project profile or open the profile picker',
+})
+
 -- removes all trailing whitespace on save
 vim.api.nvim_exec(
     [[

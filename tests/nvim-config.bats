@@ -706,3 +706,30 @@ setup() {
   [[ "$output" == *"profile"* ]]
   [[ "$output" == *"detect"* ]]
 }
+
+# NvimProfile switcher
+
+@test "profiles init module defines activate function" {
+  run grep -n "M\.activate" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles picker file exists" {
+  [ -f "lua/profiles/picker.lua" ]
+}
+
+@test "commands defines NvimProfile user command" {
+  run grep -n "NvimProfile" lua/commands.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader fp for profile picker" {
+  run grep -n "Leader>fp" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"profiles.picker"* ]]
+}
+
+@test "which-key config annotates Leader fp for profiles" {
+  run grep -n "Leader>fp" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
