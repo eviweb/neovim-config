@@ -160,6 +160,23 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "readme has a getting started section" {
+  run grep -n "Getting Started" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents snap as recommended neovim install method" {
+  run grep -n "snap install nvim" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme has an updating section covering plugins" {
+  run grep -n "Lazy" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "Updating\|update" README.md
+  [ "$status" -eq 0 ]
+}
+
 @test "readme documents neovim dependencies and plugin managers" {
   run grep -n "lazy.nvim" README.md
   [ "$status" -eq 0 ]

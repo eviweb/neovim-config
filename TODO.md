@@ -61,9 +61,14 @@
 - [x] Rewrite `install` to cover symlink/bootstrap flows explicitly
 - [x] Document external dependencies required by the Neovim config
 - [x] Document bootstrap limitations in sandboxed or Snap-based environments
-- [ ] Document Neovim installation (minimum version, recommended method per platform)
-- [ ] Document first-run initialization sequence (lazy.nvim bootstrap → plugin install → Mason LSP server install)
-- [ ] Document full end-to-end setup flow for a new machine in README
+- [ ] Add `install nvim [--snap|--apt]` subcommand (snap by default, checks if already installed)
+- [ ] Extend `install all` to include `install nvim` in the full bootstrap chain
+- [ ] Add `update nvim` subcommand (snap refresh or apt upgrade depending on install method)
+- [ ] Add `update plugins` subcommand (headless `Lazy! sync` via nvim --headless)
+- [ ] Add `update` subcommand dispatching to `update nvim` + `update plugins`
+- [x] Document Neovim installation (minimum version, recommended method per platform)
+- [x] Document first-run initialization sequence (lazy.nvim bootstrap → plugin install → Mason LSP server install)
+- [x] Document full end-to-end setup flow for a new machine in README
 
 ## Phase 8 - Optional Modernization
 
@@ -72,6 +77,7 @@
 - [x] Reduce eager startup side effects where not needed
 - [ ] Design project profiles so Neovim can enable only relevant tooling per repository
 - [ ] Decide whether the CLI should manage project profiles or only bootstrap them
+- [ ] Add in-Neovim profile switcher: `:NvimProfile <name>` user command + Telescope picker (depends on profile design)
 - [ ] Move frontend-only tooling such as `emmet-vim` behind project profiles
 - [ ] Move Node-specific Telescope integrations behind project profiles
 - [ ] Decide whether `none-ls.nvim` should remain global or have profile-driven sources

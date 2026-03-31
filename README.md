@@ -76,6 +76,111 @@ times has no effect. Your existing tmux configuration is preserved.
 
 - `bats-core` — required to run the test suite (`tests/run`)
 
+## Getting Started
+
+Complete setup sequence for a new machine.
+
+### 1. Install Neovim
+
+Snap is recommended — it always provides the latest stable release with classic
+confinement (full host access, no sandbox restrictions):
+
+```bash
+sudo snap install nvim --classic
+```
+
+Minimum required version: **0.9+**. Check with `nvim --version`.
+
+Alternatively, via apt (version depends on the Ubuntu release):
+
+```bash
+sudo apt install neovim
+```
+
+### 2. Clone this repository
+
+```bash
+git clone https://github.com/eviweb/neovim-config.git ~/path/to/neovim-config
+cd ~/path/to/neovim-config
+```
+
+### 3. Install system dependencies
+
+```bash
+./bin/nvim-config install deps
+```
+
+Add `--with-node` to also install nvm and Node.js LTS (required for TypeScript,
+ESLint, and other Node-based LSP servers):
+
+```bash
+./bin/nvim-config install deps --with-node
+```
+
+### 4. Link the configuration
+
+```bash
+./bin/nvim-config install config
+```
+
+This creates a symlink `~/.config/nvim → /path/to/neovim-config`.
+
+### 5. tmux / byobu integration (optional)
+
+```bash
+./bin/nvim-config install tmux
+```
+
+Required for correct colours and focus events when running Neovim inside tmux
+or byobu. See [Dependencies — tmux / byobu integration](#tmux--byobu-integration)
+for details.
+
+### 6. First run
+
+Open Neovim:
+
+```bash
+nvim
+```
+
+On first startup, lazy.nvim bootstraps itself and installs all declared plugins
+automatically. This may take a minute. Once complete:
+
+- Run `:Lazy` to review plugin status
+- Run `:Mason` to open the LSP server manager and install servers for your
+  languages (e.g. `lua_ls`, `jsonls` are pre-configured and installed automatically)
+- Restart Neovim after Mason finishes
+
+## Updating
+
+### Neovim
+
+```bash
+# Snap
+sudo snap refresh nvim
+
+# apt
+sudo apt upgrade neovim
+```
+
+### Plugins
+
+From inside Neovim:
+
+```vim
+:Lazy sync
+```
+
+Or headlessly from the terminal:
+
+```bash
+nvim --headless -u init.lua +"Lazy! sync" +qa
+```
+
+`Lazy sync` installs missing plugins, updates existing ones, and removes unused
+ones. The `lazy-lock.json` file pins exact plugin versions — commit it to lock
+your plugin state across machines.
+
 ## Documentation
 
 - [Keymaps cheatsheet](docs/keymaps.md) — all custom mappings and plugin shortcuts
@@ -151,8 +256,8 @@ NVIM_HEADLESS_TESTS_SKIP=1 bash tests/run   # force disable
 
 ## Notes
 
-- The current CLI scope is intentionally small and focused on the `install` command.
-- Bash completion is implemented in this version. Zsh and fish remain roadmap items.
+- The current CLI scope covers `install` (deps, config, nvim, tmux) and shell
+  completion (bash, zsh). Fish completion and an `update` command are on the roadmap.
 
 ## Environment Limitations
 
