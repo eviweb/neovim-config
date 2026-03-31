@@ -377,6 +377,35 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "show-completion zsh prints zsh completion script" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"#compdef"* ]]
+  [[ "$output" == *"nvim-config"* ]]
+}
+
+@test "zsh completion script covers install subcommands" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deps"* ]]
+  [[ "$output" == *"config"* ]]
+  [[ "$output" == *"tmux"* ]]
+  [[ "$output" == *"--with-node"* ]]
+}
+
+@test "install-completion zsh writes completion file" {
+  export SHELL="/usr/bin/zsh"
+  run ./bin/nvim-config --install-completion zsh
+  [ "$status" -eq 0 ]
+  [ -f "$HOME/.zfunc/_nvim-config" ]
+}
+
+@test "help documents zsh in completion options" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"zsh"* ]]
+}
+
 @test "install deps dry-run does not mention nvm or node by default" {
   run ./bin/nvim-config --dry-run install deps
   [ "$status" -eq 0 ]

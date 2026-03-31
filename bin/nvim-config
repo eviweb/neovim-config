@@ -57,10 +57,10 @@ Global options:
       --no-color        Disable colored output
       --no-log          Disable file logging
       --log-dir <path>  Override the log directory
-      --show-completion bash
-                        Print the bash completion script
-      --install-completion bash
-                        Install bash completion for the current user
+      --show-completion bash|zsh
+                        Print the completion script for the given shell
+      --install-completion bash|zsh
+                        Install completion for the given shell
 EOF
 }
 
@@ -121,13 +121,7 @@ run_command() {
   "$@"
 }
 
-show_completion() {
-  local shell_name="$1"
-  if [ "${shell_name}" != "bash" ]; then
-    printf 'Only bash completion is supported in this version.\n' >&2
-    return 1
-  fi
-
+_show_completion_bash() {
   cat <<'EOF'
 _nvim_config_completions() {
   local current_word previous_word
@@ -136,7 +130,7 @@ _nvim_config_completions() {
 
   case "${previous_word}" in
     --show-completion|--install-completion)
-      COMPREPLY=( $(compgen -W "bash" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "bash zsh" -- "${current_word}") )
       return 0
       ;;
     install|deps|config|all|tmux)
@@ -157,17 +151,87 @@ complete -F _nvim_config_completions nvim-config
 EOF
 }
 
+_show_completion_zsh() {
+  cat <<'EOF'
+#compdef nvim-config
+
+_nvim_config() {
+  local -a commands global_opts install_subcmds
+
+  global_opts=(
+    '--help[Display usage and exit]'
+    '--version[Display version and exit]'
+    '--verbose[Enable debug-level output]'
+    '--quiet[Suppress terminal output]'
+    '--debug[Enable shell trace mode]'
+    '--dry-run[Simulate execution without making changes]'
+    '--no-color[Disable colored output]'
+    '--no-log[Disable file logging]'
+    '--log-dir[Override the log directory]:directory:_directories'
+    '--show-completion[Print the completion script]:shell:(bash zsh)'
+    '--install-completion[Install completion for the current user]:shell:(bash zsh)'
+  )
+
+  commands=(
+    'install:Install system dependencies and/or config symlinks'
+  )
+
+  install_subcmds=(
+    'deps:Install apt packages only'
+    'config:Symlink ~/.config/nvim to this repository'
+    'all:Install deps then config (default)'
+    'tmux:Inject source-file entry into ~/.tmux.conf'
+    '--with-node[Also install nvm and Node.js LTS]'
+  )
+
+  case "${words[2]}" in
+    install)
+      _arguments : "${install_subcmds[@]}"
+      ;;
+    *)
+      _arguments : "${global_opts[@]}" "${commands[@]}"
+      ;;
+  esac
+}
+
+_nvim_config "$@"
+EOF
+}
+
+show_completion() {
+  local shell_name="$1"
+  case "${shell_name}" in
+    bash) _show_completion_bash ;;
+    zsh)  _show_completion_zsh  ;;
+    *)
+      printf 'Unsupported shell: %s. Supported: bash, zsh\n' "${shell_name}" >&2
+      return 1
+      ;;
+  esac
+}
+
 install_completion() {
   local shell_name="$1"
-  if [ "${shell_name}" != "bash" ]; then
-    printf 'Only bash completion is supported in this version.\n' >&2
-    return 1
-  fi
+  local completion_dir completion_file
 
-  local completion_dir="${HOME}/.local/share/bash-completion/completions"
+  case "${shell_name}" in
+    bash)
+      completion_dir="${HOME}/.local/share/bash-completion/completions"
+      completion_file="${completion_dir}/${SCRIPT_NAME}"
+      ;;
+    zsh)
+      completion_dir="${HOME}/.zfunc"
+      completion_file="${completion_dir}/_${SCRIPT_NAME}"
+      ;;
+    *)
+      printf 'Unsupported shell: %s. Supported: bash, zsh\n' "${shell_name}" >&2
+      return 1
+      ;;
+  esac
+
   mkdir -p "${completion_dir}"
-  show_completion bash > "${completion_dir}/${SCRIPT_NAME}"
-  log_message "INFO" "Installed bash completion to ${completion_dir}/${SCRIPT_NAME}"
+  show_completion "${shell_name}" > "${completion_file}"
+  log_message "INFO" "Installed ${shell_name} completion to ${completion_file}"
 }
 
 run_install_tmux() {

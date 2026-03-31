@@ -88,24 +88,36 @@ times has no effect. Your existing tmux configuration is preserved.
 ./bin/nvim-config --dry-run install
 ```
 
-## Bash Completion
+## Shell Completion
+
+Supported shells: **bash**, **zsh**
 
 Show the completion script:
 
 ```bash
 ./bin/nvim-config --show-completion bash
+./bin/nvim-config --show-completion zsh
 ```
 
 Install completion for the current user:
 
 ```bash
 ./bin/nvim-config --install-completion bash
+./bin/nvim-config --install-completion zsh
 ```
 
-The script is installed to:
+Installed paths:
 
-```text
-~/.local/share/bash-completion/completions/nvim-config
+| Shell | Path |
+|-------|------|
+| bash | `~/.local/share/bash-completion/completions/nvim-config` |
+| zsh | `~/.zfunc/_nvim-config` |
+
+For zsh, add `~/.zfunc` to your `fpath` before calling `compinit`:
+
+```zsh
+fpath=(~/.zfunc $fpath)
+autoload -Uz compinit && compinit
 ```
 
 ## Tests
