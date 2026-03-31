@@ -168,6 +168,24 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "keymaps cheatsheet exists and documents leader key" {
+  [ -f "docs/keymaps.md" ]
+  run grep -n "Leader" docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps cheatsheet covers lsp and completion sections" {
+  run grep -n "LSP" docs/keymaps.md
+  [ "$status" -eq 0 ]
+  run grep -n "nvim-cmp" docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme links to keymaps cheatsheet" {
+  run grep -n "docs/keymaps.md" README.md
+  [ "$status" -eq 0 ]
+}
+
 @test "readme documents sandbox and snap limitations" {
   run grep -n "Snap" README.md
   [ "$status" -eq 0 ]

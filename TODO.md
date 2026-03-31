@@ -48,7 +48,7 @@
 
 ## Phase 5 - Documentation
 
-- [ ] Write a keybindings cheatsheet covering all custom mappings and plugin shortcuts
+- [x] Write a keybindings cheatsheet covering all custom mappings and plugin shortcuts
 - [ ] Write extended usage documentation (LSP workflow, completion, diagnostics, telescope, bufferline)
 
 ## Phase 7 - Install And Portability
@@ -57,7 +57,7 @@
 - [ ] Add zsh completion support to the CLI
 - [ ] Add fish completion support to the CLI
 - [x] Rewrite `install` to cover symlink/bootstrap flows explicitly
-- [ ] Document external dependencies required by the Neovim config
+- [x] Document external dependencies required by the Neovim config
 - [x] Document bootstrap limitations in sandboxed or Snap-based environments
 
 ## Phase 8 - Optional Modernization

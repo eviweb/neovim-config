@@ -76,6 +76,10 @@ times has no effect. Your existing tmux configuration is preserved.
 
 - `bats-core` — required to run the test suite (`tests/run`)
 
+## Documentation
+
+- [Keymaps cheatsheet](docs/keymaps.md) — all custom mappings and plugin shortcuts
+
 ## Usage
 
 ```bash
