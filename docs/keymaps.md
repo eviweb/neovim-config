@@ -89,6 +89,7 @@ Leader key: `Space`
 | `<Leader>fg` | Live grep |
 | `<Leader>fb` | List open buffers |
 | `<Leader>fh` | Search help tags |
+| `<Leader>?` | Browse all keymaps (live search) |
 
 ### Trouble (diagnostics)
 

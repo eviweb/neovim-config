@@ -334,6 +334,18 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "keymaps define Leader? for telescope keymaps picker" {
+  run grep -n 'Leader>?' lua/keymaps.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"telescope.builtin"* ]]
+  [[ "$output" == *"keymaps"* ]]
+}
+
+@test "keymaps cheatsheet documents Leader?" {
+  run grep -n 'Leader>?' docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
 @test "bufferline config uses neo-tree filetype offset" {
   run grep -n "neo-tree" lua/config/bufferline.lua
   [ "$status" -eq 0 ]

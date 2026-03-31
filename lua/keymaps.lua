@@ -117,6 +117,7 @@ map('n', '<Leader>ff', ':lua require("telescope.builtin").find_files()<CR>', opt
 map('n', '<Leader>fg', ':lua require("telescope.builtin").live_grep()<CR>', opts)
 map('n', '<Leader>fb', ':lua require("telescope.builtin").buffers()<CR>', opts)
 map('n', '<Leader>fh', ':lua require("telescope.builtin").help_tags()<CR>', opts)
+map('n', '<Leader>?',  ':lua require("telescope.builtin").keymaps()<CR>', opts)
 
 -- Trouble
 map('n', '<Leader>dx', ':Trouble diagnostics<CR>', opts)

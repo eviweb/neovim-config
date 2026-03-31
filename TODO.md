@@ -50,7 +50,7 @@
 
 - [x] Write a keybindings cheatsheet covering all custom mappings and plugin shortcuts
 - [ ] Write extended usage documentation (LSP workflow, completion, diagnostics, telescope, bufferline)
-- [ ] Add `<Leader>?` keymap to open Telescope keymaps picker (in-Neovim discoverability)
+- [x] Add `<Leader>?` keymap to open Telescope keymaps picker (in-Neovim discoverability)
 - [ ] Annotate which-key groups with descriptions (`<Leader>f` = Find, `<Leader>d` = Diagnostics, etc.)
 
 ## Phase 7 - Install And Portability
