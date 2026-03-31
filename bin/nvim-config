@@ -17,9 +17,13 @@ else
   NO_COLOR=0
 fi
 NO_LOG=0
+WITH_NODE=0
 COMMAND=""
 SUBCOMMAND=""
 COMPLETION_SHELL=""
+
+NVM_VERSION="0.39.7"
+NVM_DIR="${HOME}/.nvm"
 
 LOG_DIR_DEFAULT="${NVIM_CONFIG_LOG_DIR:-${HOME}/.local/state/${SCRIPT_NAME}/logs}"
 LOG_DIR="${LOG_DIR_DEFAULT}"
@@ -33,11 +37,14 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all]
+  install [deps|config|all] [--with-node]
                         Install system dependencies and/or config symlink
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
                           all    — deps then config (default)
+                        --with-node
+                               Also install nvm and Node.js LTS (opt-in).
+                               Skipped if nvm is already present at ~/.nvm.
 
 Global options:
   -h, --help            Display usage and exit
@@ -131,8 +138,8 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "bash" -- "${current_word}") )
       return 0
       ;;
-    install)
-      COMPREPLY=( $(compgen -W "deps config all" -- "${current_word}") )
+    install|deps|config|all)
+      COMPREPLY=( $(compgen -W "deps config all --with-node" -- "${current_word}") )
       return 0
       ;;
   esac
@@ -162,9 +169,21 @@ install_completion() {
   log_message "INFO" "Installed bash completion to ${completion_dir}/${SCRIPT_NAME}"
 }
 
+run_install_node() {
+  if [ -d "${NVM_DIR}" ]; then
+    log_message "INFO" "nvm already installed at ${NVM_DIR} — skipping nvm install"
+  else
+    run_command bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash"
+  fi
+  run_command bash -c ". ${NVM_DIR}/nvm.sh && nvm install --lts"
+}
+
 run_install_deps() {
   run_command sudo apt update
   run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat
+  if [ "${WITH_NODE}" -eq 1 ]; then
+    run_install_node
+  fi
 }
 
 run_install_config() {
@@ -244,6 +263,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --no-log)
       NO_LOG=1
+      shift
+      ;;
+    --with-node)
+      WITH_NODE=1
       shift
       ;;
     --log-dir)

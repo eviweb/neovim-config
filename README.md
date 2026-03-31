@@ -8,21 +8,49 @@ Personal Neovim configuration with a small project CLI for bootstrap tasks.
 - **Shell**: Bash 5+
 - **Neovim**: 0.9+
 
-## Requirements
+## Dependencies
 
-- Bash 5+
-- `bats` for the test suite
+### System packages
 
-## Neovim Dependencies
+Installed automatically by `install deps`:
 
-The Neovim configuration currently depends on:
+| Package | Purpose |
+|---------|---------|
+| `curl` | Plugin download, nvm install |
+| `ripgrep` | Telescope live grep |
+| `fd-find` | Telescope file finder |
+| `xsel` / `xclip` | System clipboard integration |
+| `lolcat` | Colored CLI output |
 
-- `lazy.nvim` for plugin management
-- `mason.nvim` and `mason-lspconfig.nvim` for LSP bootstrap
-- `nvim-treesitter` with an explicit parser baseline
-- external tools commonly expected by the config and CLI such as `git`, `curl`, `ripgrep`, `fd`, `xsel`, and `xclip`
+`git` is also required and assumed to be present before running the install script.
 
-Some plugins may also require additional runtime tooling depending on language or extension usage.
+### Node.js
+
+Required by Mason-managed LSP servers (TypeScript, ESLint, and others).
+**Not installed by `install deps` by default.**
+
+- Minimum version: **Node 18+**
+- Recommended: manage Node via [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) rather than via apt — the apt package is often outdated and may conflict with an existing Node setup.
+
+To install nvm and Node LTS automatically as part of the bootstrap:
+
+```bash
+./bin/nvim-config install deps --with-node
+./bin/nvim-config install all --with-node   # deps + config symlink
+```
+
+The `--with-node` flag installs nvm `v0.39.7` then runs `nvm install --lts`.
+It is a no-op if nvm is already present at `~/.nvm`.
+
+### Neovim plugins
+
+- `lazy.nvim` — plugin manager (bootstrapped automatically on first startup)
+- `mason.nvim` + `mason-lspconfig.nvim` — LSP server management
+- `nvim-treesitter` — syntax parsing with an explicit parser baseline
+
+### Test dependencies
+
+- `bats-core` — required to run the test suite (`tests/run`)
 
 ## Usage
 

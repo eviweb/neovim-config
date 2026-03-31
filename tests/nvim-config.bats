@@ -161,9 +161,6 @@ setup() {
 }
 
 @test "readme documents neovim dependencies and plugin managers" {
-  run grep -n "Neovim Dependencies" README.md
-  [ "$status" -eq 0 ]
-
   run grep -n "lazy.nvim" README.md
   [ "$status" -eq 0 ]
 
@@ -311,5 +308,40 @@ setup() {
 
 @test "bufferline config uses neo-tree filetype offset" {
   run grep -n "neo-tree" lua/config/bufferline.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "install deps dry-run does not mention nvm or node by default" {
+  run ./bin/nvim-config --dry-run install deps
+  [ "$status" -eq 0 ]
+  [[ "$output" != *"nvm"* ]]
+  [[ "$output" != *"node"* ]]
+}
+
+@test "install deps --with-node dry-run mentions nvm install" {
+  run ./bin/nvim-config --dry-run install deps --with-node
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nvm"* ]]
+}
+
+@test "install all --with-node dry-run mentions nvm install" {
+  run ./bin/nvim-config --dry-run install all --with-node
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nvm"* ]]
+}
+
+@test "help documents --with-node option" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"--with-node"* ]]
+}
+
+@test "readme documents node as managed via nvm" {
+  run grep -n "nvm" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents --with-node flag for node bootstrap" {
+  run grep -n "\-\-with-node" README.md
   [ "$status" -eq 0 ]
 }
