@@ -57,7 +57,7 @@
 - [ ] Add fish completion support to the CLI
 - [x] Rewrite `install` to cover symlink/bootstrap flows explicitly
 - [ ] Document external dependencies required by the Neovim config
-- [ ] Document bootstrap limitations in sandboxed or Snap-based environments
+- [x] Document bootstrap limitations in sandboxed or Snap-based environments
 
 ## Phase 8 - Optional Modernization
 

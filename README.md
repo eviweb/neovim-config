@@ -116,10 +116,21 @@ The script is installed to:
 
 ### Headless startup smoke tests
 
-`tests/startup.bats` also runs `nvim --headless` against `init.lua` and the core modules (`options.lua`, `keymaps.lua`) to detect hard Lua errors at startup.  The headless tests are skipped automatically when nvim is installed via Snap.  To force-enable them:
+`tests/startup.bats` also runs `nvim --headless` against the core modules
+(`options.lua`, `keymaps.lua`) to detect hard Lua errors at startup.
+
+Snap confinement behaviour:
+
+| Confinement | Effect |
+|-------------|--------|
+| Classic | Full host access — headless tests run normally |
+| Strict / devmode | Sandbox restrictions — headless tests are skipped automatically |
+
+To force-enable or force-disable regardless of environment:
 
 ```bash
-NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run
+NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run   # force enable
+NVIM_HEADLESS_TESTS_SKIP=1 bash tests/run   # force disable
 ```
 
 ## Notes
@@ -129,6 +140,21 @@ NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run
 
 ## Environment Limitations
 
-- Snap-packaged Neovim can fail in restricted sandbox environments, which causes the headless startup tests to be skipped automatically in that environment.
-- Some workflows that depend on external agents, sockets, or mounted key material can behave differently in a sandbox than on the host system.
-- For this reason, bootstrap and plugin wiring are guarded by both targeted static regression tests and headless smoke tests where the environment permits.
+Neovim installed via Snap exists in two confinement modes:
+
+- **Classic** — full host filesystem access, no sandbox restrictions. Headless tests
+  run normally. This is the recommended install mode for development use.
+- **Strict / devmode** — sandboxed environment. Some workflows that depend on external
+  agents, sockets, or mounted key material may behave differently from the host system.
+  Headless startup tests are skipped automatically in this mode.
+
+Check the active confinement mode with:
+
+```bash
+snap list nvim
+```
+
+The `Notes` column shows `classic` for classic confinement; empty means strict.
+
+Bootstrap and plugin wiring are covered by static regression tests regardless of
+confinement mode, and by headless smoke tests where the environment permits.
