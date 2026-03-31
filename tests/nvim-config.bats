@@ -311,6 +311,44 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "install tmux dry-run prints source-file injection" {
+  run ./bin/nvim-config --dry-run install tmux
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"source-file"* ]]
+}
+
+@test "install tmux skips if source-file already present" {
+  local project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}"
+  printf '\nsource-file %s/.tmux.conf\n' "${project_dir}" > "${HOME}/.tmux.conf"
+  run ./bin/nvim-config install tmux
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already sources"* ]]
+}
+
+@test "help documents install tmux subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"tmux"* ]]
+}
+
+@test "completion includes tmux after install" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"tmux"* ]]
+}
+
+@test "readme documents tmux config role for neovim in byobu" {
+  run grep -in "byobu\|tmux" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents install tmux command" {
+  run grep -n "install tmux" README.md
+  [ "$status" -eq 0 ]
+}
+
 @test "install deps dry-run does not mention nvm or node by default" {
   run ./bin/nvim-config --dry-run install deps
   [ "$status" -eq 0 ]

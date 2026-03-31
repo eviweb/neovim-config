@@ -6,7 +6,7 @@
 - [x] Add a dedicated test runner under `tests/`
 - [x] Rename `TODO` to `TODO.md`
 - [x] Remove exploratory Lua files not used by the runtime config
-- [ ] Decide whether `.tmux.conf` belongs in this repository
+- [x] Decide whether `.tmux.conf` belongs in this repository
 - [x] Add `LICENSE.md` after validating the license choice
 
 ## Phase 1 - Safety Net

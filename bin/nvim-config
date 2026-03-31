@@ -37,10 +37,11 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all] [--with-node]
-                        Install system dependencies and/or config symlink
+  install [deps|config|all|tmux] [--with-node]
+                        Install system dependencies and/or config symlinks
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
+                          tmux   — inject source-file entry into ~/.tmux.conf
                           all    — deps then config (default)
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
@@ -138,8 +139,8 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "bash" -- "${current_word}") )
       return 0
       ;;
-    install|deps|config|all)
-      COMPREPLY=( $(compgen -W "deps config all --with-node" -- "${current_word}") )
+    install|deps|config|all|tmux)
+      COMPREPLY=( $(compgen -W "deps config all tmux --with-node" -- "${current_word}") )
       return 0
       ;;
   esac
@@ -167,6 +168,24 @@ install_completion() {
   mkdir -p "${completion_dir}"
   show_completion bash > "${completion_dir}/${SCRIPT_NAME}"
   log_message "INFO" "Installed bash completion to ${completion_dir}/${SCRIPT_NAME}"
+}
+
+run_install_tmux() {
+  local tmux_conf="${HOME}/.tmux.conf"
+  local source_line="source-file ${PROJECT_DIR}/.tmux.conf"
+
+  if [ -f "${tmux_conf}" ] && grep -qF "${source_line}" "${tmux_conf}"; then
+    log_message "INFO" "${tmux_conf} already sources ${PROJECT_DIR}/.tmux.conf — skipping"
+    return 0
+  fi
+
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "printf '\\n%s\\n' '${source_line}' >> ${tmux_conf}"
+    return 0
+  fi
+
+  printf '\n%s\n' "${source_line}" >> "${tmux_conf}"
+  log_message "INFO" "Added source-file entry to ${tmux_conf}"
 }
 
 run_install_node() {
@@ -218,6 +237,9 @@ run_install() {
       ;;
     config)
       run_install_config
+      ;;
+    tmux)
+      run_install_tmux
       ;;
     all)
       run_install_deps

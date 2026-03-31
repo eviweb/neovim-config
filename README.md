@@ -42,6 +42,30 @@ To install nvm and Node LTS automatically as part of the bootstrap:
 The `--with-node` flag installs nvm `v0.39.7` then runs `nvm install --lts`.
 It is a no-op if nvm is already present at `~/.nvm`.
 
+### tmux / byobu integration
+
+The repository includes a `.tmux.conf` with settings required for Neovim to work
+correctly inside tmux and byobu:
+
+| Setting | Purpose |
+|---------|---------|
+| `focus-events on` | Lets Neovim receive focus events (autoread, LSP hover on focus) |
+| `default-terminal screen-256color` | Enables 256-colour support in the tmux pane |
+| `terminal-overrides Tc` | Enables true colour (24-bit) so the colorscheme renders correctly |
+
+Without these settings, the colorscheme may appear degraded and autoread/LSP
+focus-based features will not trigger inside a tmux session.
+
+To activate this configuration, inject a `source-file` entry into `~/.tmux.conf`:
+
+```bash
+./bin/nvim-config install tmux
+```
+
+This appends `source-file /path/to/neovim-config/.tmux.conf` to your existing
+`~/.tmux.conf` (creating it if absent) and is idempotent — running it multiple
+times has no effect. Your existing tmux configuration is preserved.
+
 ### Neovim plugins
 
 - `lazy.nvim` — plugin manager (bootstrapped automatically on first startup)
