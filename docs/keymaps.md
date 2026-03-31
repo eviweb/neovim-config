@@ -1,6 +1,22 @@
 # Keymaps Cheatsheet
 
-Leader key: `Space`
+## Leader key
+
+The leader key is set to **`Space`** — the dominant convention in modern Neovim
+distributions (LazyVim, AstroNvim, kickstart.nvim).
+
+It is defined in `lua/keymaps.lua`:
+
+```lua
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
+```
+
+To change it, update both lines before any `map()` call. Common alternatives: `,` or `\`.
+
+Press `<Leader>` in normal mode to open the **which-key popup** — a live guide
+showing all available mappings for the current prefix.
+Press `<Leader>?` to browse all keymaps with Telescope.
 
 ## All modes
 

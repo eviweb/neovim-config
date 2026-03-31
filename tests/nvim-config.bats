@@ -334,6 +334,28 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "which-key config uses wk.add for group registration" {
+  run grep -n "wk.add" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key config registers Leader f group as Find" {
+  run grep -n "Leader>f" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Find"* ]]
+}
+
+@test "which-key config registers Leader d group as Diagnostics" {
+  run grep -n "Leader>d" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Diagnostics"* ]]
+}
+
+@test "keymaps cheatsheet documents leader key and how to change it" {
+  run grep -n "mapleader" docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
 @test "keymaps define Leader? for telescope keymaps picker" {
   run grep -n 'Leader>?' lua/keymaps.lua
   [ "$status" -eq 0 ]
