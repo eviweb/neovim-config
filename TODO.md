@@ -33,6 +33,7 @@
 - [x] Define an explicit maintained baseline for default LSP servers
 - [x] Validate `nvim-cmp` and `LuaSnip` end-to-end
 - [x] Add regression coverage for LSP bootstrap failures
+- [x] Migrate LSP config to mason-lspconfig v2 API (`setup_handlers` removed in v2.0.0)
 
 ## Phase 4 - Treesitter And UI Reliability
 

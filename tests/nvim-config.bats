@@ -241,9 +241,19 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "lsp config calls mason_lspconfig setup_handlers" {
+@test "lsp config does not use removed setup_handlers API" {
   run grep -n "setup_handlers" lua/config/lsp.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lsp config uses vim.lsp.config for global server defaults" {
+  run grep -n "vim.lsp.config('\*'" lua/config/lsp.lua
   [ "$status" -eq 0 ]
+}
+
+@test "lsp config does not call deprecated vim.lsp.with" {
+  run grep -n "= vim\.lsp\.with(" lua/config/lsp.lua
+  [ "$status" -eq 1 ]
 }
 
 @test "lsp config calls vim.diagnostic.config" {

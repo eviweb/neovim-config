@@ -1,8 +1,4 @@
 local is_navic_present, navic = pcall(require, 'nvim-navic')
-
-local mason = require('mason')
-local mason_lspconfig = require('mason-lspconfig')
-local lspconfig = require('lspconfig')
 local lspkind = require('lspkind')
 local schemastore = require('schemastore')
 local opts = { noremap = true, silent = true }
@@ -39,52 +35,52 @@ local on_attach = function(client, bufnr)
     vim.api.nvim_buf_set_keymap(bufnr, 'n', '<space>f', '<cmd>lua vim.lsp.buf.format({ async = true })<CR>', opts)
 end
 
-local handlers = {
-    ['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, { border = 'rounded' }),
-    ['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = 'rounded' }),
-}
-
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 local is_cmp_nvim_lsp_present, cmp_nvim_lsp = pcall(require, 'cmp_nvim_lsp')
 if is_cmp_nvim_lsp_present then
     capabilities = cmp_nvim_lsp.default_capabilities(capabilities)
 end
 
-local server_configs = {
-    jsonls = {
-        settings = {
-            json = {
-                schemas = schemastore.json.schemas(),
-            },
-        },
-    },
-    lua_ls = {
-        settings = {
-            Lua = {
-                diagnostics = {
-                    globals = { 'vim' },
-                },
-            },
-        },
-    },
-}
+-- Replace vim.lsp.with() (deprecated in Neovim 0.11+) with direct handler
+-- overrides that inject border configuration via the config argument.
+local _hover = vim.lsp.handlers['textDocument/hover']
+vim.lsp.handlers['textDocument/hover'] = function(err, result, ctx, config)
+    return _hover(err, result, ctx, vim.tbl_extend('force', { border = 'rounded' }, config or {}))
+end
 
-local default_server_config = {
+local _sig_help = vim.lsp.handlers['textDocument/signatureHelp']
+vim.lsp.handlers['textDocument/signatureHelp'] = function(err, result, ctx, config)
+    return _sig_help(err, result, ctx, vim.tbl_extend('force', { border = 'rounded' }, config or {}))
+end
+
+-- Global defaults applied to every LSP server (mason-lspconfig v2 / Neovim 0.11+).
+vim.lsp.config('*', {
     on_attach = on_attach,
-    handlers = handlers,
     capabilities = capabilities,
-}
-
-mason.setup()
-mason_lspconfig.setup({
-    ensure_installed = vim.tbl_keys(server_configs),
 })
 
-mason_lspconfig.setup_handlers({
-    function(server_name)
-        local server_config = server_configs[server_name] or {}
-        lspconfig[server_name].setup(vim.tbl_deep_extend('force', default_server_config, server_config))
-    end,
+-- Per-server overrides.
+vim.lsp.config('jsonls', {
+    settings = {
+        json = {
+            schemas = schemastore.json.schemas(),
+        },
+    },
+})
+
+vim.lsp.config('lua_ls', {
+    settings = {
+        Lua = {
+            diagnostics = {
+                globals = { 'vim' },
+            },
+        },
+    },
+})
+
+require('mason').setup()
+require('mason-lspconfig').setup({
+    ensure_installed = { 'jsonls', 'lua_ls' },
 })
 
 vim.diagnostic.config({
@@ -94,7 +90,7 @@ vim.diagnostic.config({
     },
 })
 
-local signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' }
+local signs = { Error = ' ', Warn = ' ', Hint = ' ', Info = ' ' }
 for type, icon in pairs(signs) do
     local hl = 'DiagnosticSign' .. type
     vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
