@@ -61,11 +61,11 @@
 - [x] Rewrite `install` to cover symlink/bootstrap flows explicitly
 - [x] Document external dependencies required by the Neovim config
 - [x] Document bootstrap limitations in sandboxed or Snap-based environments
-- [ ] Add `install nvim [--snap|--apt]` subcommand (snap by default, checks if already installed)
-- [ ] Extend `install all` to include `install nvim` in the full bootstrap chain
-- [ ] Add `update nvim` subcommand (snap refresh or apt upgrade depending on install method)
-- [ ] Add `update plugins` subcommand (headless `Lazy! sync` via nvim --headless)
-- [ ] Add `update` subcommand dispatching to `update nvim` + `update plugins`
+- [x] Add `install nvim [--snap|--apt]` subcommand (snap by default, checks if already installed)
+- [x] Extend `install all` to include `install nvim` in the full bootstrap chain
+- [x] Add `update nvim` subcommand (snap refresh or apt upgrade depending on install method)
+- [x] Add `update plugins` subcommand (headless `Lazy! sync` via nvim --headless)
+- [x] Add `update` subcommand dispatching to `update nvim` + `update plugins`
 - [x] Document Neovim installation (minimum version, recommended method per platform)
 - [x] Document first-run initialization sequence (lazy.nvim bootstrap → plugin install → Mason LSP server install)
 - [x] Document full end-to-end setup flow for a new machine in README

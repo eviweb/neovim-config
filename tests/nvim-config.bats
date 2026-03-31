@@ -390,6 +390,65 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "install nvim dry-run exits successfully" {
+  run ./bin/nvim-config --dry-run install nvim
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim script uses snap install nvim --classic" {
+  run grep -n "snap install nvim" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"classic"* ]]
+}
+
+@test "install nvim script supports --apt flag with apt install neovim" {
+  run grep -n "apt install neovim" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "update plugins dry-run mentions Lazy sync" {
+  run ./bin/nvim-config --dry-run update plugins
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Lazy"* ]]
+}
+
+@test "update nvim dry-run prints a refresh or upgrade command" {
+  run ./bin/nvim-config --dry-run update nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nvim"* ]]
+}
+
+@test "update dry-run runs both nvim and plugins" {
+  run ./bin/nvim-config --dry-run update
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nvim"* ]]
+  [[ "$output" == *"Lazy"* ]]
+}
+
+@test "help documents install nvim subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"install nvim"* ]] || [[ "$output" == *"nvim"* ]]
+}
+
+@test "help documents update command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"update"* ]]
+}
+
+@test "completion includes nvim after install" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nvim"* ]]
+}
+
+@test "completion includes update command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"update"* ]]
+}
+
 @test "install tmux dry-run prints source-file injection" {
   run ./bin/nvim-config --dry-run install tmux
   [ "$status" -eq 0 ]

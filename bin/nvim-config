@@ -18,6 +18,7 @@ else
 fi
 NO_LOG=0
 WITH_NODE=0
+NVIM_PKG_MANAGER="snap"
 COMMAND=""
 SUBCOMMAND=""
 COMPLETION_SHELL=""
@@ -37,15 +38,24 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all|tmux] [--with-node]
+  install [deps|config|all|tmux|nvim] [--with-node] [--snap|--apt]
                         Install system dependencies and/or config symlinks
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
                           tmux   — inject source-file entry into ~/.tmux.conf
-                          all    — deps then config (default)
+                          nvim   — install Neovim (snap by default)
+                          all    — nvim, deps, then config
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
                                Skipped if nvm is already present at ~/.nvm.
+                        --snap  Install Neovim via snap (default for install nvim)
+                        --apt   Install Neovim via apt instead of snap
+
+  update [nvim|plugins|all]
+                        Update Neovim and/or plugins
+                          nvim    — refresh Neovim (snap or apt, auto-detected)
+                          plugins — run Lazy! sync headlessly
+                          all     — nvim then plugins (default)
 
 Global options:
   -h, --help            Display usage and exit
@@ -133,14 +143,18 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "bash zsh" -- "${current_word}") )
       return 0
       ;;
-    install|deps|config|all|tmux)
-      COMPREPLY=( $(compgen -W "deps config all tmux --with-node" -- "${current_word}") )
+    install|deps|config|all|tmux|nvim)
+      COMPREPLY=( $(compgen -W "deps config all tmux nvim --with-node --snap --apt" -- "${current_word}") )
+      return 0
+      ;;
+    update|plugins)
+      COMPREPLY=( $(compgen -W "nvim plugins all" -- "${current_word}") )
       return 0
       ;;
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install" -- "${current_word}") )
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update" -- "${current_word}") )
     return 0
   fi
 
@@ -174,19 +188,32 @@ _nvim_config() {
 
   commands=(
     'install:Install system dependencies and/or config symlinks'
+    'update:Update Neovim and/or plugins'
   )
 
   install_subcmds=(
     'deps:Install apt packages only'
     'config:Symlink ~/.config/nvim to this repository'
-    'all:Install deps then config (default)'
+    'all:Install nvim, deps, then config'
     'tmux:Inject source-file entry into ~/.tmux.conf'
+    'nvim:Install Neovim (snap by default)'
     '--with-node[Also install nvm and Node.js LTS]'
+    '--snap[Install Neovim via snap (default)]'
+    '--apt[Install Neovim via apt]'
+  )
+
+  update_subcmds=(
+    'nvim:Refresh Neovim (snap or apt, auto-detected)'
+    'plugins:Run Lazy! sync headlessly'
+    'all:Update nvim then plugins (default)'
   )
 
   case "${words[2]}" in
     install)
       _arguments : "${install_subcmds[@]}"
+      ;;
+    update)
+      _arguments : "${update_subcmds[@]}"
       ;;
     *)
       _arguments : "${global_opts[@]}" "${commands[@]}"
@@ -232,6 +259,65 @@ install_completion() {
   mkdir -p "${completion_dir}"
   show_completion "${shell_name}" > "${completion_file}"
   log_message "INFO" "Installed ${shell_name} completion to ${completion_file}"
+}
+
+run_install_nvim() {
+  if command -v nvim > /dev/null 2>&1; then
+    log_message "INFO" "nvim is already installed — skipping (use 'update nvim' to upgrade)"
+    return 0
+  fi
+
+  case "${NVIM_PKG_MANAGER}" in
+    snap)
+      run_command sudo snap install nvim --classic
+      ;;
+    apt)
+      run_command sudo apt update
+      run_command sudo apt install neovim
+      ;;
+  esac
+}
+
+run_update_nvim() {
+  if ! command -v nvim > /dev/null 2>&1; then
+    log_message "ERROR" "nvim is not installed — run 'install nvim' first"
+    return 1
+  fi
+
+  if snap list nvim > /dev/null 2>&1; then
+    run_command sudo snap refresh nvim
+  else
+    run_command sudo apt install --only-upgrade neovim
+  fi
+}
+
+run_update_plugins() {
+  if ! command -v nvim > /dev/null 2>&1; then
+    log_message "ERROR" "nvim is not installed — run 'install nvim' first"
+    return 1
+  fi
+  run_command nvim --headless -u "${PROJECT_DIR}/init.lua" +"Lazy! sync" +qa
+}
+
+run_update() {
+  local subcommand="${1:-all}"
+  case "${subcommand}" in
+    nvim)
+      run_update_nvim
+      ;;
+    plugins)
+      run_update_plugins
+      ;;
+    all)
+      run_update_nvim
+      run_update_plugins
+      ;;
+    *)
+      printf 'Unknown update subcommand: %s\n' "${subcommand}" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
 }
 
 run_install_tmux() {
@@ -305,7 +391,11 @@ run_install() {
     tmux)
       run_install_tmux
       ;;
+    nvim)
+      run_install_nvim
+      ;;
     all)
+      run_install_nvim
       run_install_deps
       run_install_config
       ;;
@@ -355,6 +445,14 @@ while [ "$#" -gt 0 ]; do
       WITH_NODE=1
       shift
       ;;
+    --snap)
+      NVIM_PKG_MANAGER="snap"
+      shift
+      ;;
+    --apt)
+      NVIM_PKG_MANAGER="apt"
+      shift
+      ;;
     --log-dir)
       LOG_DIR="${2:?Missing value for --log-dir}"
       shift 2
@@ -371,6 +469,14 @@ while [ "$#" -gt 0 ]; do
       ;;
     install)
       COMMAND="install"
+      shift
+      if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+        SUBCOMMAND="$1"
+        shift
+      fi
+      ;;
+    update)
+      COMMAND="update"
       shift
       if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
         SUBCOMMAND="$1"
@@ -399,6 +505,9 @@ case "${COMMAND}" in
     ;;
   install)
     run_install "${SUBCOMMAND}"
+    ;;
+  update)
+    run_update "${SUBCOMMAND}"
     ;;
   *)
     print_usage
