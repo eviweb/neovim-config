@@ -205,3 +205,49 @@ setup() {
   run grep -n "\.nvim-ui" .gitignore
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Vimrc audit — ported behaviours
+# ---------------------------------------------------------------------------
+
+@test "options sets scrolloff to 7" {
+  run grep -n "scrolloff = 7" lua/options.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps remap 0 to first non-blank character" {
+  run grep -n "'0', '\\^'" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define visual star search forward" {
+  run grep -n "\\\\V" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader pp for paste toggle" {
+  run grep -n "Leader>pp\|paste!" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader cd to change working directory" {
+  run grep -n "Leader>cd\|:cd %:p:h" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader ss for spell toggle" {
+  run grep -n "Leader>ss\|spell!" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader h group as Help" {
+  run grep -n "Leader>h" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Help"* ]]
+}
+
+@test "which-key annotates Leader s group as Spell" {
+  run grep -n "Leader>s" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Spell"* ]]
+}

@@ -75,3 +75,47 @@ setup() {
   run grep -n "\-\-with-node" README.md
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Cheatsheets
+# ---------------------------------------------------------------------------
+
+@test "cheatsheets directory exists" {
+  [ -d "docs/cheatsheets" ]
+}
+
+@test "editing cheatsheet exists" {
+  [ -f "docs/cheatsheets/editing.md" ]
+}
+
+@test "lsp cheatsheet exists" {
+  [ -f "docs/cheatsheets/lsp.md" ]
+}
+
+@test "plugins cheatsheet exists" {
+  [ -f "docs/cheatsheets/plugins.md" ]
+}
+
+@test "profiles cheatsheet exists" {
+  [ -f "docs/cheatsheets/profiles.md" ]
+}
+
+@test "commands defines Cheat user command" {
+  run grep -n "Cheat" lua/commands.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "Cheat command reads from docs/cheatsheets directory" {
+  run grep -n "cheatsheets" lua/commands.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader hc for cheatsheet" {
+  run grep -n "Leader>hc\|hc.*Cheat\|Cheat" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader hc for cheatsheet" {
+  run grep -n "Leader>hc" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}

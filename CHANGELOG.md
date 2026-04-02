@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Tests: 17 new tests covering keymaps (pass 1), cheatsheets and `:Cheat` command (pass 2) — 167 total, all green
 - `:Cheat [topic]` user command: opens a cheatsheet in a centered floating window (`q`/`Esc` to close); tab-completion on topics
 - `<Leader>hc` keymap: opens `:Cheat` with topic prompt; `<Leader>h` group annotated as Help in which-key
 - `docs/cheatsheets/`: four light quick-reference files (`editing`, `lsp`, `plugins`, `profiles`)
