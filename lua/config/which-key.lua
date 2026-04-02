@@ -17,6 +17,8 @@ wk.add({
     { '<Leader>g',  group = 'Git' },
     { '<Leader>h',  group = 'Help' },
     { '<Leader>s',  group = 'Spell' },
+    { '<Leader>t',  group = 'Toggle' },
+    { '<Leader>tn', desc  = 'Cycle line numbers' },
     { '<Leader>n',  desc  = 'Toggle file explorer' },
     { '<Leader>?',  desc  = 'Browse keymaps' },
     { '<Leader>fp', desc  = 'Browse profiles' },

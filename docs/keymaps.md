@@ -158,6 +158,12 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 | `<Leader>gb` | Blame line |
 | `<Leader>gd` | Diff this file |
 
+### Toggle
+
+| Key | Action |
+|-----|--------|
+| `<Leader>tn` | Cycle line numbers (absolute → relative → none) |
+
 ### Editing utilities
 
 | Key | Action |

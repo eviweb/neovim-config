@@ -299,3 +299,28 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Git"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 11 — line number toggle
+# ---------------------------------------------------------------------------
+
+@test "keymaps define Leader tn to cycle line numbers" {
+  run grep -n "Leader.*tn\|relativenumber" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader t group as Toggle" {
+  run grep -n "Leader>t" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Toggle"* ]]
+}
+
+@test "which-key annotates Leader tn for line number cycle" {
+  run grep -n "Leader>tn" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps cheatsheet documents Leader tn" {
+  run grep -n "Leader.*tn\|line number" docs/keymaps.md
+  [ "$status" -eq 0 ]
+}

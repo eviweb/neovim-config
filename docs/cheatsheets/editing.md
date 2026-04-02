@@ -36,6 +36,11 @@
 | `<C-Up/Down>`   | Resize height             |
 | `<C-Left/Right>`| Resize width              |
 
+## Toggles
+| Key           | Action                                      |
+|---------------|---------------------------------------------|
+| `<Leader>tn`  | Cycle line numbers (absolute → relative → none) |
+
 ## Utilities
 | Key           | Action                                      |
 |---------------|---------------------------------------------|

@@ -156,6 +156,22 @@ map('n', '<Leader>pp', ':setlocal paste!<CR>', opts)
 map('n', '<Leader>cd', ':cd %:p:h<CR>:pwd<CR>', opts)
 
 --[[
+    Toggle group (<Leader>t)
+--]]
+-- cycles line number display: absolute → relative → none → absolute
+vim.keymap.set('n', '<Leader>tn', function()
+    if vim.wo.number and not vim.wo.relativenumber then
+        vim.wo.relativenumber = true
+    elseif vim.wo.relativenumber then
+        vim.wo.number = false
+        vim.wo.relativenumber = false
+    else
+        vim.wo.number = true
+        vim.wo.relativenumber = false
+    end
+end, { noremap = true, silent = true, desc = 'Cycle line numbers' })
+
+--[[
     Spell checking
 --]]
 -- toggles spell checking for the current buffer

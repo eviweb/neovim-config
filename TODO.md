@@ -96,6 +96,7 @@
 - [x] Clear search highlight — `<Leader><CR>` in normal mode to call `:noh`
 - [x] Auto-save on focus loss — autocmd `FocusLost`/`BufLeave` → `:silent! wa`
 - [x] `gitsigns.nvim` — inline diff signs, line blame, hunk navigation (`]h`/`[h`), stage/reset hunk
+- [x] Line number toggle — `<Leader>tn` cycles absolute → relative → none; new `<Leader>t` Toggle group
 
 ### Medium value
 
