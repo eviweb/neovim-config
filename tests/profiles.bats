@@ -1,0 +1,180 @@
+#!/usr/bin/env bats
+
+setup() {
+  export HOME="$BATS_TEST_TMPDIR/home"
+  mkdir -p "$HOME"
+}
+
+# ---------------------------------------------------------------------------
+# Profile loader structure
+# ---------------------------------------------------------------------------
+
+@test "profiles init module exists" {
+  [ -f "lua/profiles/init.lua" ]
+}
+
+@test "profiles init module defines detect function" {
+  run grep -n "M\.detect" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init module defines is_active function" {
+  run grep -n "M\.is_active" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init module defines get_plugins function" {
+  run grep -n "M\.get_plugins" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init module defines get_lsp_servers function" {
+  run grep -n "M\.get_lsp_servers" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init module defines get_null_ls_sources function" {
+  run grep -n "M\.get_null_ls_sources" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init module defines activate function" {
+  run grep -n "M\.activate" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Profile definitions
+# ---------------------------------------------------------------------------
+
+@test "web profile definition file exists" {
+  [ -f "lua/profiles/web.lua" ]
+}
+
+@test "web profile declares ts_ls as lsp server" {
+  run grep -n "ts_ls" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "web profile includes emmet plugin" {
+  run grep -n "emmet" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile definition file exists" {
+  [ -f "lua/profiles/php.lua" ]
+}
+
+@test "php profile declares intelephense as lsp server" {
+  run grep -n "intelephense" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile includes phpstan as null_ls source" {
+  run grep -n "phpstan" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "laravel profile definition file exists" {
+  [ -f "lua/profiles/laravel.lua" ]
+}
+
+@test "laravel profile extends php" {
+  run grep -n "'php'" lua/profiles/laravel.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "rust profile definition file exists" {
+  [ -f "lua/profiles/rust.lua" ]
+}
+
+@test "rust profile declares rust_analyzer as lsp server" {
+  run grep -n "rust_analyzer" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Profile integration
+# ---------------------------------------------------------------------------
+
+@test "plugins list integrates profile plugins via profiles module" {
+  run grep -n "require('profiles')" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "emmet plugin is declared in web profile not in global plugin list" {
+  run grep -n "emmet" lua/plugins.lua
+  [ "$status" -eq 1 ]
+  run grep -n "emmet" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# CLI profile command
+# ---------------------------------------------------------------------------
+
+@test "help documents profile command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"profile"* ]]
+}
+
+@test "profile list exits successfully" {
+  run ./bin/nvim-config profile list
+  [ "$status" -eq 0 ]
+}
+
+@test "profile set dry-run mentions nvim-profile file" {
+  run ./bin/nvim-config --dry-run profile set web
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-profile"* ]]
+}
+
+@test "profile detect exits successfully in current directory" {
+  run ./bin/nvim-config profile detect
+  [ "$status" -eq 0 ]
+}
+
+@test "profile unset dry-run mentions nvim-profile" {
+  run ./bin/nvim-config --dry-run profile unset
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-profile"* ]]
+}
+
+@test "profile create dry-run generates profile template path" {
+  run ./bin/nvim-config --dry-run profile create myprofile
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"lua/profiles/myprofile.lua"* ]]
+}
+
+@test "completion includes profile command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"profile"* ]]
+}
+
+@test "zsh completion covers profile subcommands" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"profile"* ]]
+  [[ "$output" == *"detect"* ]]
+}
+
+# ---------------------------------------------------------------------------
+# NvimProfile runtime switcher
+# ---------------------------------------------------------------------------
+
+@test "profiles picker file exists" {
+  [ -f "lua/profiles/picker.lua" ]
+}
+
+@test "commands defines NvimProfile user command" {
+  run grep -n "NvimProfile" lua/commands.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader fp for profile picker" {
+  run grep -n "Leader>fp" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"profiles.picker"* ]]
+}

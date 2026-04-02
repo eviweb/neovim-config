@@ -1,0 +1,150 @@
+#!/usr/bin/env bats
+
+setup() {
+  export HOME="$BATS_TEST_TMPDIR/home"
+  mkdir -p "$HOME"
+}
+
+@test "plugin declarations do not use the legacy kyazdani42 namespace" {
+  run grep -R -n "kyazdani42/" lua/plugins
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not expose diaglist commands anymore" {
+  run grep -n "diaglist" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope plugin does not include unused tele-tabby extension" {
+  run grep -n "tele-tabby" lua/plugins/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope plugin does not include unused live-grep-raw extension" {
+  run grep -n "live-grep-raw" lua/plugins/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope plugin does not include unused symbols extension" {
+  run grep -n "telescope-symbols" lua/plugins/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope config does not configure or load removed extensions" {
+  run grep -n "tele_tabby" lua/config/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "plugins list does not load archived nvim-gps" {
+  run grep -n "nvim-gps" lua/plugins.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lualine config does not reference nvim-gps" {
+  run grep -n "nvim-gps\|nvim_gps" lua/config/lualine.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "lualine config uses nvim-navic for breadcrumb" {
+  run grep -n "nvim-navic" lua/config/lualine.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lualine config guards nvim-navic with pcall" {
+  run grep -n "pcall(require, 'nvim-navic')" lua/config/lualine.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "trouble plugin does not declare lsp-colors" {
+  run grep -n "lsp-colors" lua/plugins/trouble.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "plugins list loads neo-tree instead of nvim-tree" {
+  run grep -n "require('plugins.neo-tree')" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list does not load nvim-tree" {
+  run grep -n "require('plugins.nvim-tree')" lua/plugins.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps use Neotree command instead of NvimTreeToggle" {
+  run grep -n "NvimTreeToggle" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not use trouble v1 workspace_diagnostics" {
+  run grep -n "workspace_diagnostics" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not use trouble v1 document_diagnostics" {
+  run grep -n "document_diagnostics" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not use trouble v1 quickfix command" {
+  run grep -n "Trouble quickfix" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "telescope config loads fzf extension" {
+  run grep -n "load_extension('fzf')" lua/config/telescope.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "telescope config guards node_modules extension with pcall" {
+  run grep -n "pcall(telescope.load_extension, 'node_modules')" lua/config/telescope.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "telescope config does not use trouble v1 open_with_trouble" {
+  run grep -n "open_with_trouble" lua/config/telescope.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "which-key config uses wk.add for group registration" {
+  run grep -n "wk.add" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key config registers Leader f group as Find" {
+  run grep -n "Leader>f" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Find"* ]]
+}
+
+@test "which-key config registers Leader d group as Diagnostics" {
+  run grep -n "Leader>d" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Diagnostics"* ]]
+}
+
+@test "keymaps cheatsheet documents leader key and how to change it" {
+  run grep -n "mapleader" docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader? for telescope keymaps picker" {
+  run grep -n 'Leader>?' lua/keymaps.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"telescope.builtin"* ]]
+  [[ "$output" == *"keymaps"* ]]
+}
+
+@test "keymaps cheatsheet documents Leader?" {
+  run grep -n 'Leader>?' docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
+@test "bufferline config uses neo-tree filetype offset" {
+  run grep -n "neo-tree" lua/config/bufferline.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key config annotates Leader fp for profiles" {
+  run grep -n "Leader>fp" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}

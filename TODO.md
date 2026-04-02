@@ -84,7 +84,7 @@
 
 ## Phase 10 - Test Suite Maintenance
 
-- [ ] Split `tests/nvim-config.bats` by domain (CLI, profiles, LSP/completion, UI/plugins, docs) for readability
+- [x] Split `tests/nvim-config.bats` by domain (CLI, profiles, LSP/completion, UI/plugins, docs) for readability
 
 ## Phase 9 - UI Consolidation (Long-term)
 
