@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `:Cheat [topic]` user command: opens a cheatsheet in a centered floating window (`q`/`Esc` to close); tab-completion on topics
+- `<Leader>hc` keymap: opens `:Cheat` with topic prompt; `<Leader>h` group annotated as Help in which-key
+- `docs/cheatsheets/`: four light quick-reference files (`editing`, `lsp`, `plugins`, `profiles`)
+- `scrolloff=7`: 7-line scroll margin in `options.lua`
+- `0` remapped to `^` (first non-blank character of line) in `keymaps.lua`
+- Visual `*` / `#`: search forward / backward on the current selection (literal, very-nomagic)
+- `<Leader>pp`: paste mode toggle (manual fallback for SSH / terminals without bracketed paste)
+- `<Leader>cd`: change CWD to the directory of the current file
+- `<Leader>ss/sn/sp/sa/s?`: spell checking toggle and navigation; `<Leader>s` group annotated in which-key
 - UI variant system: two interchangeable variants (`classic`, `modern`) selected at startup via `.nvim-ui` at the config root (gitignored, defaults to `classic`)
 - `lua/ui/variant.lua`: reads `.nvim-ui` and returns the active variant name
 - `lua/ui/shared.lua`: plugin specs common to both variants (nightfox, lualine, bufferline, nvim-navic)

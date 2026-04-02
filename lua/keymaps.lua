@@ -140,6 +140,9 @@ map('n', 'gR', ':Trouble lsp_references<CR>', opts)
 map('n', '<S-l>', ':BufferLineCycleNext<CR>', opts)
 map('n', '<S-h>', ':BufferLineCyclePrev<CR>', opts)
 
+-- Cheatsheets
+map('n', '<Leader>hc', ':Cheat<Space>', { noremap = true })
+
 --[[
     Editing utilities
 --]]

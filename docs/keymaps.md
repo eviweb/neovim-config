@@ -139,6 +139,14 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 | `<space>wr` | Remove workspace folder |
 | `<space>wl` | List workspace folders |
 
+### Cheatsheets
+
+| Key | Action |
+|-----|--------|
+| `<Leader>hc` | Open cheatsheet (`:Cheat <tab>` for topic completion) |
+
+Available topics: `editing`, `lsp`, `plugins`, `profiles`
+
 ### Editing utilities
 
 | Key | Action |

@@ -14,7 +14,13 @@ wk.setup({
 wk.add({
     { '<Leader>f',  group = 'Find' },
     { '<Leader>d',  group = 'Diagnostics' },
-    { '<Leader>n',  desc = 'Toggle file explorer' },
-    { '<Leader>?',  desc = 'Browse keymaps' },
-    { '<Leader>fp', desc = 'Browse profiles' },
+    { '<Leader>h',  group = 'Help' },
+    { '<Leader>s',  group = 'Spell' },
+    { '<Leader>n',  desc  = 'Toggle file explorer' },
+    { '<Leader>?',  desc  = 'Browse keymaps' },
+    { '<Leader>fp', desc  = 'Browse profiles' },
+    { '<Leader>hc', desc  = 'Open cheatsheet' },
+    { '<Leader>pp', desc  = 'Toggle paste mode' },
+    { '<Leader>cd', desc  = 'Change CWD to current file' },
+    { '<Leader>ss', desc  = 'Toggle spell checking' },
 })
