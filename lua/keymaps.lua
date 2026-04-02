@@ -143,6 +143,9 @@ map('n', '<S-h>', ':BufferLineCyclePrev<CR>', opts)
 -- Cheatsheets
 map('n', '<Leader>hc', ':Cheat<Space>', { noremap = true })
 
+-- clears search highlight without moving the cursor
+map('n', '<Leader><CR>', ':noh<CR>', opts)
+
 --[[
     Editing utilities
 --]]

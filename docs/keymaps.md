@@ -151,6 +151,7 @@ Available topics: `editing`, `lsp`, `plugins`, `profiles`
 
 | Key | Action |
 |-----|--------|
+| `<Leader><CR>` | Clear search highlight |
 | `<Leader>pp` | Toggle paste mode (fallback for terminals without bracketed paste) |
 | `<Leader>cd` | Change working directory to the current file's directory |
 

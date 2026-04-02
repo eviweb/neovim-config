@@ -251,3 +251,13 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Spell"* ]]
 }
+
+@test "keymaps define Leader CR to clear search highlight" {
+  run grep -n "Leader>.*CR\|noh" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "commands define auto-save on focus loss" {
+  run grep -n "FocusLost\|auto-save" lua/commands.lua
+  [ "$status" -eq 0 ]
+}

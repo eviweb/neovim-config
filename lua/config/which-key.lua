@@ -21,6 +21,7 @@ wk.add({
     { '<Leader>fp', desc  = 'Browse profiles' },
     { '<Leader>hc', desc  = 'Open cheatsheet' },
     { '<Leader>pp', desc  = 'Toggle paste mode' },
+    { '<Leader><CR>', desc = 'Clear search highlight' },
     { '<Leader>cd', desc  = 'Change CWD to current file' },
     { '<Leader>ss', desc  = 'Toggle spell checking' },
 })

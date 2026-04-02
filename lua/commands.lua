@@ -112,6 +112,13 @@ end, {
     desc     = 'Open a cheatsheet in a floating window',
 })
 
+-- auto-saves all modified buffers when Neovim loses focus or a buffer is left
+vim.api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
+    pattern  = '*',
+    callback = function() vim.cmd('silent! wa') end,
+    desc     = 'Auto-save all buffers on focus loss or buffer leave',
+})
+
 -- removes all trailing whitespace on save
 vim.api.nvim_exec(
     [[

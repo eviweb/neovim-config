@@ -39,6 +39,7 @@
 ## Utilities
 | Key           | Action                                      |
 |---------------|---------------------------------------------|
+| `<Leader><CR>`| Clear search highlight                      |
 | `<Leader>pp`  | Toggle paste mode (SSH / no bracketed paste)|
 | `<Leader>cd`  | Change CWD to current file's directory      |
 | `<C-z>`       | Undo                                        |
