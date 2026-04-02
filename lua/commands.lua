@@ -59,7 +59,7 @@ end, {
 })
 
 -- :Cheat [topic] — open a cheatsheet in a centered floating window
-local cheat_topics = { 'editing', 'lsp', 'plugins', 'profiles' }
+local cheat_topics = { 'editing', 'git', 'lsp', 'plugins', 'profiles' }
 
 local function open_cheatsheet(topic)
     if topic == '' or topic == nil then

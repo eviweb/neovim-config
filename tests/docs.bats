@@ -119,3 +119,12 @@ setup() {
   run grep -n "Leader>hc" lua/config/which-key.lua
   [ "$status" -eq 0 ]
 }
+
+@test "git cheatsheet exists" {
+  [ -f "docs/cheatsheets/git.md" ]
+}
+
+@test "Cheat command includes git topic" {
+  run grep -n "'git'" lua/commands.lua
+  [ "$status" -eq 0 ]
+}

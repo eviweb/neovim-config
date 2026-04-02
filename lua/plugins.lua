@@ -40,6 +40,9 @@ local base_plugins = {
 
     -- Text Objects
     require('plugins.treesitter-textobjects'),
+
+    -- Git
+    require('plugins.gitsigns'),
 }
 
 vim.list_extend(base_plugins, ui_plugins)

@@ -261,3 +261,41 @@ setup() {
   run grep -n "FocusLost\|auto-save" lua/commands.lua
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 11 — gitsigns
+# ---------------------------------------------------------------------------
+
+@test "gitsigns plugin file exists" {
+  [ -f "lua/plugins/gitsigns.lua" ]
+}
+
+@test "gitsigns plugin uses lewis6991 repository" {
+  run grep -n "lewis6991/gitsigns.nvim" lua/plugins/gitsigns.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "gitsigns config file exists" {
+  [ -f "lua/config/gitsigns.lua" ]
+}
+
+@test "gitsigns config defines hunk navigation" {
+  run grep -n "next_hunk\|prev_hunk" lua/config/gitsigns.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "gitsigns config defines blame line keymap" {
+  run grep -n "blame_line" lua/config/gitsigns.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list loads gitsigns" {
+  run grep -n "plugins.gitsigns" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader g group as Git" {
+  run grep -n "Leader>g" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Git"* ]]
+}

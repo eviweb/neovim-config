@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `gitsigns.nvim`: inline diff signs in gutter, `]h`/`[h` hunk navigation, `<Leader>gs/gr/gp/gb/gd` stage/reset/preview/blame/diff — buffer-local, active in git repos only
+- `docs/cheatsheets/git.md`: git cheatsheet (5th topic in `:Cheat`)
+- `<Leader>g` group annotated as Git in which-key
 - `<Leader><CR>`: clear search highlight without moving cursor
 - Auto-save: all modified buffers saved automatically on `FocusLost` and `BufLeave`
 - Tests: 19 new tests (169 total) covering keymaps (pass 1), cheatsheets and `:Cheat` command (pass 2) — 167 total, all green

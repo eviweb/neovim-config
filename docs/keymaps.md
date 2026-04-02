@@ -145,7 +145,18 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 |-----|--------|
 | `<Leader>hc` | Open cheatsheet (`:Cheat <tab>` for topic completion) |
 
-Available topics: `editing`, `lsp`, `plugins`, `profiles`
+Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
+
+### Git (gitsigns — buffer-local, active in git repos)
+
+| Key | Action |
+|-----|--------|
+| `]h` / `[h` | Next / previous hunk |
+| `<Leader>gp` | Preview hunk |
+| `<Leader>gs` | Stage hunk |
+| `<Leader>gr` | Reset hunk |
+| `<Leader>gb` | Blame line |
+| `<Leader>gd` | Diff this file |
 
 ### Editing utilities
 

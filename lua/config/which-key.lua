@@ -14,6 +14,7 @@ wk.setup({
 wk.add({
     { '<Leader>f',  group = 'Find' },
     { '<Leader>d',  group = 'Diagnostics' },
+    { '<Leader>g',  group = 'Git' },
     { '<Leader>h',  group = 'Help' },
     { '<Leader>s',  group = 'Spell' },
     { '<Leader>n',  desc  = 'Toggle file explorer' },
