@@ -37,6 +37,9 @@ map('n', '<Space>', '<Nop>', opts)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- jumps to the first non-blank character of the line (more useful than column 0)
+map('n', '0', '^', opts)
+
 -- toggles neo-tree file explorer
 map('n', '<Leader>n', ':Neotree toggle<CR>', opts)
 
@@ -91,6 +94,11 @@ map('i', '<C-r>', '<Esc><C-r>i', opts)
 map('v', '<', '<gv', opts)
 map('v', '>', '>gv', opts)
 
+-- searches for the current visual selection with * (forward) and # (backward)
+-- \V = very-nomagic (literal match); escape ensures /, \ in selection don't break the pattern
+map('v', '*', 'y/\\V<C-R>=escape(@","/\\")<CR><CR>', opts)
+map('v', '#', 'y?\\V<C-R>=escape(@","/\\")<CR><CR>', opts)
+
 --[[
     Visual block mode
 --]]
@@ -131,3 +139,25 @@ map('n', 'gR', ':Trouble lsp_references<CR>', opts)
 -- Bufferline
 map('n', '<S-l>', ':BufferLineCycleNext<CR>', opts)
 map('n', '<S-h>', ':BufferLineCyclePrev<CR>', opts)
+
+--[[
+    Editing utilities
+--]]
+-- toggles paste mode (fallback for terminals without bracketed paste support)
+map('n', '<Leader>pp', ':setlocal paste!<CR>', opts)
+
+-- changes the working directory to the directory of the current file
+map('n', '<Leader>cd', ':cd %:p:h<CR>:pwd<CR>', opts)
+
+--[[
+    Spell checking
+--]]
+-- toggles spell checking for the current buffer
+map('n', '<Leader>ss', ':setlocal spell!<CR>', opts)
+
+-- spell navigation: next / previous error, add word, suggest correction
+map('n', '<Leader>sn', ']s', opts)
+map('n', '<Leader>sp', '[s', opts)
+map('n', '<Leader>sa', 'zg', opts)
+map('n', '<Leader>s?', 'z=', opts)
+

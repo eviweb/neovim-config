@@ -46,6 +46,9 @@ vim.opt.showcmd = true -- shows commands
 vim.opt.updatetime = 750 -- sets the time of the update trigger in milliseconds
 vim.opt.ttimeoutlen = 0 -- sets the time in milliseconds to run commands
 
+-- Scroll
+vim.opt.scrolloff = 7 -- keeps at least 7 lines visible above and below the cursor
+
 -- Views
 vim.opt.inccommand = 'split' -- shows replacements in a split screen before applying
 vim.opt.splitbelow = true -- new horizontal splits are made below the current view

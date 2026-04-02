@@ -34,6 +34,7 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 |-----|--------|
 | `n` / `N` | Next / previous search match (centered) |
 | `j` / `k` | Move by visual line when wrapped, by real line otherwise |
+| `0` | Jump to first non-blank character of the line |
 | `<C-h/j/k/l>` | Move to left / down / up / right window |
 
 ### Windows
@@ -73,6 +74,7 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 | Key | Action |
 |-----|--------|
 | `<` / `>` | Indent left / right (stays in visual mode) |
+| `*` / `#` | Search forward / backward for the current selection |
 
 ## Visual block mode
 
@@ -136,6 +138,23 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 | `<space>wa` | Add workspace folder |
 | `<space>wr` | Remove workspace folder |
 | `<space>wl` | List workspace folders |
+
+### Editing utilities
+
+| Key | Action |
+|-----|--------|
+| `<Leader>pp` | Toggle paste mode (fallback for terminals without bracketed paste) |
+| `<Leader>cd` | Change working directory to the current file's directory |
+
+### Spell checking
+
+| Key | Action |
+|-----|--------|
+| `<Leader>ss` | Toggle spell checking for the current buffer |
+| `<Leader>sn` | Next spelling error |
+| `<Leader>sp` | Previous spelling error |
+| `<Leader>sa` | Add word under cursor to dictionary |
+| `<Leader>s?` | Suggest corrections for word under cursor |
 
 ### nvim-cmp (completion)
 
