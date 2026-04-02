@@ -153,7 +153,15 @@ automatically. This may take a minute. Once complete:
 
 ## Updating
 
-### Neovim
+The CLI can update both Neovim and plugins in one command:
+
+```bash
+./bin/nvim-config update          # nvim + plugins
+./bin/nvim-config update nvim     # Neovim only
+./bin/nvim-config update plugins  # plugins only
+```
+
+### Neovim (manual)
 
 ```bash
 # Snap
@@ -163,7 +171,7 @@ sudo snap refresh nvim
 sudo apt upgrade neovim
 ```
 
-### Plugins
+### Plugins (manual)
 
 From inside Neovim:
 
@@ -180,6 +188,76 @@ nvim --headless -u init.lua +"Lazy! sync" +qa
 `Lazy sync` installs missing plugins, updates existing ones, and removes unused
 ones. The `lazy-lock.json` file pins exact plugin versions — commit it to lock
 your plugin state across machines.
+
+## Project Profiles
+
+Profiles enable per-project tooling — only the LSP servers, null-ls sources, and
+plugins relevant to the current project are activated.
+
+Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`.
+
+### Auto-detection
+
+Profiles are detected automatically at startup:
+
+| File | Profile |
+|------|---------|
+| `package.json` | `web` |
+| `composer.json` | `php` |
+| `composer.json` + `laravel/framework` | `laravel` |
+| `Cargo.toml` | `rust` |
+
+### Manual override
+
+Pin a profile for the current project by writing `.nvim-profile` at the project root:
+
+```bash
+./bin/nvim-config profile set web
+./bin/nvim-config profile unset
+```
+
+### Runtime switching
+
+Switch the active profile without restarting Neovim (LSP and null-ls update immediately;
+plugin changes require a restart):
+
+```vim
+:NvimProfile web
+```
+
+Or use the Telescope picker: `<Leader>fp` — shows active (●) / inactive (○) profiles.
+
+### CLI
+
+```bash
+./bin/nvim-config profile list           # list available profiles
+./bin/nvim-config profile detect         # detect for the current directory
+./bin/nvim-config profile set <name>     # write .nvim-profile
+./bin/nvim-config profile unset          # remove .nvim-profile
+./bin/nvim-config profile create <name>  # generate a new profile template
+```
+
+## UI Variants
+
+Two interchangeable UI variants are available. The variant is chosen at Neovim
+startup and defaults to `classic`.
+
+| Variant | Stack |
+|---------|-------|
+| `classic` | telescope, which-key, trouble |
+| `modern` | snacks.nvim (picker, notifier, dashboard) |
+
+Both variants share: nightfox colorscheme, lualine statusline, bufferline, nvim-navic breadcrumb.
+
+### Switch variant
+
+```bash
+./bin/nvim-config ui set classic   # write .nvim-ui at the config root
+./bin/nvim-config ui set modern
+./bin/nvim-config ui unset         # remove .nvim-ui (reverts to classic)
+```
+
+`.nvim-ui` is gitignored — the setting is local to the machine.
 
 ## Documentation
 
@@ -230,7 +308,15 @@ autoload -Uz compinit && compinit
 
 ### Static regression tests
 
-`tests/nvim-config.bats` contains grep-based tests that verify structural invariants without needing a running Neovim process: deprecated options, removed plugins, namespace migrations, and similar one-way ratchets.
+Domain-specific bats files contain grep-based tests that verify structural invariants without needing a running Neovim process: deprecated options, removed plugins, namespace migrations, and similar one-way ratchets.
+
+| File | Domain |
+|------|--------|
+| `tests/cli.bats` | CLI commands, install, update, completion |
+| `tests/lsp.bats` | LSP, mason, nvim-cmp, treesitter, null-ls |
+| `tests/ui.bats` | UI plugins: telescope, neo-tree, lualine, trouble, which-key, bufferline, variant system |
+| `tests/docs.bats` | README and keymaps cheatsheet coverage |
+| `tests/profiles.bats` | Profile system, CLI profile commands, NvimProfile switcher |
 
 ### Structural integrity tests
 
@@ -257,8 +343,7 @@ NVIM_HEADLESS_TESTS_SKIP=1 bash tests/run   # force disable
 
 ## Notes
 
-- The current CLI scope covers `install` (deps, config, nvim, tmux) and shell
-  completion (bash, zsh). Fish completion and an `update` command are on the roadmap.
+- Fish shell completion is not yet implemented (bash and zsh are supported).
 
 ## Environment Limitations
 

@@ -185,6 +185,38 @@ The `telescope-node_modules` extension is loaded if present. Access it with:
 
 ---
 
+## Profiles
+
+Project profiles enable per-project tooling. Only the LSP servers, null-ls
+sources, and plugins relevant to the detected or configured profile are loaded.
+
+Available profiles: `web`, `php`, `laravel`, `rust`.
+
+### Activating a profile
+
+Profiles are detected automatically at startup from marker files (`package.json`,
+`composer.json`, `Cargo.toml`). To pin a profile for a project:
+
+```bash
+./bin/nvim-config profile set web
+```
+
+This writes `.nvim-profile` at the current directory root.
+
+### Runtime switching
+
+Switch the active profile without restarting Neovim:
+
+```vim
+:NvimProfile web
+```
+
+Or use the Telescope picker with `<Leader>fp` — active profiles are marked with ●,
+inactive with ○. Press `<CR>` to activate the selected profile. LSP servers and
+null-ls sources update immediately; plugin changes take effect after a restart.
+
+---
+
 ## Bufferline
 
 Open files are shown as tabs in the bufferline at the top of the screen.
