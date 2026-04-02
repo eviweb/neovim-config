@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- UI variant system: two interchangeable variants (`classic`, `modern`) selected at startup via `.nvim-ui` at the config root (gitignored, defaults to `classic`)
+- `lua/ui/variant.lua`: reads `.nvim-ui` and returns the active variant name
+- `lua/ui/shared.lua`: plugin specs common to both variants (nightfox, lualine, bufferline, nvim-navic)
+- `lua/ui/classic.lua`: classic variant specs (telescope, which-key, trouble)
+- `lua/ui/modern.lua`: modern variant specs (snacks.nvim — picker, notifier, dashboard)
+- CLI `ui` command: `set classic|modern` writes `.nvim-ui`; `unset` removes it
+- Bash and zsh completions updated with `ui` command and subcommands
+- `.nvim-ui` added to `.gitignore`
+- Split `tests/nvim-config.bats` into domain-specific files: `cli.bats`, `lsp.bats`, `ui.bats`, `docs.bats`, `profiles.bats`
+
+### Changed
+- `lua/plugins.lua`: UI plugins (telescope, lualine, bufferline, which-key, trouble, nvim-navic, nightfox) are now loaded via `lua/ui/` instead of inline requires
+
 - `:NvimProfile [name]` user command: activates a profile at runtime (LSP + null-ls immediate, plugins require restart); no argument opens Telescope picker
 - `<Leader>fp` keymap: opens profile picker (which-key annotated)
 - `lua/profiles/picker.lua`: Telescope picker showing active (●) / inactive (○) profiles

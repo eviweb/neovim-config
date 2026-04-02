@@ -12,14 +12,13 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 local profiles = require('profiles')
+local ui_variant = require('ui.variant').get()
+local ui_plugins = vim.list_extend(
+    require('ui.shared').get_plugins(),
+    require('ui.' .. ui_variant).get_plugins()
+)
 
 local base_plugins = {
-    -- Themes
-    require('plugins.nightfox'),
-
-    -- Status bar
-    require('plugins.lualine'),
-
     -- File browser
     require('plugins.neo-tree'),
 
@@ -27,10 +26,7 @@ local base_plugins = {
     require('plugins.treesitter'),
 
     -- Utils
-    require('plugins.nvim-navic'),
-    require('plugins.telescope'),
     require('plugins.nvim-autopairs'),
-    require('plugins.which-key'),
     require('plugins.vim-surround'),
     require('plugins.comment'),
 
@@ -42,14 +38,9 @@ local base_plugins = {
     require('plugins.lsp'),
     require('plugins.null-ls'),
 
-    -- Diagnostics
-    require('plugins.trouble'),
-
     -- Text Objects
     require('plugins.treesitter-textobjects'),
-
-    -- Views/Tabs
-    require('plugins.bufferline'),
 }
 
+vim.list_extend(base_plugins, ui_plugins)
 require('lazy').setup(vim.list_extend(base_plugins, profiles.get_plugins()))

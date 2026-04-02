@@ -88,22 +88,26 @@
 
 ## Phase 9 - UI Consolidation (Long-term)
 
-> Two interchangeable UI variants: `classic` (current stack) and `modern` (unified suite
-> e.g. `snacks.nvim`). Variant chosen at Neovim startup. Default is `classic` unless
-> `.nvim-ui` exists at the config root. CLI manages the file; `.nvim-ui` is gitignored.
+> Two interchangeable UI variants: `classic` (current stack) and `modern` (snacks.nvim suite).
+> Variant chosen at Neovim startup. Default is `classic` unless `.nvim-ui` exists at the
+> config root. CLI manages the file; `.nvim-ui` is gitignored.
 >
 > Design: Option B — independent of the profile system.
 > Layout:
 >   lua/ui/variant.lua  — reads .nvim-ui, returns 'classic' (default) or 'modern'
->   lua/ui/shared.lua   — colorscheme and settings common to both variants
->   lua/ui/classic.lua  — telescope, lualine, bufferline, trouble, nvim-navic
->   lua/ui/modern.lua   — snacks.nvim (picker, statusline, notifier, dashboard)
+>   lua/ui/shared.lua   — colorscheme, lualine, bufferline, nvim-navic (common to both variants)
+>   lua/ui/classic.lua  — telescope (fzf + node_modules extensions), which-key, trouble
+>   lua/ui/modern.lua   — snacks.nvim (picker, notifier, dashboard)
+>
+> Evaluation result: snacks.nvim has no statusline or breadcrumb module.
+> lualine and nvim-navic stay in shared.lua for both variants.
+> The visible difference: picker (snacks vs telescope) and notifications.
 >
 > CLI: nvim-config ui set classic|modern  /  nvim-config ui unset
 
-- [ ] Evaluate `snacks.nvim` as the modern variant foundation (picker, statusline, notifier, dashboard, breadcrumb)
-- [ ] Implement `lua/ui/` structure (variant, shared, classic, modern)
-- [ ] Move current UI plugins into `lua/ui/classic.lua`
-- [ ] Implement `lua/ui/modern.lua` once evaluation is done
-- [ ] Add `nvim-config ui set|unset` CLI subcommand
-- [ ] Add `.nvim-ui` to `.gitignore`
+- [x] Evaluate `snacks.nvim` as the modern variant foundation (picker, statusline, notifier, dashboard, breadcrumb)
+- [x] Implement `lua/ui/` structure (variant, shared, classic, modern)
+- [x] Move current UI plugins into `lua/ui/classic.lua`
+- [x] Implement `lua/ui/modern.lua` once evaluation is done
+- [x] Add `nvim-config ui set|unset` CLI subcommand
+- [x] Add `.nvim-ui` to `.gitignore`

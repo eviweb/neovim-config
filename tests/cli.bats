@@ -216,3 +216,41 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"--with-node"* ]]
 }
+
+@test "help documents ui command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"ui"* ]]
+}
+
+@test "ui set classic dry-run mentions .nvim-ui file" {
+  run ./bin/nvim-config --dry-run ui set classic
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-ui"* ]]
+}
+
+@test "ui set modern dry-run mentions .nvim-ui file" {
+  run ./bin/nvim-config --dry-run ui set modern
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-ui"* ]]
+}
+
+@test "ui unset dry-run mentions .nvim-ui file" {
+  run ./bin/nvim-config --dry-run ui unset
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-ui"* ]]
+}
+
+@test "completion includes ui command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"ui"* ]]
+}
+
+@test "zsh completion covers ui subcommands" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"ui"* ]]
+  [[ "$output" == *"set"* ]]
+  [[ "$output" == *"unset"* ]]
+}

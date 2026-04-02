@@ -148,3 +148,60 @@ setup() {
   run grep -n "Leader>fp" lua/config/which-key.lua
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 9 — UI variant system
+# ---------------------------------------------------------------------------
+
+@test "ui variant module exists" {
+  [ -f "lua/ui/variant.lua" ]
+}
+
+@test "ui shared module exists" {
+  [ -f "lua/ui/shared.lua" ]
+}
+
+@test "ui classic module exists" {
+  [ -f "lua/ui/classic.lua" ]
+}
+
+@test "ui modern module exists" {
+  [ -f "lua/ui/modern.lua" ]
+}
+
+@test "ui variant module defaults to classic" {
+  run grep -n "return 'classic'" lua/ui/variant.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "ui shared module loads lualine and bufferline" {
+  run grep -n "plugins.lualine" lua/ui/shared.lua
+  [ "$status" -eq 0 ]
+  run grep -n "plugins.bufferline" lua/ui/shared.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "ui classic module loads telescope" {
+  run grep -n "plugins.telescope" lua/ui/classic.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "ui modern module loads snacks.nvim" {
+  run grep -n "folke/snacks.nvim" lua/ui/modern.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua uses ui variant system" {
+  run grep -n "ui.variant" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua does not load telescope directly" {
+  run grep -n "require('plugins.telescope')" lua/plugins.lua
+  [ "$status" -eq 1 ]
+}
+
+@test ".nvim-ui is listed in .gitignore" {
+  run grep -n "\.nvim-ui" .gitignore
+  [ "$status" -eq 0 ]
+}

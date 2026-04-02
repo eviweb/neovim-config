@@ -12,6 +12,8 @@ DRY_RUN=0
 DEBUG=0
 PROFILE_SUBCOMMAND=""
 PROFILE_NAME=""
+UI_SUBCOMMAND=""
+UI_VARIANT=""
 # Respect NO_COLOR env var (https://no-color.org)
 if [[ -n "${NO_COLOR:-}" ]]; then
   NO_COLOR=1
@@ -66,6 +68,11 @@ Commands:
                           set    — write .nvim-profile in the current directory
                           unset  — remove .nvim-profile from the current directory
                           create — generate a new profile template in lua/profiles/
+
+  ui [set|unset] [classic|modern]
+                        Manage the active UI variant
+                          set    — write .nvim-ui at the config root
+                          unset  — remove .nvim-ui (reverts to classic)
 
 Global options:
   -h, --help            Display usage and exit
@@ -165,10 +172,18 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "list detect set unset create" -- "${current_word}") )
       return 0
       ;;
+    ui)
+      COMPREPLY=( $(compgen -W "set unset" -- "${current_word}") )
+      return 0
+      ;;
+    classic|modern)
+      COMPREPLY=()
+      return 0
+      ;;
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile" -- "${current_word}") )
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile ui" -- "${current_word}") )
     return 0
   fi
 
@@ -230,10 +245,16 @@ _nvim_config() {
     'create:Generate a new profile template in lua/profiles/'
   )
 
+  ui_subcmds=(
+    'set:Write .nvim-ui at the config root'
+    'unset:Remove .nvim-ui (reverts to classic)'
+  )
+
   commands=(
     'install:Install system dependencies and/or config symlinks'
     'update:Update Neovim and/or plugins'
     'profile:Manage per-project Neovim profiles'
+    'ui:Manage the active UI variant'
   )
 
   case "${words[2]}" in
@@ -245,6 +266,9 @@ _nvim_config() {
       ;;
     profile)
       _arguments : "${profile_subcmds[@]}"
+      ;;
+    ui)
+      _arguments : "${ui_subcmds[@]}"
       ;;
     *)
       _arguments : "${global_opts[@]}" "${commands[@]}"
@@ -476,6 +500,55 @@ run_profile() {
   esac
 }
 
+run_ui_set() {
+  local variant="${1:?Missing variant for: ui set (classic|modern)}"
+  if [[ "${variant}" != "classic" && "${variant}" != "modern" ]]; then
+    printf 'Unknown UI variant: %s. Use classic or modern.\n' "${variant}" >&2
+    return 1
+  fi
+  local ui_file="${PROJECT_DIR}/.nvim-ui"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "printf '%s\\n' '${variant}' > ${ui_file}"
+    return 0
+  fi
+  printf '%s\n' "${variant}" > "${ui_file}"
+  log_message "INFO" "UI variant '${variant}' written to ${ui_file}"
+}
+
+run_ui_unset() {
+  local ui_file="${PROJECT_DIR}/.nvim-ui"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "rm -f ${ui_file}"
+    return 0
+  fi
+  if [ -f "${ui_file}" ]; then
+    rm -f "${ui_file}"
+    log_message "INFO" "Removed ${ui_file} — reverts to classic"
+  else
+    log_message "INFO" "${ui_file} does not exist — nothing to do"
+  fi
+}
+
+run_ui() {
+  case "${UI_SUBCOMMAND:-}" in
+    set)
+      if [ -z "${UI_VARIANT}" ]; then
+        printf 'Missing variant for: ui set (classic|modern)\n' >&2
+        exit 1
+      fi
+      run_ui_set "${UI_VARIANT}"
+      ;;
+    unset)
+      run_ui_unset
+      ;;
+    *)
+      printf 'Unknown ui subcommand: %s\n' "${UI_SUBCOMMAND}" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
+}
+
 run_install_tmux() {
   local tmux_conf="${HOME}/.tmux.conf"
   local source_line="source-file ${PROJECT_DIR}/.tmux.conf"
@@ -651,6 +724,18 @@ while [ "$#" -gt 0 ]; do
         fi
       fi
       ;;
+    ui)
+      COMMAND="ui"
+      shift
+      if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+        UI_SUBCOMMAND="$1"
+        shift
+        if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+          UI_VARIANT="$1"
+          shift
+        fi
+      fi
+      ;;
     *)
       printf 'Unknown argument: %s\n' "$1" >&2
       exit 1
@@ -679,6 +764,9 @@ case "${COMMAND}" in
     ;;
   profile)
     run_profile
+    ;;
+  ui)
+    run_ui
     ;;
   *)
     print_usage
