@@ -86,6 +86,23 @@
 
 - [x] Split `tests/nvim-config.bats` by domain (CLI, profiles, LSP/completion, UI/plugins, docs) for readability
 
+## Phase 11 - Quality of Life
+
+> Incremental improvements with high daily value, low implementation cost.
+> Ordered by recommended priority.
+
+### High value
+
+- [ ] Clear search highlight — `<Leader><CR>` in normal mode to call `:noh`
+- [ ] Auto-save on focus loss — autocmd `FocusLost`/`BufLeave` → `:silent! wa`
+- [ ] `gitsigns.nvim` — inline diff signs, line blame, hunk navigation (`]h`/`[h`), stage/reset hunk
+
+### Medium value
+
+- [ ] `:w!!` sudo save — write system files without relaunching Neovim as root
+- [ ] `:Cheat` Telescope picker — replace text prompt with a Telescope picker + preview
+- [ ] Session restore — `persistence.nvim` or `auto-session`: reopen last workspace on startup
+
 ## Phase 9 - UI Consolidation (Long-term)
 
 > Two interchangeable UI variants: `classic` (current stack) and `modern` (snacks.nvim suite).
