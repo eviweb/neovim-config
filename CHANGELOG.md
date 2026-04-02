@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `nvim-treesitter` v1.0 migration: rewrote `lua/config/treesitter.lua` — `nvim-treesitter.configs` removed; highlight via FileType autocmd + `vim.treesitter.start()`, folds via `vim.treesitter.foldexpr()`, textobjects migrated to `nvim-treesitter-textobjects` v2 explicit keymaps
+- which-key v3: disabled automatic keymap icons (`icons.mappings = false`) to avoid rendering issues without a Nerd Font
+
 ### Added
 - `<Leader>tn`: cycle line numbers (absolute → relative → none), new `<Leader>t` Toggle group in which-key
 - `gitsigns.nvim`: inline diff signs in gutter, `]h`/`[h` hunk navigation, `<Leader>gs/gr/gp/gb/gd` stage/reset/preview/blame/diff — buffer-local, active in git repos only

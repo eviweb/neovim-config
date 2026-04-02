@@ -8,6 +8,10 @@ wk.setup({
             enabled = true,
         },
     },
+    icons = {
+        -- Disable automatic keymap icons (requires Nerd Font; causes boxes without one).
+        mappings = false,
+    },
 })
 
 -- Group labels shown in the which-key popup when a prefix is pressed.

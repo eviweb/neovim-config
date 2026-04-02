@@ -84,6 +84,28 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "treesitter config does not use removed nvim-treesitter.configs module" {
+  run grep -n "nvim-treesitter\.configs" lua/config/treesitter.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "treesitter config uses FileType autocmd for highlight" {
+  run grep -n "FileType" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+  run grep -n "vim\.treesitter\.start" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "treesitter config uses vim.treesitter.foldexpr for folds" {
+  run grep -n "vim\.treesitter\.foldexpr" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "treesitter textobject keymaps use nvim-treesitter-textobjects v2 API" {
+  run grep -n "nvim-treesitter-textobjects\.select\|nvim-treesitter-textobjects\.move" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "lsp plugin does not depend on diaglist anymore" {
   run grep -n "diaglist.nvim" lua/plugins/lsp.lua
   [ "$status" -eq 1 ]
