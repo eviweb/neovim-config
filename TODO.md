@@ -102,7 +102,7 @@
 
 - [x] `:w!!` sudo save — write system files without relaunching Neovim as root
 - [x] `:Cheat` picker — `:Cheat` with no argument opens `vim.ui.select` (variant-agnostic); with argument opens directly
-- [ ] Session restore — `persistence.nvim` or `auto-session`: reopen last workspace on startup
+- [x] Session restore — `persistence.nvim`: auto-restore on startup (no args), `<Leader>qs` restore, `<Leader>qd` stop
 
 ## Phase 9 - UI Consolidation (Long-term)
 

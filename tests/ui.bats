@@ -471,6 +471,51 @@ setup() {
 # Phase 12 — bash shebang filetype detection
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Phase 12 — session restore (persistence.nvim)
+# ---------------------------------------------------------------------------
+
+@test "persistence plugin file exists" {
+  [ -f "lua/plugins/persistence.lua" ]
+}
+
+@test "persistence config file exists" {
+  [ -f "lua/config/persistence.lua" ]
+}
+
+@test "persistence plugin uses folke repository" {
+  run grep -n "folke/persistence.nvim" lua/plugins/persistence.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "persistence config auto-restores session on VimEnter with no arguments" {
+  run grep -n "VimEnter" lua/config/persistence.lua
+  [ "$status" -eq 0 ]
+  run grep -n "argc" lua/config/persistence.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads persistence" {
+  run grep -n "plugins.persistence" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader qs to restore session" {
+  run grep -n "Leader.*qs\|persistence.*load" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader qd to stop persistence" {
+  run grep -n "Leader.*qd\|persistence.*stop" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader q group as Session" {
+  run grep -n "Leader>q" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Session"* ]]
+}
+
 @test "Cheat command uses vim.ui.select when no topic is given" {
   run grep -n "vim.ui.select" lua/commands.lua
   [ "$status" -eq 0 ]

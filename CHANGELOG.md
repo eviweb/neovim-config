@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Session restore: `persistence.nvim` saves session per directory on exit and auto-restores on startup when Neovim is opened with no arguments; `<Leader>qs` restore, `<Leader>qd` stop persistence; `<Leader>q` group annotated as Session in which-key
 - `:Cheat` with no argument opens a `vim.ui.select` picker (works in both UI variants) instead of showing a usage message
 - `:w!!` sudo save — write system files without relaunching Neovim as root (`cabbrev w!!` → `w !sudo tee % > /dev/null`)
 - Tests: 44 new tests (230 total) covering theme system, render-markdown, bash shebang detection, keymaps cleanup, and `:w!!`; treesitter regression test narrowed to `require(...)` calls only

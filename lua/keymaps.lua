@@ -171,6 +171,17 @@ vim.keymap.set('n', '<Leader>tn', function()
 end, { noremap = true, silent = true, desc = 'Cycle line numbers' })
 
 --[[
+    Session (<Leader>q)
+--]]
+-- restores the last session for the current directory
+vim.keymap.set('n', '<Leader>qs', function() require('persistence').load() end,
+    { noremap = true, silent = true, desc = 'Restore session' })
+
+-- stops persistence for the current session (next quit will not save)
+vim.keymap.set('n', '<Leader>qd', function() require('persistence').stop() end,
+    { noremap = true, silent = true, desc = 'Stop session persistence' })
+
+--[[
     Spell checking
 --]]
 -- toggles spell checking for the current buffer

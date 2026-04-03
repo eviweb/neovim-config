@@ -44,6 +44,9 @@ local base_plugins = {
     -- Git
     require('plugins.gitsigns'),
 
+    -- Session
+    require('plugins.persistence'),
+
     -- Markdown
     require('plugins.render-markdown'),
 
