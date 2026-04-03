@@ -43,6 +43,9 @@ local base_plugins = {
     -- Text Objects
     require('plugins.treesitter-textobjects'),
 
+    -- Navigation
+    require('plugins.harpoon'),
+
     -- Git
     require('plugins.gitsigns'),
     require('plugins.diffview'),

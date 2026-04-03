@@ -145,7 +145,7 @@
 ## Phase 13 - Quality Of Life And AI
 
 ### Navigation
-- [ ] `harpoon` (ThePrimeagen) — mark/jump to 4-5 key files per project instantly
+- [x] `harpoon` (ThePrimeagen/harpoon2) — mark/jump to 4-5 key files per project (`<Leader>ha`, `<Leader>hh`, `<C-1..4>`)
 - [x] `vim-illuminate` — auto-highlight all occurrences of the word under cursor
 
 ### Editing

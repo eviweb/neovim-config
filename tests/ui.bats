@@ -472,6 +472,50 @@ setup() {
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Phase 13 — harpoon
+# ---------------------------------------------------------------------------
+
+@test "harpoon plugin file exists" {
+  [ -f "lua/plugins/harpoon.lua" ]
+}
+
+@test "harpoon plugin uses harpoon2 branch" {
+  run grep -n "harpoon2" lua/plugins/harpoon.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "harpoon config file exists" {
+  [ -f "lua/config/harpoon.lua" ]
+}
+
+@test "plugins.lua loads harpoon" {
+  run grep -n "plugins.harpoon" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "harpoon config defines Leader ha to add file" {
+  run grep -n "Leader.*ha\|:add()" lua/config/harpoon.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "harpoon config defines Leader hh to toggle menu" {
+  run grep -n "toggle_quick_menu" lua/config/harpoon.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "harpoon config defines C-1 to C-4 jump keymaps" {
+  run grep -n "<C-1>" lua/config/harpoon.lua
+  [ "$status" -eq 0 ]
+  run grep -n "<C-4>" lua/config/harpoon.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader ha and Leader hh" {
+  run grep -n "Leader>ha\|Leader>hh" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
 # Phase 13 — todo-comments, diffview
 # ---------------------------------------------------------------------------
 
