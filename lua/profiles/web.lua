@@ -30,7 +30,7 @@ return {
             dependencies = { 'mattn/webapi-vim' },
         },
         {
-            'nvim-telescope/telescope-node_modules.nvim',
+            'nvim-telescope/telescope-node-modules.nvim',
             lazy = true,
         },
         { 'marilari88/neotest-vitest', lazy = true },
