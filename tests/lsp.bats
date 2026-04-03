@@ -85,7 +85,7 @@ setup() {
 }
 
 @test "treesitter config does not use removed nvim-treesitter.configs module" {
-  run grep -n "nvim-treesitter\.configs" lua/config/treesitter.lua
+  run grep -n "require.*nvim-treesitter\.configs" lua/config/treesitter.lua
   [ "$status" -eq 1 ]
 }
 

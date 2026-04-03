@@ -324,3 +324,193 @@ setup() {
   run grep -n "Leader.*tn\|line number" docs/keymaps.md
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 12 — persistent theme system
+# ---------------------------------------------------------------------------
+
+@test "theme module exists" {
+  [ -f "lua/ui/theme.lua" ]
+}
+
+@test "theme module exposes VALID table" {
+  run grep -n "M.VALID" lua/ui/theme.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "theme module exposes NAMES array" {
+  run grep -n "M.NAMES" lua/ui/theme.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "theme module defaults to nightfox" {
+  run grep -n "nightfox" lua/ui/theme.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "theme module lists all 14 dark themes" {
+  local count
+  count=$(grep -c "true" lua/ui/theme.lua)
+  [ "$count" -ge 14 ]
+}
+
+@test "catppuccin plugin file exists" {
+  [ -f "lua/plugins/catppuccin.lua" ]
+}
+
+@test "catppuccin plugin uses priority 1000" {
+  run grep -n "priority.*1000" lua/plugins/catppuccin.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "tokyonight plugin file exists" {
+  [ -f "lua/plugins/tokyonight.lua" ]
+}
+
+@test "tokyonight plugin uses priority 1000" {
+  run grep -n "priority.*1000" lua/plugins/tokyonight.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "kanagawa plugin file exists" {
+  [ -f "lua/plugins/kanagawa.lua" ]
+}
+
+@test "kanagawa plugin uses priority 1000" {
+  run grep -n "priority.*1000" lua/plugins/kanagawa.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "gruvbox-material plugin file exists" {
+  [ -f "lua/plugins/gruvbox-material.lua" ]
+}
+
+@test "gruvbox-material plugin uses priority 1000" {
+  run grep -n "priority.*1000" lua/plugins/gruvbox-material.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nightfox plugin does not apply colorscheme directly" {
+  run grep -n "vim.cmd.*colorscheme" lua/plugins/nightfox.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "plugins.lua loads catppuccin" {
+  run grep -n "plugins.catppuccin" lua/ui/shared.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads tokyonight" {
+  run grep -n "plugins.tokyonight" lua/ui/shared.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads kanagawa" {
+  run grep -n "plugins.kanagawa" lua/ui/shared.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads gruvbox-material" {
+  run grep -n "plugins.gruvbox-material" lua/ui/shared.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua declares theme-init spec" {
+  run grep -n "theme-init" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "theme-init spec uses priority 0" {
+  run grep -n "priority = 0" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "theme-init applies colorscheme via theme.get()" {
+  run grep -n "ui.theme" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "commands.lua declares Theme user command" {
+  run grep -n "Theme" lua/commands.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "Theme command uses theme module for completion" {
+  run grep -n "ui.theme.*NAMES\|theme.*NAMES" lua/commands.lua
+  [ "$status" -eq 0 ]
+}
+
+@test ".nvim-theme is listed in .gitignore" {
+  run grep -n "\.nvim-theme" .gitignore
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Phase 12 — render-markdown
+# ---------------------------------------------------------------------------
+
+@test "render-markdown plugin file exists" {
+  [ -f "lua/plugins/render-markdown.lua" ]
+}
+
+@test "render-markdown plugin is lazy-loaded on markdown filetype" {
+  run grep -n "ft.*markdown\|markdown.*ft" lua/plugins/render-markdown.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "render-markdown config file exists" {
+  [ -f "lua/config/render-markdown.lua" ]
+}
+
+@test "plugins.lua loads render-markdown" {
+  run grep -n "plugins.render-markdown" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Phase 12 — bash shebang filetype detection
+# ---------------------------------------------------------------------------
+
+@test "options.lua uses vim.filetype.add for shebang detection" {
+  run grep -n "vim.filetype.add" lua/options.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "options.lua matches /bin/bash shebang" {
+  run grep -n "bin/bash" lua/options.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "options.lua matches env bash shebang" {
+  run grep -n "env.*bash\|env%s+bash" lua/options.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "shebang detection uses lowest priority" {
+  run grep -n "priority.*math.huge\|-math.huge" lua/options.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Phase 12 — keymaps cleanup
+# ---------------------------------------------------------------------------
+
+@test "keymaps define C-s save in normal mode" {
+  run grep -n "'<C-s>'.*:w" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define C-s save in insert mode" {
+  run grep -n "\"i\".*C-s\|'i'.*C-s" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps do not map C-z to undo" {
+  run grep -n "'<C-z>'.*'u'\|\"<C-z>\".*\"u\"" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps do not remap C-r in insert mode" {
+  run grep -n "'i'.*'<C-r>'\|\"i\".*\"<C-r>\"" lua/keymaps.lua
+  [ "$status" -eq 1 ]
+}

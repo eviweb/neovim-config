@@ -254,3 +254,59 @@ setup() {
   [[ "$output" == *"set"* ]]
   [[ "$output" == *"unset"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 12 — theme CLI subcommand
+# ---------------------------------------------------------------------------
+
+@test "help documents theme command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"theme"* ]]
+}
+
+@test "theme set dry-run mentions .nvim-theme file" {
+  run ./bin/nvim-config --dry-run theme set nightfox
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-theme"* ]]
+}
+
+@test "theme unset dry-run mentions .nvim-theme file" {
+  run ./bin/nvim-config --dry-run theme unset
+  [ "$status" -eq 0 ]
+  [[ "$output" == *".nvim-theme"* ]]
+}
+
+@test "theme set writes .nvim-theme with given name" {
+  local config_dir
+  config_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  run ./bin/nvim-config theme set nightfox
+  [ "$status" -eq 0 ]
+  [ -f "${config_dir}/.nvim-theme" ]
+  run cat "${config_dir}/.nvim-theme"
+  [[ "$output" == *"nightfox"* ]]
+  rm -f "${config_dir}/.nvim-theme"
+}
+
+@test "theme unset removes .nvim-theme file" {
+  local config_dir
+  config_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  echo "nightfox" > "${config_dir}/.nvim-theme"
+  run ./bin/nvim-config theme unset
+  [ "$status" -eq 0 ]
+  [ ! -f "${config_dir}/.nvim-theme" ]
+}
+
+@test "completion includes theme command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"theme"* ]]
+}
+
+@test "zsh completion covers theme subcommands" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"theme"* ]]
+  [[ "$output" == *"set"* ]]
+  [[ "$output" == *"unset"* ]]
+}
