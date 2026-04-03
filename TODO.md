@@ -141,3 +141,37 @@
 - [x] Bash shebang detection — extensionless files with `#!/.../bin/bash` or `#!/.../env bash` auto-detected as `sh` via `vim.filetype.add`
 - [x] Keymaps cleanup — `<C-s>` added in normal mode; `<C-z>` and `<C-r>` removed from insert mode (terminal conflicts, native Vim override)
 - [x] Test coverage — 43 new tests (229 total) covering all Phase 12 additions
+
+## Phase 13 - Quality Of Life And AI
+
+### Navigation
+- [ ] `harpoon` (ThePrimeagen) — mark/jump to 4-5 key files per project instantly
+- [ ] `vim-illuminate` — auto-highlight all occurrences of the word under cursor
+
+### Editing
+- [ ] `friendly-snippets` — pre-built snippet library for LuaSnip (PHP, JS, Lua, Python...)
+- [ ] `nvim-spectre` — project-wide search/replace with regex and preview before applying
+- [ ] `mini.ai` — extended text objects: function args, brackets across lines (`ia`/`aa`)
+
+### Git
+- [ ] `diffview.nvim` — enhanced diff view and per-file git history; complements gitsigns
+- [ ] `lazygit.nvim` — open lazygit in a floating terminal window from inside Neovim
+
+### Code quality
+- [ ] `todo-comments.nvim` — colorise TODO/FIXME/HACK/NOTE in code; list all via Telescope
+- [ ] `indent-blankline.nvim` — visual indent guides (essential for YAML, Python, nested Lua)
+
+### Testing and debugging
+- [ ] `neotest` — run and visualise test results inside Neovim (bats, phpunit, jest...)
+- [ ] `nvim-dap` + `nvim-dap-ui` — interactive debugger with breakpoints and UI
+
+### Writing
+- [ ] `zen-mode.nvim` — distraction-free fullscreen mode for markdown and prose
+
+### AI assistance
+- [ ] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); supports Claude
+  (Anthropic API key) and GPT-4o (OpenAI API key); requires API billing separate from
+  chat subscriptions
+- [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription
+  (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface
+- [ ] `codeium.nvim` — free inline AI completion, no subscription required
