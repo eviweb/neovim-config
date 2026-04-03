@@ -310,3 +310,60 @@ setup() {
   [[ "$output" == *"set"* ]]
   [[ "$output" == *"unset"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 7 — fish completion
+# ---------------------------------------------------------------------------
+
+@test "show-completion fish prints fish completion script" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"complete -c nvim-config"* ]]
+}
+
+@test "fish completion covers all top-level commands" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"install"* ]]
+  [[ "$output" == *"update"* ]]
+  [[ "$output" == *"profile"* ]]
+  [[ "$output" == *"ui"* ]]
+  [[ "$output" == *"theme"* ]]
+}
+
+@test "fish completion covers install subcommands" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"deps"* ]]
+  [[ "$output" == *"config"* ]]
+  [[ "$output" == *"tmux"* ]]
+  [[ "$output" == *"nvim"* ]]
+}
+
+@test "fish completion covers ui set classic and modern" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"classic"* ]]
+  [[ "$output" == *"modern"* ]]
+}
+
+@test "fish completion covers theme set and unset" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"set"* ]]
+  [[ "$output" == *"unset"* ]]
+}
+
+@test "install-completion fish writes completion file" {
+  export SHELL="/usr/bin/fish"
+  mkdir -p "${HOME}/.config/fish/completions"
+  run ./bin/nvim-config --install-completion fish
+  [ "$status" -eq 0 ]
+  [ -f "${HOME}/.config/fish/completions/nvim-config.fish" ]
+}
+
+@test "help documents fish in completion options" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"fish"* ]]
+}

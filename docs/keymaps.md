@@ -50,8 +50,8 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 
 | Key | Action |
 |-----|--------|
+| `<C-s>` | Save file |
 | `<A-j>` / `<A-k>` | Move current line down / up |
-| `<C-z>` | Undo |
 
 ### File explorer
 
@@ -65,8 +65,6 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 |-----|--------|
 | `jj` | Exit to normal mode |
 | `<C-s>` | Save file and return to insert mode |
-| `<C-z>` | Undo |
-| `<C-r>` | Redo |
 | `<A-j>` / `<A-k>` | Move current line down / up |
 
 ## Visual mode
@@ -143,7 +141,9 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 
 | Key | Action |
 |-----|--------|
-| `<Leader>hc` | Open cheatsheet (`:Cheat <tab>` for topic completion) |
+| `<Leader>hc` | Open cheatsheet topic picker |
+
+`:Cheat` with no argument opens a `vim.ui.select` picker. With a topic argument (tab-completion available) it opens directly.
 
 Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 
@@ -164,6 +164,15 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 |-----|--------|
 | `<Leader>tn` | Cycle line numbers (absolute → relative → none) |
 
+### Session
+
+| Key | Action |
+|-----|--------|
+| `<Leader>qs` | Restore session for the current directory |
+| `<Leader>qd` | Stop session persistence (next quit will not save) |
+
+Session is saved automatically per directory on exit and restored on startup when Neovim is opened with no file arguments.
+
 ### Editing utilities
 
 | Key | Action |
@@ -171,6 +180,7 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 | `<Leader><CR>` | Clear search highlight |
 | `<Leader>pp` | Toggle paste mode (fallback for terminals without bracketed paste) |
 | `<Leader>cd` | Change working directory to the current file's directory |
+| `:w!!` | Write current file with sudo (for system files opened without root) |
 
 ### Spell checking
 

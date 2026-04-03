@@ -91,9 +91,9 @@ Global options:
       --no-color        Disable colored output
       --no-log          Disable file logging
       --log-dir <path>  Override the log directory
-      --show-completion bash|zsh
+      --show-completion bash|zsh|fish
                         Print the completion script for the given shell
-      --install-completion bash|zsh
+      --install-completion bash|zsh|fish
                         Install completion for the given shell
 EOF
 }
@@ -164,7 +164,7 @@ _nvim_config_completions() {
 
   case "${previous_word}" in
     --show-completion|--install-completion)
-      COMPREPLY=( $(compgen -W "bash zsh" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "bash zsh fish" -- "${current_word}") )
       return 0
       ;;
     install|deps|config|all|tmux|nvim)
@@ -222,8 +222,8 @@ _nvim_config() {
     '--no-color[Disable colored output]'
     '--no-log[Disable file logging]'
     '--log-dir[Override the log directory]:directory:_directories'
-    '--show-completion[Print the completion script]:shell:(bash zsh)'
-    '--install-completion[Install completion for the current user]:shell:(bash zsh)'
+    '--show-completion[Print the completion script]:shell:(bash zsh fish)'
+    '--install-completion[Install completion for the current user]:shell:(bash zsh fish)'
   )
 
   commands=(
@@ -300,13 +300,80 @@ _nvim_config "$@"
 EOF
 }
 
+_show_completion_fish() {
+  cat <<'EOF'
+# Fish shell completion for nvim-config
+
+# Disable file completion by default
+complete -c nvim-config -f
+
+# Global options
+complete -c nvim-config -l help              -d 'Display usage and exit'
+complete -c nvim-config -l version           -d 'Display version and exit'
+complete -c nvim-config -l verbose           -d 'Enable debug-level output'
+complete -c nvim-config -l quiet             -d 'Suppress terminal output'
+complete -c nvim-config -l debug             -d 'Enable shell trace mode'
+complete -c nvim-config -l dry-run           -d 'Simulate execution without making changes'
+complete -c nvim-config -l no-color          -d 'Disable colored output'
+complete -c nvim-config -l no-log            -d 'Disable file logging'
+complete -c nvim-config -l log-dir           -d 'Override the log directory' -r
+complete -c nvim-config -l show-completion   -d 'Print the completion script' -a 'bash zsh fish'
+complete -c nvim-config -l install-completion -d 'Install completion for the current user' -a 'bash zsh fish'
+
+# Top-level commands (shown when no subcommand has been typed yet)
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+  -a install -d 'Install system dependencies and/or config symlinks'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+  -a update  -d 'Update Neovim and/or plugins'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+  -a profile -d 'Manage per-project Neovim profiles'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+  -a ui      -d 'Manage the active UI variant'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+  -a theme   -d 'Manage the active colorscheme'
+
+# install subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a deps    -d 'Install apt packages only'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a config  -d 'Symlink ~/.config/nvim to this repository'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, then config'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a tmux    -d 'Inject source-file entry into ~/.tmux.conf'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a nvim    -d 'Install Neovim (snap by default)'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l with-node -d 'Also install nvm and Node.js LTS'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d 'Install Neovim via snap (default)'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Install Neovim via apt'
+
+# update subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim    -d 'Refresh Neovim'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a plugins -d 'Run Lazy! sync headlessly'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a all     -d 'Update nvim then plugins (default)'
+
+# profile subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a list   -d 'List available profiles'
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a detect -d 'Detect profiles for the current directory'
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a set    -d 'Write .nvim-profile in the current directory'
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a unset  -d 'Remove .nvim-profile from the current directory'
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a create -d 'Generate a new profile template'
+
+# ui subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from ui' -a set   -d 'Write .nvim-ui at the config root'
+complete -c nvim-config -n '__fish_seen_subcommand_from ui' -a unset -d 'Remove .nvim-ui (reverts to classic)'
+complete -c nvim-config -n '__fish_seen_subcommand_from ui; and __fish_seen_subcommand_from set' \
+  -a 'classic modern'
+
+# theme subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a set   -d 'Write .nvim-theme at the config root'
+complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a unset -d 'Remove .nvim-theme (reverts to nightfox)'
+EOF
+}
+
 show_completion() {
   local shell_name="$1"
   case "${shell_name}" in
     bash) _show_completion_bash ;;
     zsh)  _show_completion_zsh  ;;
+    fish) _show_completion_fish ;;
     *)
-      printf 'Unsupported shell: %s. Supported: bash, zsh\n' "${shell_name}" >&2
+      printf 'Unsupported shell: %s. Supported: bash, zsh, fish\n' "${shell_name}" >&2
       return 1
       ;;
   esac
@@ -325,8 +392,12 @@ install_completion() {
       completion_dir="${HOME}/.zfunc"
       completion_file="${completion_dir}/_${SCRIPT_NAME}"
       ;;
+    fish)
+      completion_dir="${HOME}/.config/fish/completions"
+      completion_file="${completion_dir}/${SCRIPT_NAME}.fish"
+      ;;
     *)
-      printf 'Unsupported shell: %s. Supported: bash, zsh\n' "${shell_name}" >&2
+      printf 'Unsupported shell: %s. Supported: bash, zsh, fish\n' "${shell_name}" >&2
       return 1
       ;;
   esac

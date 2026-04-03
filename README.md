@@ -247,7 +247,7 @@ startup and defaults to `classic`.
 | `classic` | telescope, which-key, trouble |
 | `modern` | snacks.nvim (picker, notifier, dashboard) |
 
-Both variants share: nightfox colorscheme, lualine statusline, bufferline, nvim-navic breadcrumb.
+Both variants share: lualine statusline, bufferline, nvim-navic breadcrumb, and all installed colorschemes.
 
 ### Switch variant
 
@@ -258,6 +258,31 @@ Both variants share: nightfox colorscheme, lualine statusline, bufferline, nvim-
 ```
 
 `.nvim-ui` is gitignored — the setting is local to the machine.
+
+## Colorschemes
+
+14 dark colorschemes are available. The active theme is persisted in `.nvim-theme` (gitignored) and defaults to `nightfox`.
+
+| Family | Variants |
+|--------|---------|
+| nightfox | `nightfox`, `nordfox`, `duskfox`, `terafox`, `carbonfox` |
+| catppuccin | `catppuccin-mocha`, `catppuccin-macchiato`, `catppuccin-frappe` |
+| tokyonight | `tokyonight-night`, `tokyonight-storm`, `tokyonight-moon` |
+| kanagawa | `kanagawa-wave`, `kanagawa-dragon` |
+| gruvbox | `gruvbox-material` |
+
+Switch from inside Neovim (with tab-completion):
+
+```vim
+:Theme catppuccin-mocha
+```
+
+Or via the CLI:
+
+```bash
+./bin/nvim-config theme set catppuccin-mocha
+./bin/nvim-config theme unset   # revert to nightfox
+```
 
 ## Documentation
 
@@ -274,13 +299,14 @@ Both variants share: nightfox colorscheme, lualine statusline, bufferline, nvim-
 
 ## Shell Completion
 
-Supported shells: **bash**, **zsh**
+Supported shells: **bash**, **zsh**, **fish**
 
 Show the completion script:
 
 ```bash
 ./bin/nvim-config --show-completion bash
 ./bin/nvim-config --show-completion zsh
+./bin/nvim-config --show-completion fish
 ```
 
 Install completion for the current user:
@@ -288,6 +314,7 @@ Install completion for the current user:
 ```bash
 ./bin/nvim-config --install-completion bash
 ./bin/nvim-config --install-completion zsh
+./bin/nvim-config --install-completion fish
 ```
 
 Installed paths:
@@ -296,6 +323,7 @@ Installed paths:
 |-------|------|
 | bash | `~/.local/share/bash-completion/completions/nvim-config` |
 | zsh | `~/.zfunc/_nvim-config` |
+| fish | `~/.config/fish/completions/nvim-config.fish` |
 
 For zsh, add `~/.zfunc` to your `fpath` before calling `compinit`:
 
@@ -303,6 +331,8 @@ For zsh, add `~/.zfunc` to your `fpath` before calling `compinit`:
 fpath=(~/.zfunc $fpath)
 autoload -Uz compinit && compinit
 ```
+
+Fish picks up completions from `~/.config/fish/completions/` automatically — no extra setup required.
 
 ## Tests
 
@@ -340,10 +370,6 @@ To force-enable or force-disable regardless of environment:
 NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run   # force enable
 NVIM_HEADLESS_TESTS_SKIP=1 bash tests/run   # force disable
 ```
-
-## Notes
-
-- Fish shell completion is not yet implemented (bash and zsh are supported).
 
 ## Environment Limitations
 

@@ -57,7 +57,7 @@
 
 - [x] Add bash completion support to the CLI
 - [x] Add zsh completion support to the CLI
-- [ ] Add fish completion support to the CLI
+- [x] Add fish completion support to the CLI
 - [x] Rewrite `install` to cover symlink/bootstrap flows explicitly
 - [x] Document external dependencies required by the Neovim config
 - [x] Document bootstrap limitations in sandboxed or Snap-based environments
