@@ -8,6 +8,12 @@
 do
     local orig = vim.ui.select
     vim.ui.select = function(items, opts, on_choice)
+        -- avante calls with 2 args: (items, callback) — no opts table
+        if type(opts) == 'function' and on_choice == nil then
+            on_choice = opts
+            opts = {}
+        end
+        -- normalise items to a proper list
         if type(items) == 'table' and not vim.islist(items) then
             local list = {}
             for _, v in pairs(items) do
@@ -15,6 +21,7 @@ do
             end
             items = list
         end
+        -- ensure on_choice is always a function
         if type(on_choice) ~= 'function' then
             on_choice = function() end
         end
