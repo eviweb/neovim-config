@@ -179,17 +179,53 @@
 - [x] `install claude` CLI subcommand — install Claude Code CLI (`npm install -g @anthropic-ai/claude-code`); skips if present; errors if npm missing
 - [x] `install codex` CLI subcommand — install OpenAI Codex CLI (`npm install -g @openai/codex`); same guards
 - [x] `codeium.nvim` — free inline AI completion; nvim-cmp source `[AI]`; `:Codeium Auth` on first use
+- [ ] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); `auth_type = "pro"` authenticates via Claude Pro subscription (browser OAuth, no API key required); also supports GPT-4o
+- [ ] Gemini CLI — `@google/gemini-cli` (npm); free tier via Google account; `install gemini` CLI subcommand + dedicated toggleterm terminal `<Leader>tG`
+
+---
+
+## Phase 14 - CLI Enhancements
+
+### Info and diagnostics
+- [ ] `nvim-config status` — one-line summary: active variant, theme, profile, Neovim version
+- [ ] `nvim-config doctor` — health check: Neovim minimum version, required binaries, Mason package status for active profile
+- [ ] `nvim-config theme info` — current active theme (reads `.nvim-theme`)
+- [ ] `nvim-config ui info` — current active UI variant (reads `.nvim-ui`)
+- [ ] `nvim-config profile info` — active profile(s) + associated LSP servers, formatters, DAP adapter, neotest adapter
+
+### Discovery
+- [ ] `nvim-config theme list` — list all 14 available themes, mark the active one
+- [ ] `nvim-config profile list` — list all available profiles (already partly implemented via `profile list`; verify completeness)
+- [ ] `nvim-config keymaps` — open `docs/keymaps.md` in `$PAGER`
+
+### Maintenance
+- [ ] `nvim-config update dap-adapters` — update Mason DAP packages for the active profile (`MasonUpdate <pkg>` headless)
+
+---
+
+## Phase 15 - Plugin Modernization And UX
+
+### Formatters and linters (modernization)
+- [ ] `conform.nvim` — modern formatter replacing none-ls formatting sources; per-filetype formatter chains; `format_on_save` option
+- [ ] `nvim-lint` — modern linter replacing none-ls diagnostic sources; event-driven (`BufWritePost`, `InsertLeave`)
+- [ ] Migrate profiles to use conform/nvim-lint sources instead of none-ls (additive, keep none-ls as fallback during transition)
+
+### UI enhancements
+- [ ] `noice.nvim` — modern UI for cmdline (floating), messages (popup), LSP progress; replaces default bottom bar prompts
+- [ ] `nvim-ufo` — LSP/treesitter-aware folding with fold preview (`zR` open all, `zM` close all, `K` peek fold)
+
+### File management
+- [ ] `oil.nvim` — edit filesystem as a buffer (rename, move, delete via normal editing); complement to neo-tree for bulk operations
+
+### Navigation
+- [ ] `marks.nvim` — visual marks in sign column with `m[a-z]` gutter indicators and `` `[a-z] `` jump shortcuts
 
 ---
 
 ## Deferred / Under Consideration
 
-> Items intentionally set aside — either pending a decision, requiring an external dependency
-> (subscription, API key, billing), or not yet prioritised.
+> Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
 
-- [ ] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); supports Claude
-  (Anthropic API key) and GPT-4o (OpenAI API key); requires API billing separate from
-  Pro chat subscriptions; blocked on decision to use API key vs Pro account
 - [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription
   (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface;
   deferred — `codeium.nvim` covers the free inline completion use case
