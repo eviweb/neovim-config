@@ -189,6 +189,19 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 
 `:DiffviewClose` or `q` to close. Full diff and file history across all commits.
 
+### AI Assistant (Avante)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>aa` | Ask AI (open sidebar with prompt) |
+| `<Leader>ae` | Edit selection with AI (visual mode) |
+| `<Leader>at` | Toggle AI sidebar |
+| `<Leader>af` | Focus AI sidebar |
+| `<Leader>ar` | Refresh AI response |
+
+Authenticates via Claude Pro subscription (`auth_type = "pro"`, browser OAuth).
+Run `:AvanteSwitchProvider claude` if a different provider was previously active.
+
 ### Debug (nvim-dap)
 
 | Key | Action |
@@ -231,6 +244,7 @@ Active in `.bats` files (neotest-bash adapter). Other adapters (jest, phpunit, c
 | `<Leader>tt` | Toggle terminal |
 | `<Leader>tC` | Toggle Claude Code session (persistent) |
 | `<Leader>tX` | Toggle Codex CLI session (persistent) |
+| `<Leader>tG` | Toggle Gemini CLI session (persistent) |
 
 Use `<C-\><C-n>` or `<C-s>` to exit terminal mode and return to normal mode.
 

@@ -179,8 +179,8 @@
 - [x] `install claude` CLI subcommand — install Claude Code CLI (`npm install -g @anthropic-ai/claude-code`); skips if present; errors if npm missing
 - [x] `install codex` CLI subcommand — install OpenAI Codex CLI (`npm install -g @openai/codex`); same guards
 - [x] `codeium.nvim` — free inline AI completion; nvim-cmp source `[AI]`; `:Codeium Auth` on first use
-- [ ] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); `auth_type = "pro"` authenticates via Claude Pro subscription (browser OAuth, no API key required); also supports GPT-4o
-- [ ] Gemini CLI — `@google/gemini-cli` (npm); free tier via Google account; `install gemini` CLI subcommand + dedicated toggleterm terminal `<Leader>tG`
+- [x] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); `auth_type = "pro"` authenticates via Claude Pro subscription (browser OAuth, no API key required); also supports GPT-4o
+- [x] Gemini CLI — `@google/gemini-cli` (npm); free tier via Google account; `install gemini` CLI subcommand + dedicated toggleterm terminal `<Leader>tG`
 
 ---
 

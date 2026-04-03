@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `nvim-dap` + `nvim-dap-ui` + `nvim-dap-virtual-text`: interactive debugger with floating UI and inline variable values; `<Leader>D` group; `one-small-step-for-vimkind` Lua adapter built-in
 - DAP profile-driven adapters: `pwa-node`/JS-TS (web, Mason `js-debug-adapter`), Xdebug/PHP (php/laravel, Mason `php-debug-adapter`), codelldb/Rust (rust, Mason `codelldb`); registered via `profiles.setup_dap(dap)`
 - DAP Mason auto-install: `profiles.get_dap_mason_packages()` + Mason registry in `lua/config/lsp.lua`; missing packages installed at startup alongside LSP servers
+- `avante.nvim`: Cursor-like AI assistant (chat + inline edits); `auth_type = "pro"` authenticates via Claude Pro subscription (browser OAuth); keymaps `<Leader>a*`; `<Leader>a` which-key group
+- Gemini CLI: `install gemini` CLI subcommand (`@google/gemini-cli` via npm); dedicated toggleterm terminal `<Leader>tG`; bash/zsh/fish completions updated
 - `codeium.nvim`: free inline AI completion; integrated as nvim-cmp source (`[AI]` label); activate with `:Codeium Auth` on first use
 - `mini.ai`: extended text objects — smarter `a`/`i` for function args, brackets, quotes across multiple lines; `n_lines=500`
 - `toggleterm.nvim`: persistent floating terminal (`<C-\>`); `<Leader>tt` general toggle; `<Leader>tC` dedicated Claude Code session; `<Leader>tX` dedicated Codex CLI session

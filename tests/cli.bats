@@ -414,3 +414,29 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"fish"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 13 — install gemini
+# ---------------------------------------------------------------------------
+
+@test "install gemini subcommand is documented in usage" {
+  run grep -n "gemini" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"gemini"* ]]
+}
+
+@test "install gemini function checks for npm" {
+  run grep -n "run_install_gemini" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install gemini uses @google/gemini-cli package" {
+  run grep -n "@google/gemini-cli" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "bash completion includes gemini subcommand" {
+  run grep -n "gemini" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"gemini"* ]]
+}

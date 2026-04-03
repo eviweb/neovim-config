@@ -61,6 +61,9 @@ local base_plugins = {
     require('plugins.neotest'),
     require('plugins.nvim-dap'),
 
+    -- AI assistant
+    require('plugins.avante'),
+
     -- Code quality
     require('plugins.todo-comments'),
 

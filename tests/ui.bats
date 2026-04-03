@@ -981,3 +981,66 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Debug"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 13 — avante.nvim
+# ---------------------------------------------------------------------------
+
+@test "avante plugin file exists" {
+  [ -f lua/plugins/avante.lua ]
+}
+
+@test "avante plugin declares yetone/avante.nvim" {
+  run grep -n "yetone/avante.nvim" lua/plugins/avante.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "avante config file exists" {
+  [ -f lua/config/avante.lua ]
+}
+
+@test "avante config sets auth_type to pro" {
+  run grep -n "auth_type.*pro" lua/config/avante.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "avante config sets provider to claude" {
+  run grep -n "provider.*claude" lua/config/avante.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "avante config maps Leader aa to ask" {
+  run grep -n "ask.*Leader.*aa\|Leader.*aa.*ask" lua/config/avante.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list loads avante" {
+  run grep -n "plugins.avante" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader a group as AI" {
+  run grep -n "Leader>a'" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"AI"* ]]
+}
+
+# ---------------------------------------------------------------------------
+# Phase 13 — Gemini CLI
+# ---------------------------------------------------------------------------
+
+@test "toggleterm config defines a gemini terminal" {
+  run grep -n "gemini" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config maps Leader tG to gemini toggle" {
+  run grep -n "Leader.*tG\|tG.*gemini" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader tG as Gemini CLI" {
+  run grep -n "Leader>tG" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Gemini"* ]]
+}
