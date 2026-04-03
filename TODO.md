@@ -154,11 +154,11 @@
 - [ ] `mini.ai` — extended text objects: function args, brackets across lines (`ia`/`aa`)
 
 ### Git
-- [ ] `diffview.nvim` — enhanced diff view and per-file git history; complements gitsigns
+- [x] `diffview.nvim` — enhanced diff view (`<Leader>gv`) and per-file git history (`<Leader>gH`); complements gitsigns
 - [ ] `lazygit.nvim` — open lazygit in a floating terminal window from inside Neovim
 
 ### Code quality
-- [ ] `todo-comments.nvim` — colorise TODO/FIXME/HACK/NOTE in code; list all via Telescope
+- [x] `todo-comments.nvim` — colorise TODO/FIXME/HACK/NOTE in code; list all via Telescope (`<Leader>ft`)
 - [x] `indent-blankline.nvim` — visual indent guides (essential for YAML, Python, nested Lua)
 
 ### Testing and debugging

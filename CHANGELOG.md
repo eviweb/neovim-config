@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session restore: `persistence.nvim` saves session per directory on exit and auto-restores on startup when Neovim is opened with no arguments; `<Leader>qs` restore, `<Leader>qd` stop persistence; `<Leader>q` group annotated as Session in which-key
 - `:Cheat` with no argument opens a `vim.ui.select` picker (works in both UI variants) instead of showing a usage message
 - `:w!!` sudo save — write system files without relaunching Neovim as root (`cabbrev w!!` → `w !sudo tee % > /dev/null`)
+- `todo-comments.nvim`: colorises `TODO`/`FIXME`/`HACK`/`NOTE`/`WARN` in code; `<Leader>ft` opens full list via Telescope
+- `diffview.nvim`: enhanced diff view (`<Leader>gv`) and per-file git history (`<Leader>gH`); lazy-loaded on commands; complements gitsigns
 - `vim-illuminate`: auto-highlights all occurrences of the word under cursor; 200ms delay; disabled in neo-tree, Telescope, Mason
 - `indent-blankline.nvim` (v3/ibl): visual indent guides with `│` character and scope highlighting
 - `friendly-snippets`: pre-built snippet library for LuaSnip — already wired as LuaSnip dependency with `lazy_load()`

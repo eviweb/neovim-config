@@ -45,6 +45,10 @@ local base_plugins = {
 
     -- Git
     require('plugins.gitsigns'),
+    require('plugins.diffview'),
+
+    -- Code quality
+    require('plugins.todo-comments'),
 
     -- Session
     require('plugins.persistence'),

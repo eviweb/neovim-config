@@ -171,6 +171,18 @@ vim.keymap.set('n', '<Leader>tn', function()
 end, { noremap = true, silent = true, desc = 'Cycle line numbers' })
 
 --[[
+    Git extras (<Leader>g)
+--]]
+-- opens diffview for the current repo
+map('n', '<Leader>gv', ':DiffviewOpen<CR>', opts)
+
+-- opens file history for the current file
+map('n', '<Leader>gH', ':DiffviewFileHistory %<CR>', opts)
+
+-- opens project-wide todo list via Telescope
+map('n', '<Leader>ft', ':TodoTelescope<CR>', opts)
+
+--[[
     Session (<Leader>q)
 --]]
 -- restores the last session for the current directory

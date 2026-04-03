@@ -472,6 +472,58 @@ setup() {
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Phase 13 — todo-comments, diffview
+# ---------------------------------------------------------------------------
+
+@test "todo-comments plugin file exists" {
+  [ -f "lua/plugins/todo-comments.lua" ]
+}
+
+@test "todo-comments plugin uses folke repository" {
+  run grep -n "folke/todo-comments.nvim" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads todo-comments" {
+  run grep -n "plugins.todo-comments" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader ft for TodoTelescope" {
+  run grep -n "TodoTelescope" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "diffview plugin file exists" {
+  [ -f "lua/plugins/diffview.lua" ]
+}
+
+@test "diffview plugin uses sindrets repository" {
+  run grep -n "sindrets/diffview.nvim" lua/plugins/diffview.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads diffview" {
+  run grep -n "plugins.diffview" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader gv for DiffviewOpen" {
+  run grep -n "DiffviewOpen" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader gH for DiffviewFileHistory" {
+  run grep -n "DiffviewFileHistory" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader gv and Leader gH" {
+  run grep -n "Leader>gv\|Leader>gH" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
 # Phase 13 — vim-illuminate, indent-blankline, friendly-snippets
 # ---------------------------------------------------------------------------
 
