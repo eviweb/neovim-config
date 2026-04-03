@@ -44,12 +44,14 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all|tmux|nvim] [--with-node] [--snap|--apt]
+  install [deps|config|all|tmux|nvim|claude|codex] [--with-node] [--snap|--apt]
                         Install system dependencies and/or config symlinks
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
                           tmux   — inject source-file entry into ~/.tmux.conf
                           nvim   — install Neovim (snap by default)
+                          claude — install Claude Code CLI (requires Node.js)
+                          codex  — install OpenAI Codex CLI (requires Node.js)
                           all    — nvim, deps, then config
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
@@ -167,8 +169,8 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "bash zsh fish" -- "${current_word}") )
       return 0
       ;;
-    install|deps|config|all|tmux|nvim)
-      COMPREPLY=( $(compgen -W "deps config all tmux nvim --with-node --snap --apt" -- "${current_word}") )
+    install|deps|config|all|tmux|nvim|claude|codex)
+      COMPREPLY=( $(compgen -W "deps config all tmux nvim claude codex --with-node --snap --apt" -- "${current_word}") )
       return 0
       ;;
     update|plugins)
@@ -237,6 +239,8 @@ _nvim_config() {
     'all:Install nvim, deps, then config'
     'tmux:Inject source-file entry into ~/.tmux.conf'
     'nvim:Install Neovim (snap by default)'
+    'claude:Install Claude Code CLI (requires Node.js)'
+    'codex:Install OpenAI Codex CLI (requires Node.js)'
     '--with-node[Also install nvm and Node.js LTS]'
     '--snap[Install Neovim via snap (default)]'
     '--apt[Install Neovim via apt]'
@@ -338,6 +342,8 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -a config  -d '
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, then config'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a tmux    -d 'Inject source-file entry into ~/.tmux.conf'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a nvim    -d 'Install Neovim (snap by default)'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a claude  -d 'Install Claude Code CLI (requires Node.js)'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a codex   -d 'Install OpenAI Codex CLI (requires Node.js)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l with-node -d 'Also install nvm and Node.js LTS'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d 'Install Neovim via snap (default)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Install Neovim via apt'
@@ -405,6 +411,30 @@ install_completion() {
   mkdir -p "${completion_dir}"
   show_completion "${shell_name}" > "${completion_file}"
   log_message "INFO" "Installed ${shell_name} completion to ${completion_file}"
+}
+
+run_install_claude() {
+  if command -v claude > /dev/null 2>&1; then
+    log_message "INFO" "claude is already installed — skipping"
+    return 0
+  fi
+  if ! command -v npm > /dev/null 2>&1; then
+    log_message "ERROR" "npm is required to install Claude Code — run 'install deps --with-node' first"
+    return 1
+  fi
+  run_command npm install -g @anthropic-ai/claude-code
+}
+
+run_install_codex() {
+  if command -v codex > /dev/null 2>&1; then
+    log_message "INFO" "codex is already installed — skipping"
+    return 0
+  fi
+  if ! command -v npm > /dev/null 2>&1; then
+    log_message "ERROR" "npm is required to install Codex CLI — run 'install deps --with-node' first"
+    return 1
+  fi
+  run_command npm install -g @openai/codex
 }
 
 run_install_nvim() {
@@ -758,6 +788,12 @@ run_install() {
       ;;
     nvim)
       run_install_nvim
+      ;;
+    claude)
+      run_install_claude
+      ;;
+    codex)
+      run_install_codex
       ;;
     all)
       run_install_nvim

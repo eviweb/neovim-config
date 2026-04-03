@@ -168,7 +168,12 @@
 ### Writing
 - [ ] `zen-mode.nvim` — distraction-free fullscreen mode for markdown and prose
 
-### AI assistance
+### Terminal and AI agents
+- [ ] `toggleterm.nvim` — persistent togglable terminal (floating or split); ideal for
+  running Claude Code (`claude`) and Codex CLI (`codex`) as interactive agents alongside
+  any buffer; keymap to toggle, dedicated instance per agent
+- [x] `install claude` CLI subcommand — install Claude Code CLI (`npm install -g @anthropic-ai/claude-code`); skips if present; errors if npm missing
+- [x] `install codex` CLI subcommand — install OpenAI Codex CLI (`npm install -g @openai/codex`); same guards
 - [ ] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); supports Claude
   (Anthropic API key) and GPT-4o (OpenAI API key); requires API billing separate from
   chat subscriptions

@@ -315,6 +315,53 @@ setup() {
 # Phase 7 — fish completion
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# Phase 13 — install claude and codex CLI
+# ---------------------------------------------------------------------------
+
+@test "help documents install claude subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"claude"* ]]
+}
+
+@test "help documents install codex subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"codex"* ]]
+}
+
+@test "install claude script uses npm install @anthropic-ai/claude-code" {
+  run grep -n "@anthropic-ai/claude-code" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install codex script uses npm install @openai/codex" {
+  run grep -n "@openai/codex" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "bash completion includes claude and codex after install" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"claude"* ]]
+  [[ "$output" == *"codex"* ]]
+}
+
+@test "zsh completion includes claude and codex after install" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"claude"* ]]
+  [[ "$output" == *"codex"* ]]
+}
+
+@test "fish completion includes claude and codex after install" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"claude"* ]]
+  [[ "$output" == *"codex"* ]]
+}
+
 @test "show-completion fish prints fish completion script" {
   run ./bin/nvim-config --show-completion fish
   [ "$status" -eq 0 ]
