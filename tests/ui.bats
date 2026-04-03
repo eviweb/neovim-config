@@ -472,6 +472,43 @@ setup() {
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Phase 13 — codeium, mini.ai
+# ---------------------------------------------------------------------------
+
+@test "codeium plugin file exists" {
+  [ -f "lua/plugins/codeium.lua" ]
+}
+
+@test "codeium plugin uses Exafunction repository" {
+  run grep -n "Exafunction/codeium.nvim" lua/plugins/codeium.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads codeium" {
+  run grep -n "plugins.codeium" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-cmp sources include codeium" {
+  run grep -n "codeium" lua/config/nvim-cmp.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "mini-ai plugin file exists" {
+  [ -f "lua/plugins/mini-ai.lua" ]
+}
+
+@test "mini-ai plugin uses echasnovski repository" {
+  run grep -n "echasnovski/mini.ai" lua/plugins/mini-ai.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads mini-ai" {
+  run grep -n "plugins.mini-ai" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
 # Phase 13 — toggleterm
 # ---------------------------------------------------------------------------
 

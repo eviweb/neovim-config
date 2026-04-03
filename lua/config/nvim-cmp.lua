@@ -44,6 +44,7 @@ cmp.setup({
         end, { 'i', 's' }),
     },
     sources = cmp.config.sources({
+        { name = 'codeium' },
         { name = 'nvim_lua' },
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
@@ -55,9 +56,10 @@ cmp.setup({
         format = lspkind.cmp_format({
             mode = 'symbol_text',
             menu = {
-                buffer = '[Buf]',
+                codeium  = '[AI]',
+                buffer   = '[Buf]',
                 nvim_lsp = '[Lsp]',
-                luasnip = '[Snip]',
+                luasnip  = '[Snip]',
                 nvim_lua = '[Lua]',
                 latex_symbols = '[Lat]',
             },

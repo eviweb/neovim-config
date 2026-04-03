@@ -151,7 +151,7 @@
 ### Editing
 - [x] `friendly-snippets` — already wired as LuaSnip dependency with lazy_load()
 - [ ] `nvim-spectre` — project-wide search/replace with regex and preview before applying
-- [ ] `mini.ai` — extended text objects: function args, brackets across lines (`ia`/`aa`)
+- [x] `mini.ai` — extended text objects: function args, brackets across lines (`ia`/`aa`), n_lines=500
 
 ### Git
 - [x] `diffview.nvim` — enhanced diff view (`<Leader>gv`) and per-file git history (`<Leader>gH`); complements gitsigns
@@ -177,4 +177,4 @@
   chat subscriptions
 - [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription
   (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface
-- [ ] `codeium.nvim` — free inline AI completion, no subscription required
+- [x] `codeium.nvim` — free inline AI completion; nvim-cmp source `[AI]`; `:Codeium Auth` on first use

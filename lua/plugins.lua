@@ -35,6 +35,10 @@ local base_plugins = {
     -- Completion
     require('plugins.luasnip'),
     require('plugins.nvim-cmp'),
+    require('plugins.codeium'),
+
+    -- Text objects
+    require('plugins.mini-ai'),
 
     -- LSP Configuration
     require('plugins.lsp'),
