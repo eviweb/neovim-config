@@ -1,0 +1,9 @@
+-- lua/plugins/toggleterm.lua
+
+return {
+    'akinsho/toggleterm.nvim',
+    version = '*',
+    config  = function()
+        require('config.toggleterm')
+    end,
+}

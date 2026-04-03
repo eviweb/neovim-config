@@ -472,6 +472,53 @@ setup() {
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Phase 13 — toggleterm
+# ---------------------------------------------------------------------------
+
+@test "toggleterm plugin file exists" {
+  [ -f "lua/plugins/toggleterm.lua" ]
+}
+
+@test "toggleterm plugin uses akinsho repository" {
+  run grep -n "akinsho/toggleterm.nvim" lua/plugins/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config file exists" {
+  [ -f "lua/config/toggleterm.lua" ]
+}
+
+@test "plugins.lua loads toggleterm" {
+  run grep -n "plugins.toggleterm" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config defines C-backslash open mapping" {
+  run grep -n "open_mapping" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config defines dedicated Claude terminal" {
+  run grep -n "claude" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config defines dedicated Codex terminal" {
+  run grep -n "codex" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config defines Leader tt keymap" {
+  run grep -n "Leader.*tt\|ToggleTerm" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader tC and Leader tX" {
+  run grep -n "Leader>tC\|Leader>tX" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
 # Phase 13 — harpoon
 # ---------------------------------------------------------------------------
 

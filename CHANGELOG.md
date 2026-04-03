@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Session restore: `persistence.nvim` saves session per directory on exit and auto-restores on startup when Neovim is opened with no arguments; `<Leader>qs` restore, `<Leader>qd` stop persistence; `<Leader>q` group annotated as Session in which-key
 - `:Cheat` with no argument opens a `vim.ui.select` picker (works in both UI variants) instead of showing a usage message
 - `:w!!` sudo save — write system files without relaunching Neovim as root (`cabbrev w!!` → `w !sudo tee % > /dev/null`)
+- `toggleterm.nvim`: persistent floating terminal (`<C-\>`); `<Leader>tt` general toggle; `<Leader>tC` dedicated Claude Code session; `<Leader>tX` dedicated Codex CLI session
 - `harpoon` (v2): per-project file bookmarks; `<Leader>ha` add, `<Leader>hh` menu, `<C-1..4>` jump to file 1-4
 - `todo-comments.nvim`: colorises `TODO`/`FIXME`/`HACK`/`NOTE`/`WARN` in code; `<Leader>ft` opens full list via Telescope
 - `diffview.nvim`: enhanced diff view (`<Leader>gv`) and per-file git history (`<Leader>gH`); lazy-loaded on commands; complements gitsigns

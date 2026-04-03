@@ -181,11 +181,17 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 
 `:DiffviewClose` or `q` to close. Full diff and file history across all commits.
 
-### Toggle
+### Toggle / Terminal
 
 | Key | Action |
 |-----|--------|
 | `<Leader>tn` | Cycle line numbers (absolute → relative → none) |
+| `<C-\>` | Toggle floating terminal |
+| `<Leader>tt` | Toggle terminal |
+| `<Leader>tC` | Toggle Claude Code session (persistent) |
+| `<Leader>tX` | Toggle Codex CLI session (persistent) |
+
+Use `<C-\><C-n>` or `<C-s>` to exit terminal mode and return to normal mode.
 
 ### Session
 

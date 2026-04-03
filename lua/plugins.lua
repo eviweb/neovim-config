@@ -46,6 +46,9 @@ local base_plugins = {
     -- Navigation
     require('plugins.harpoon'),
 
+    -- Terminal
+    require('plugins.toggleterm'),
+
     -- Git
     require('plugins.gitsigns'),
     require('plugins.diffview'),
