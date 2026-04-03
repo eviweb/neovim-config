@@ -1,5 +1,27 @@
 -- lua/config/avante.lua
 
+-- Workaround for avante auth flow bugs:
+--   1. native.lua passes a non-sequential table as items to vim.ui.select
+--   2. native.lua passes nil as the on_choice callback
+-- Both trigger vim.validate errors. The wrapper normalises these before
+-- delegating to the real implementation (dressing input or builtin).
+do
+    local orig = vim.ui.select
+    vim.ui.select = function(items, opts, on_choice)
+        if type(items) == 'table' and not vim.islist(items) then
+            local list = {}
+            for _, v in pairs(items) do
+                table.insert(list, v)
+            end
+            items = list
+        end
+        if type(on_choice) ~= 'function' then
+            on_choice = function() end
+        end
+        orig(items, opts, on_choice)
+    end
+end
+
 require('avante').setup({
     provider = 'claude',
 
