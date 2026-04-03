@@ -6,6 +6,6 @@ return {
     priority = 1000,
     config = function()
         require('config.nightfox')
-        vim.cmd([[colorscheme nightfox]])
+        -- colorscheme applied centrally by the theme-init plugin (see plugins.lua)
     end,
 }

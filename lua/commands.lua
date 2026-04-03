@@ -112,6 +112,28 @@ end, {
     desc     = 'Open a cheatsheet in a floating window',
 })
 
+-- :Theme [name] — apply and persist a colorscheme
+vim.api.nvim_create_user_command('Theme', function(opts)
+    local theme = require('ui.theme')
+    local name  = vim.trim(opts.args)
+    if name == '' then
+        vim.notify('Current theme: ' .. theme.get(), vim.log.levels.INFO)
+        return
+    end
+    if not theme.VALID[name] then
+        vim.notify('Unknown theme: ' .. name .. '\nAvailable: ' .. table.concat(theme.NAMES, ', '), vim.log.levels.ERROR)
+        return
+    end
+    local f = io.open(vim.fn.stdpath('config') .. '/.nvim-theme', 'w')
+    if f then f:write(name .. '\n'); f:close() end
+    vim.cmd('colorscheme ' .. name)
+    vim.notify('Theme → ' .. name, vim.log.levels.INFO)
+end, {
+    nargs    = '?',
+    complete = function() return require('ui.theme').NAMES end,
+    desc     = 'Apply and persist a colorscheme',
+})
+
 -- auto-saves all modified buffers when Neovim loses focus or a buffer is left
 vim.api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
     pattern  = '*',

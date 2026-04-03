@@ -12,6 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - which-key v3: disabled automatic keymap icons (`icons.mappings = false`) to avoid rendering issues without a Nerd Font
 
 ### Added
+- Theme system: 14 dark colorschemes (nightfox variants, catppuccin, tokyonight, kanagawa, gruvbox-material) with persistent selection via `.nvim-theme` (gitignored)
+- `lua/ui/theme.lua`: source of truth for valid theme names; `get()` reads `.nvim-theme` with `nightfox` fallback
+- `:Theme [name]` user command: applies and persists a colorscheme; no args shows current; tab-completion on all 14 names
+- `bin/nvim-config theme set|unset [<name>]` CLI subcommand: mirrors `ui` command pattern; bash and zsh completions updated
+- `lua/plugins/catppuccin.lua`: catppuccin-mocha, catppuccin-macchiato, catppuccin-frappe (dark variants, transparent background)
+- `lua/plugins/tokyonight.lua`: tokyonight-night, tokyonight-storm, tokyonight-moon (transparent)
+- `lua/plugins/kanagawa.lua`: kanagawa-wave, kanagawa-dragon (transparent)
+- `lua/plugins/gruvbox-material.lua`: gruvbox-material (dark, medium contrast)
+- `theme-init` lazy.nvim inline spec (`priority = 0`): applies the active colorscheme after all `priority = 1000` colorscheme plugins have completed setup — prevents flash
+- `render-markdown.nvim`: in-buffer markdown rendering (headings, code blocks, bullets, checkboxes, tables); lazy-loaded on `ft = markdown`; no Node.js/browser required
+- Bash shebang detection: extensionless files with `#!/.../bin/bash` or `#!/.../env bash` shebang auto-detected as `sh` filetype via `vim.filetype.add` with `priority = -math.huge`
 - `<Leader>tn`: cycle line numbers (absolute → relative → none), new `<Leader>t` Toggle group in which-key
 - `gitsigns.nvim`: inline diff signs in gutter, `]h`/`[h` hunk navigation, `<Leader>gs/gr/gp/gb/gd` stage/reset/preview/blame/diff — buffer-local, active in git repos only
 - `docs/cheatsheets/git.md`: git cheatsheet (5th topic in `:Cheat`)

@@ -43,6 +43,21 @@ local base_plugins = {
 
     -- Git
     require('plugins.gitsigns'),
+
+    -- Markdown
+    require('plugins.render-markdown'),
+
+    -- Theme-init: applies the active colorscheme after all priority=1000
+    -- colorscheme plugins have completed their setup() calls.
+    {
+        dir      = vim.fn.stdpath('config'),
+        name     = 'theme-init',
+        lazy     = false,
+        priority = 0,
+        config   = function()
+            vim.cmd('colorscheme ' .. require('ui.theme').get())
+        end,
+    },
 }
 
 vim.list_extend(base_plugins, ui_plugins)

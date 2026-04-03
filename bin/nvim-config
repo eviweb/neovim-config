@@ -14,6 +14,8 @@ PROFILE_SUBCOMMAND=""
 PROFILE_NAME=""
 UI_SUBCOMMAND=""
 UI_VARIANT=""
+THEME_SUBCOMMAND=""
+THEME_NAME=""
 # Respect NO_COLOR env var (https://no-color.org)
 if [[ -n "${NO_COLOR:-}" ]]; then
   NO_COLOR=1
@@ -73,6 +75,11 @@ Commands:
                         Manage the active UI variant
                           set    — write .nvim-ui at the config root
                           unset  — remove .nvim-ui (reverts to classic)
+
+  theme [set|unset] [<name>]
+                        Manage the active colorscheme
+                          set    — write .nvim-theme at the config root
+                          unset  — remove .nvim-theme (reverts to nightfox)
 
 Global options:
   -h, --help            Display usage and exit
@@ -180,10 +187,14 @@ _nvim_config_completions() {
       COMPREPLY=()
       return 0
       ;;
+    theme)
+      COMPREPLY=( $(compgen -W "set unset" -- "${current_word}") )
+      return 0
+      ;;
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile ui" -- "${current_word}") )
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile ui theme" -- "${current_word}") )
     return 0
   fi
 
@@ -250,11 +261,17 @@ _nvim_config() {
     'unset:Remove .nvim-ui (reverts to classic)'
   )
 
+  theme_subcmds=(
+    'set:Write .nvim-theme at the config root'
+    'unset:Remove .nvim-theme (reverts to nightfox)'
+  )
+
   commands=(
     'install:Install system dependencies and/or config symlinks'
     'update:Update Neovim and/or plugins'
     'profile:Manage per-project Neovim profiles'
     'ui:Manage the active UI variant'
+    'theme:Manage the active colorscheme'
   )
 
   case "${words[2]}" in
@@ -269,6 +286,9 @@ _nvim_config() {
       ;;
     ui)
       _arguments : "${ui_subcmds[@]}"
+      ;;
+    theme)
+      _arguments : "${theme_subcmds[@]}"
       ;;
     *)
       _arguments : "${global_opts[@]}" "${commands[@]}"
@@ -549,6 +569,51 @@ run_ui() {
   esac
 }
 
+run_theme_set() {
+  local name="${1:?Missing theme name for: theme set}"
+  local theme_file="${PROJECT_DIR}/.nvim-theme"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "printf '%s\\n' '${name}' > ${theme_file}"
+    return 0
+  fi
+  printf '%s\n' "${name}" > "${theme_file}"
+  log_message "INFO" "Theme '${name}' written to ${theme_file}"
+}
+
+run_theme_unset() {
+  local theme_file="${PROJECT_DIR}/.nvim-theme"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "rm -f ${theme_file}"
+    return 0
+  fi
+  if [ -f "${theme_file}" ]; then
+    rm -f "${theme_file}"
+    log_message "INFO" "Removed ${theme_file} — reverts to nightfox"
+  else
+    log_message "INFO" "${theme_file} does not exist — nothing to do"
+  fi
+}
+
+run_theme() {
+  case "${THEME_SUBCOMMAND:-}" in
+    set)
+      if [ -z "${THEME_NAME}" ]; then
+        printf 'Missing theme name for: theme set\n' >&2
+        exit 1
+      fi
+      run_theme_set "${THEME_NAME}"
+      ;;
+    unset)
+      run_theme_unset
+      ;;
+    *)
+      printf 'Unknown theme subcommand: %s\n' "${THEME_SUBCOMMAND}" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
+}
+
 run_install_tmux() {
   local tmux_conf="${HOME}/.tmux.conf"
   local source_line="source-file ${PROJECT_DIR}/.tmux.conf"
@@ -736,6 +801,18 @@ while [ "$#" -gt 0 ]; do
         fi
       fi
       ;;
+    theme)
+      COMMAND="theme"
+      shift
+      if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+        THEME_SUBCOMMAND="$1"
+        shift
+        if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+          THEME_NAME="$1"
+          shift
+        fi
+      fi
+      ;;
     *)
       printf 'Unknown argument: %s\n' "$1" >&2
       exit 1
@@ -767,6 +844,9 @@ case "${COMMAND}" in
     ;;
   ui)
     run_ui
+    ;;
+  theme)
+    run_theme
     ;;
   *)
     print_usage

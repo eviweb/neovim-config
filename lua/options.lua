@@ -64,3 +64,22 @@ vim.g.netrw_keepdir = 0 -- keeps the directory you accessed previously
 vim.g.netrw_liststyle = 0 -- shows directory tree
 vim.g.netrw_localcopydircmd = 'cp -r' -- recursively copies directories
 vim.g.netrw_winsize = 25 -- limits the view size to 25% of the available screen space
+
+--[[
+    Filetype detection
+--]]
+-- Detect shell scripts by shebang for extensionless files.
+-- priority = -math.huge ensures this fires only when no other rule matched.
+vim.filetype.add({
+    pattern = {
+        ['.*'] = {
+            priority = -math.huge,
+            function(_, bufnr)
+                local first = vim.api.nvim_buf_get_lines(bufnr, 0, 1, false)[1] or ''
+                if first:match('^#!.*/bin/bash') or first:match('^#!.*/env%s+bash') then
+                    return 'sh'
+                end
+            end,
+        },
+    },
+})
