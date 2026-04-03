@@ -134,6 +134,9 @@ end, {
     desc     = 'Apply and persist a colorscheme',
 })
 
+-- :w!! — write the current file with sudo (for system files opened without root)
+vim.cmd('cabbrev w!! w !sudo tee % > /dev/null')
+
 -- auto-saves all modified buffers when Neovim loses focus or a buffer is left
 vim.api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
     pattern  = '*',

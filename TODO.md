@@ -100,7 +100,7 @@
 
 ### Medium value
 
-- [ ] `:w!!` sudo save — write system files without relaunching Neovim as root
+- [x] `:w!!` sudo save — write system files without relaunching Neovim as root
 - [ ] `:Cheat` Telescope picker — replace text prompt with a Telescope picker + preview
 - [ ] Session restore — `persistence.nvim` or `auto-session`: reopen last workspace on startup
 

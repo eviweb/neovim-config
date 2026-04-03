@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Tests: 43 new tests (229 total) covering theme system, render-markdown, bash shebang detection, and keymaps cleanup; treesitter regression test narrowed to `require(...)` calls only
+- `:w!!` sudo save — write system files without relaunching Neovim as root (`cabbrev w!!` → `w !sudo tee % > /dev/null`)
+- Tests: 44 new tests (230 total) covering theme system, render-markdown, bash shebang detection, keymaps cleanup, and `:w!!`; treesitter regression test narrowed to `require(...)` calls only
 
 ### Fixed
 - `<C-s>` added in normal mode (`:w`); `<C-z>` removed from normal and insert modes (conflicts with shell `SIGTSTP`); `<C-r>` removed from insert mode (overwrote native "insert register" — redo remains on `<C-r>` in normal mode)

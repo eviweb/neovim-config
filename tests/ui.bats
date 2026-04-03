@@ -471,6 +471,12 @@ setup() {
 # Phase 12 — bash shebang filetype detection
 # ---------------------------------------------------------------------------
 
+@test "commands define w!! sudo save abbreviation" {
+  run grep -n "w!!" lua/commands.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"sudo tee"* ]]
+}
+
 @test "options.lua uses vim.filetype.add for shebang detection" {
   run grep -n "vim.filetype.add" lua/options.lua
   [ "$status" -eq 0 ]
