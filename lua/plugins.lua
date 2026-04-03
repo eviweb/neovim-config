@@ -29,6 +29,8 @@ local base_plugins = {
     require('plugins.nvim-autopairs'),
     require('plugins.vim-surround'),
     require('plugins.comment'),
+    require('plugins.vim-illuminate'),
+    require('plugins.indent-blankline'),
 
     -- Completion
     require('plugins.luasnip'),

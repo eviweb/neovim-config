@@ -146,10 +146,10 @@
 
 ### Navigation
 - [ ] `harpoon` (ThePrimeagen) — mark/jump to 4-5 key files per project instantly
-- [ ] `vim-illuminate` — auto-highlight all occurrences of the word under cursor
+- [x] `vim-illuminate` — auto-highlight all occurrences of the word under cursor
 
 ### Editing
-- [ ] `friendly-snippets` — pre-built snippet library for LuaSnip (PHP, JS, Lua, Python...)
+- [x] `friendly-snippets` — already wired as LuaSnip dependency with lazy_load()
 - [ ] `nvim-spectre` — project-wide search/replace with regex and preview before applying
 - [ ] `mini.ai` — extended text objects: function args, brackets across lines (`ia`/`aa`)
 
@@ -159,7 +159,7 @@
 
 ### Code quality
 - [ ] `todo-comments.nvim` — colorise TODO/FIXME/HACK/NOTE in code; list all via Telescope
-- [ ] `indent-blankline.nvim` — visual indent guides (essential for YAML, Python, nested Lua)
+- [x] `indent-blankline.nvim` — visual indent guides (essential for YAML, Python, nested Lua)
 
 ### Testing and debugging
 - [ ] `neotest` — run and visualise test results inside Neovim (bats, phpunit, jest...)

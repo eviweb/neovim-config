@@ -472,6 +472,48 @@ setup() {
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Phase 13 — vim-illuminate, indent-blankline, friendly-snippets
+# ---------------------------------------------------------------------------
+
+@test "vim-illuminate plugin file exists" {
+  [ -f "lua/plugins/vim-illuminate.lua" ]
+}
+
+@test "vim-illuminate plugin uses RRethy repository" {
+  run grep -n "RRethy/vim-illuminate" lua/plugins/vim-illuminate.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads vim-illuminate" {
+  run grep -n "plugins.vim-illuminate" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "indent-blankline plugin file exists" {
+  [ -f "lua/plugins/indent-blankline.lua" ]
+}
+
+@test "indent-blankline plugin uses ibl main module" {
+  run grep -n "main.*ibl\|'ibl'" lua/plugins/indent-blankline.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads indent-blankline" {
+  run grep -n "plugins.indent-blankline" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "friendly-snippets is declared as LuaSnip dependency" {
+  run grep -n "friendly-snippets" lua/plugins/luasnip.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "luasnip config loads friendly-snippets via lazy_load" {
+  run grep -n "lazy_load" lua/plugins/luasnip.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
 # Phase 12 — session restore (persistence.nvim)
 # ---------------------------------------------------------------------------
 
