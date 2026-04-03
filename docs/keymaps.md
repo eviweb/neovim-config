@@ -97,6 +97,19 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 | `<S-l>` | Next buffer |
 | `<S-h>` | Previous buffer |
 
+### Harpoon (per-project file bookmarks)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>ha` | Add current file to the harpoon list |
+| `<Leader>hh` | Open/close the harpoon list (editable) |
+| `<C-1>` | Jump to harpoon file 1 |
+| `<C-2>` | Jump to harpoon file 2 |
+| `<C-3>` | Jump to harpoon file 3 |
+| `<C-4>` | Jump to harpoon file 4 |
+
+The list is persisted per directory alongside the session.
+
 ### Telescope
 
 | Key | Action |
@@ -106,6 +119,7 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 | `<Leader>fb` | List open buffers |
 | `<Leader>fh` | Search help tags |
 | `<Leader>fp` | Browse profiles (activate with `<CR>`) |
+| `<Leader>ft` | Browse all TODO/FIXME/HACK/NOTE in the project |
 | `<Leader>?` | Browse all keymaps (live search) |
 
 ### Trouble (diagnostics)
@@ -157,6 +171,15 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 | `<Leader>gr` | Reset hunk |
 | `<Leader>gb` | Blame line |
 | `<Leader>gd` | Diff this file |
+
+### Git (diffview)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>gv` | Open diff view for the current repo |
+| `<Leader>gH` | Open file history for the current file |
+
+`:DiffviewClose` or `q` to close. Full diff and file history across all commits.
 
 ### Toggle
 
