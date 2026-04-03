@@ -32,6 +32,24 @@ return {
         return { adapter }
     end,
 
+    -- DAP: PHP via Xdebug (Mason: php-debug-adapter).
+    -- Install with :MasonInstall php-debug-adapter
+    dap_setup = function(dap)
+        dap.adapters.php = {
+            type    = 'executable',
+            command = vim.fn.stdpath('data') .. '/mason/bin/php-debug-adapter',
+        }
+
+        dap.configurations.php = {
+            {
+                type    = 'php',
+                request = 'launch',
+                name    = 'Listen for Xdebug',
+                port    = 9003,
+            },
+        }
+    end,
+
     null_ls_sources = function(null_ls)
         return {
             null_ls.builtins.diagnostics.phpstan.with({

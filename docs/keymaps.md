@@ -189,6 +189,27 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 
 `:DiffviewClose` or `q` to close. Full diff and file history across all commits.
 
+### Debug (nvim-dap)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>Dc` | Continue / start session |
+| `<Leader>Di` | Step into |
+| `<Leader>Do` | Step over |
+| `<Leader>DO` | Step out |
+| `<Leader>Db` | Toggle breakpoint |
+| `<Leader>DB` | Set conditional breakpoint |
+| `<Leader>Dr` | Open REPL |
+| `<Leader>Dl` | Run last configuration |
+| `<Leader>Du` | Toggle DAP UI |
+| `<Leader>Dt` | Terminate session |
+
+Adapters are profile-driven. Required Mason packages per profile:
+- **web** — `:MasonInstall js-debug-adapter` (JS/TS via pwa-node)
+- **php / laravel** — `:MasonInstall php-debug-adapter` (Xdebug, port 9003)
+- **rust** — `:MasonInstall codelldb`
+- **core** — Lua adapter built-in (`one-small-step-for-vimkind`, no install needed)
+
 ### Testing (neotest)
 
 | Key | Action |

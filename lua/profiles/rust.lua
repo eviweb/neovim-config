@@ -21,6 +21,36 @@ return {
         return { adapter }
     end,
 
+    -- DAP: Rust via codelldb (Mason: codelldb).
+    -- Install with :MasonInstall codelldb
+    dap_setup = function(dap)
+        dap.adapters.codelldb = {
+            type = 'server',
+            port = '${port}',
+            executable = {
+                command = vim.fn.stdpath('data') .. '/mason/bin/codelldb',
+                args    = { '--port', '${port}' },
+            },
+        }
+
+        dap.configurations.rust = {
+            {
+                type    = 'codelldb',
+                request = 'launch',
+                name    = 'Launch',
+                program = function()
+                    return vim.fn.input(
+                        'Executable: ',
+                        vim.fn.getcwd() .. '/target/debug/',
+                        'file'
+                    )
+                end,
+                cwd         = '${workspaceFolder}',
+                stopOnEntry = false,
+            },
+        }
+    end,
+
     null_ls_sources = function(null_ls)
         return {
             null_ls.builtins.formatting.rustfmt,

@@ -154,6 +154,17 @@ function M.get_lsp_servers()
     return servers
 end
 
+-- Call dap_setup(dap) for each active profile that declares it.
+-- Must be called after nvim-dap is loaded.
+function M.setup_dap(dap)
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.dap_setup then
+            profile.dap_setup(dap)
+        end
+    end
+end
+
 -- Return all neotest adapter instances contributed by active profiles.
 function M.get_neotest_adapters()
     local adapters = {}

@@ -36,6 +36,44 @@ return {
         { 'marilari88/neotest-vitest', lazy = true },
     },
 
+    -- DAP: JS/TS via vscode-js-debug (Mason: js-debug-adapter).
+    -- Install with :MasonInstall js-debug-adapter
+    dap_setup = function(dap)
+        local js_debug = vim.fn.stdpath('data')
+            .. '/mason/packages/js-debug-adapter/js-debug/src/dapDebugServer.js'
+
+        dap.adapters['pwa-node'] = {
+            type = 'server',
+            host = 'localhost',
+            port = '${port}',
+            executable = {
+                command = 'node',
+                args    = { js_debug, '${port}' },
+            },
+        }
+
+        local js_config = {
+            {
+                type    = 'pwa-node',
+                request = 'launch',
+                name    = 'Launch file',
+                program = '${file}',
+                cwd     = '${workspaceFolder}',
+            },
+            {
+                type      = 'pwa-node',
+                request   = 'attach',
+                name      = 'Attach to process',
+                processId = require('dap.utils').pick_process,
+                cwd       = '${workspaceFolder}',
+            },
+        }
+
+        for _, ft in ipairs({ 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' }) do
+            dap.configurations[ft] = js_config
+        end
+    end,
+
     -- Only activate the vitest adapter when vitest is present in the project.
     neotest_adapters = function()
         local ok, adapter = pcall(require, 'neotest-vitest')

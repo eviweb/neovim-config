@@ -165,7 +165,10 @@
 - [x] `neotest` — run and visualise test results inside Neovim (bats, phpunit, jest...)
   - [x] `neotest-bash` adapter — bats-core support
   - [x] Profile-driven adapters: `neotest-vitest` (web), `neotest-phpunit` (php/laravel), `neotest-rust` (rust) — loaded via `profiles.get_neotest_adapters()` + profile `neotest_adapters` field
-- [ ] `nvim-dap` + `nvim-dap-ui` — interactive debugger with breakpoints and UI
+- [x] `nvim-dap` + `nvim-dap-ui` — interactive debugger with breakpoints and UI
+  - [x] `nvim-dap-virtual-text` — inline variable values during debug
+  - [x] `one-small-step-for-vimkind` — Lua DAP adapter (built-in, no Mason install)
+  - [x] Profile-driven adapters: pwa-node/JS-TS (web), Xdebug/PHP (php/laravel), codelldb/Rust (rust)
 
 ### Writing
 - [x] `zen-mode.nvim` — distraction-free fullscreen mode (`<Leader>tz`)

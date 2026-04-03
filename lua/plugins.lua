@@ -57,8 +57,9 @@ local base_plugins = {
     require('plugins.gitsigns'),
     require('plugins.diffview'),
 
-    -- Testing
+    -- Testing and debugging
     require('plugins.neotest'),
+    require('plugins.nvim-dap'),
 
     -- Code quality
     require('plugins.todo-comments'),

@@ -918,3 +918,66 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Testing"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 13 — nvim-dap
+# ---------------------------------------------------------------------------
+
+@test "nvim-dap plugin file exists" {
+  [ -f lua/plugins/nvim-dap.lua ]
+}
+
+@test "nvim-dap plugin declares nvim-dap-ui dependency" {
+  run grep -n "nvim-dap-ui" lua/plugins/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap plugin declares nvim-dap-virtual-text dependency" {
+  run grep -n "nvim-dap-virtual-text" lua/plugins/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap plugin declares one-small-step-for-vimkind dependency" {
+  run grep -n "one-small-step-for-vimkind" lua/plugins/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap config file exists" {
+  [ -f lua/config/nvim-dap.lua ]
+}
+
+@test "nvim-dap config sets up dapui auto open/close" {
+  run grep -n "event_initialized\|event_terminated" lua/config/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap config defines Lua adapter" {
+  run grep -n "nlua\|one-small-step" lua/config/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap config calls profiles.setup_dap" {
+  run grep -n "setup_dap" lua/config/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap config defines Leader Db breakpoint keymap" {
+  run grep -n "Leader.*Db\|Db.*breakpoint" lua/config/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-dap config defines Leader Dc continue keymap" {
+  run grep -n "Leader.*Dc\|Dc.*continue" lua/config/nvim-dap.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list loads nvim-dap" {
+  run grep -n "plugins.nvim-dap" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader D group as Debug" {
+  run grep -n "Leader>D'" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Debug"* ]]
+}

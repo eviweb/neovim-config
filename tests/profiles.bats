@@ -223,3 +223,30 @@ setup() {
   run grep -n "get_neotest_adapters" lua/config/neotest.lua
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# DAP profile-driven adapters
+# ---------------------------------------------------------------------------
+
+@test "profiles init defines setup_dap" {
+  run grep -n "setup_dap" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "web profile defines dap_setup for JS/TS" {
+  run grep -n "dap_setup\|pwa-node" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap_setup"* ]]
+}
+
+@test "php profile defines dap_setup for Xdebug" {
+  run grep -n "dap_setup\|xdebug\|php-debug-adapter" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap_setup"* ]]
+}
+
+@test "rust profile defines dap_setup for codelldb" {
+  run grep -n "dap_setup\|codelldb" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap_setup"* ]]
+}
