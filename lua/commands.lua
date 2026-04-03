@@ -110,9 +110,33 @@ vim.api.nvim_create_user_command('Cheat', function(opts)
         open_cheatsheet(topic)
         return
     end
-    vim.ui.select(cheat_topics, { prompt = 'Cheatsheet:' }, function(choice)
-        if choice then open_cheatsheet(choice) end
-    end)
+
+    local ok_pickers, pickers      = pcall(require, 'telescope.pickers')
+    local ok_finders, finders      = pcall(require, 'telescope.finders')
+    local ok_conf,    tconf        = pcall(require, 'telescope.config')
+    local ok_actions, actions      = pcall(require, 'telescope.actions')
+    local ok_state,   action_state = pcall(require, 'telescope.actions.state')
+
+    if ok_pickers and ok_finders and ok_conf and ok_actions and ok_state then
+        pickers.new({}, {
+            prompt_title = 'Cheatsheet',
+            finder  = finders.new_table({ results = cheat_topics }),
+            sorter  = tconf.values.generic_sorter({}),
+            attach_mappings = function(prompt_bufnr)
+                actions.select_default:replace(function()
+                    actions.close(prompt_bufnr)
+                    local sel = action_state.get_selected_entry()
+                    if sel then open_cheatsheet(sel[1]) end
+                end)
+                return true
+            end,
+        }):find()
+    else
+        -- Fallback when Telescope is not available (e.g. modern UI variant)
+        vim.ui.select(cheat_topics, { prompt = 'Cheatsheet:' }, function(choice)
+            if choice then open_cheatsheet(choice) end
+        end)
+    end
 end, {
     nargs    = '?',
     complete = function(arglead)
