@@ -472,6 +472,53 @@ setup() {
 # ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
+# Phase 13 — nvim-spectre, zen-mode
+# ---------------------------------------------------------------------------
+
+@test "nvim-spectre plugin file exists" {
+  [ -f "lua/plugins/nvim-spectre.lua" ]
+}
+
+@test "nvim-spectre plugin uses nvim-pack repository" {
+  run grep -n "nvim-pack/nvim-spectre" lua/plugins/nvim-spectre.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads nvim-spectre" {
+  run grep -n "plugins.nvim-spectre" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader sr for Spectre" {
+  run grep -n "Spectre" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader sw to search word under cursor" {
+  run grep -n "select_word" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "zen-mode plugin file exists" {
+  [ -f "lua/plugins/zen-mode.lua" ]
+}
+
+@test "zen-mode plugin uses folke repository" {
+  run grep -n "folke/zen-mode.nvim" lua/plugins/zen-mode.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins.lua loads zen-mode" {
+  run grep -n "plugins.zen-mode" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "keymaps define Leader tz for ZenMode" {
+  run grep -n "ZenMode" lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
 # Phase 13 — codeium, mini.ai
 # ---------------------------------------------------------------------------
 

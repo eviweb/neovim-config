@@ -171,6 +171,17 @@ vim.keymap.set('n', '<Leader>tn', function()
 end, { noremap = true, silent = true, desc = 'Cycle line numbers' })
 
 --[[
+    Search (<Leader>s is Spell — use <Leader>S for search/replace)
+--]]
+-- opens spectre for project-wide search/replace
+map('n', '<Leader>sr', ':Spectre<CR>', opts)
+
+-- search word under cursor across project
+vim.keymap.set('n', '<Leader>sw', function()
+    require('spectre').open_visual({ select_word = true })
+end, { noremap = true, silent = true, desc = 'Search word under cursor' })
+
+--[[
     Git extras (<Leader>g)
 --]]
 -- opens diffview for the current repo
@@ -181,6 +192,9 @@ map('n', '<Leader>gH', ':DiffviewFileHistory %<CR>', opts)
 
 -- opens project-wide todo list via Telescope
 map('n', '<Leader>ft', ':TodoTelescope<CR>', opts)
+
+-- toggles zen mode (distraction-free writing)
+map('n', '<Leader>tz', ':ZenMode<CR>', opts)
 
 --[[
     Session (<Leader>q)

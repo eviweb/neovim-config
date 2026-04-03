@@ -186,6 +186,7 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 | Key | Action |
 |-----|--------|
 | `<Leader>tn` | Cycle line numbers (absolute → relative → none) |
+| `<Leader>tz` | Toggle Zen mode (distraction-free fullscreen) |
 | `<C-\>` | Toggle floating terminal |
 | `<Leader>tt` | Toggle terminal |
 | `<Leader>tC` | Toggle Claude Code session (persistent) |
@@ -201,6 +202,15 @@ Use `<C-\><C-n>` or `<C-s>` to exit terminal mode and return to normal mode.
 | `<Leader>qd` | Stop session persistence (next quit will not save) |
 
 Session is saved automatically per directory on exit and restored on startup when Neovim is opened with no file arguments.
+
+### Search / Replace (Spectre)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>sr` | Open Spectre (project-wide search/replace) |
+| `<Leader>sw` | Search word under cursor across project |
+
+Inside Spectre: `<CR>` to confirm replace, `dd` to exclude a match.
 
 ### Editing utilities
 

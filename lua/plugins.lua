@@ -65,6 +65,10 @@ local base_plugins = {
 
     -- Markdown
     require('plugins.render-markdown'),
+    require('plugins.zen-mode'),
+
+    -- Search
+    require('plugins.nvim-spectre'),
 
     -- Theme-init: applies the active colorscheme after all priority=1000
     -- colorscheme plugins have completed their setup() calls.

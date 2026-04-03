@@ -150,7 +150,7 @@
 
 ### Editing
 - [x] `friendly-snippets` — already wired as LuaSnip dependency with lazy_load()
-- [ ] `nvim-spectre` — project-wide search/replace with regex and preview before applying
+- [x] `nvim-spectre` — project-wide search/replace (`<Leader>sr`, `<Leader>sw`)
 - [x] `mini.ai` — extended text objects: function args, brackets across lines (`ia`/`aa`), n_lines=500
 
 ### Git
@@ -166,7 +166,7 @@
 - [ ] `nvim-dap` + `nvim-dap-ui` — interactive debugger with breakpoints and UI
 
 ### Writing
-- [ ] `zen-mode.nvim` — distraction-free fullscreen mode for markdown and prose
+- [x] `zen-mode.nvim` — distraction-free fullscreen mode (`<Leader>tz`)
 
 ### Terminal and AI agents
 - [x] `toggleterm.nvim` — floating terminal (`<C-\>`, `<Leader>tt`); dedicated Claude Code (`<Leader>tC`) and Codex CLI (`<Leader>tX`) instances
