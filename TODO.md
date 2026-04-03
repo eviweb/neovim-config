@@ -155,7 +155,7 @@
 
 ### Git
 - [x] `diffview.nvim` — enhanced diff view (`<Leader>gv`) and per-file git history (`<Leader>gH`); complements gitsigns
-- [ ] `lazygit.nvim` — open lazygit in a floating terminal window from inside Neovim
+- [x] `lazygit.nvim` — open lazygit in a floating terminal window from inside Neovim
 
 ### Code quality
 - [x] `todo-comments.nvim` — colorise TODO/FIXME/HACK/NOTE in code; list all via Telescope (`<Leader>ft`)

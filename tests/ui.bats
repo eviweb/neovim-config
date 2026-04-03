@@ -840,3 +840,23 @@ setup() {
   run grep -n "'i'.*'<C-r>'\|\"i\".*\"<C-r>\"" lua/keymaps.lua
   [ "$status" -eq 1 ]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 13 — lazygit integration
+# ---------------------------------------------------------------------------
+
+@test "toggleterm config defines a lazygit terminal" {
+  run grep -n "lazygit" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "toggleterm config maps Leader gg to lazygit toggle" {
+  run grep -n "Leader.*gg\|gg.*lazygit" lua/config/toggleterm.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader gg as Open lazygit" {
+  run grep -n "Leader>gg" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"lazygit"* ]]
+}

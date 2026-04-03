@@ -172,6 +172,14 @@ Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
 | `<Leader>gb` | Blame line |
 | `<Leader>gd` | Diff this file |
 
+### Git (lazygit)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>gg` | Open lazygit (floating terminal) |
+
+Requires `lazygit` installed on the system (`apt install lazygit` or equivalent).
+
 ### Git (diffview)
 
 | Key | Action |

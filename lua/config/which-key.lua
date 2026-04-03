@@ -19,6 +19,7 @@ wk.add({
     { '<Leader>f',  group = 'Find' },
     { '<Leader>d',  group = 'Diagnostics' },
     { '<Leader>g',  group = 'Git' },
+    { '<Leader>gg', desc  = 'Open lazygit' },
     { '<Leader>gv', desc  = 'Diff view' },
     { '<Leader>gH', desc  = 'File history' },
     { '<Leader>ft', desc  = 'Browse TODOs' },

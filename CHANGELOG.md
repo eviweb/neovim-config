@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `:w!!` sudo save — write system files without relaunching Neovim as root (`cabbrev w!!` → `w !sudo tee % > /dev/null`)
 - `nvim-spectre`: project-wide search/replace with regex and preview; `<Leader>sr` open, `<Leader>sw` search word under cursor
 - `zen-mode.nvim`: distraction-free fullscreen mode; `<Leader>tz` toggle
+- `lazygit` integration via `toggleterm.nvim`: `<Leader>gg` opens lazygit in a floating terminal; requires `lazygit` installed on the system
 - `codeium.nvim`: free inline AI completion; integrated as nvim-cmp source (`[AI]` label); activate with `:Codeium Auth` on first use
 - `mini.ai`: extended text objects — smarter `a`/`i` for function args, brackets, quotes across multiple lines; `n_lines=500`
 - `toggleterm.nvim`: persistent floating terminal (`<C-\>`); `<Leader>tt` general toggle; `<Leader>tC` dedicated Claude Code session; `<Leader>tX` dedicated Codex CLI session

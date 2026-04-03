@@ -30,6 +30,14 @@ local codex = Terminal:new({
     float_opts = { border = 'rounded' },
 })
 
+-- dedicated lazygit terminal
+local lazygit = Terminal:new({
+    cmd       = 'lazygit',
+    direction = 'float',
+    hidden    = true,
+    float_opts = { border = 'rounded' },
+})
+
 local opts = { noremap = true, silent = true }
 
 vim.keymap.set('n', '<Leader>tt', '<Cmd>ToggleTerm<CR>',
@@ -40,3 +48,6 @@ vim.keymap.set('n', '<Leader>tC', function() claude:toggle() end,
 
 vim.keymap.set('n', '<Leader>tX', function() codex:toggle() end,
     vim.tbl_extend('force', opts, { desc = 'Toggle Codex CLI' }))
+
+vim.keymap.set('n', '<Leader>gg', function() lazygit:toggle() end,
+    vim.tbl_extend('force', opts, { desc = 'Open lazygit' }))
