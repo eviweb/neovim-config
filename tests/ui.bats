@@ -860,3 +860,61 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"lazygit"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 13 — neotest
+# ---------------------------------------------------------------------------
+
+@test "neotest plugin file exists" {
+  [ -f lua/plugins/neotest.lua ]
+}
+
+@test "neotest plugin declares neotest-bash dependency" {
+  run grep -n "neotest-bash" lua/plugins/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest plugin declares nvim-nio dependency" {
+  run grep -n "nvim-nio" lua/plugins/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest config file exists" {
+  [ -f lua/config/neotest.lua ]
+}
+
+@test "neotest config sets up neotest-bash adapter" {
+  run grep -n "neotest-bash" lua/config/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest config defines Leader Tr keymap" {
+  run grep -n "Leader.*Tr\|Tr.*nearest" lua/config/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest config defines Leader Tf keymap" {
+  run grep -n "Leader.*Tf\|Tf.*file" lua/config/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest config defines Leader Ts keymap" {
+  run grep -n "Leader.*Ts\|Ts.*summary" lua/config/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest config defines Leader To keymap" {
+  run grep -n "Leader.*To\|To.*output" lua/config/neotest.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list loads neotest" {
+  run grep -n "plugins.neotest" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key annotates Leader T group as Testing" {
+  run grep -n "Leader>T'" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Testing"* ]]
+}

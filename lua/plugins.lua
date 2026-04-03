@@ -57,6 +57,9 @@ local base_plugins = {
     require('plugins.gitsigns'),
     require('plugins.diffview'),
 
+    -- Testing
+    require('plugins.neotest'),
+
     -- Code quality
     require('plugins.todo-comments'),
 

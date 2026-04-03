@@ -162,7 +162,9 @@
 - [x] `indent-blankline.nvim` — visual indent guides (essential for YAML, Python, nested Lua)
 
 ### Testing and debugging
-- [ ] `neotest` — run and visualise test results inside Neovim (bats, phpunit, jest...)
+- [x] `neotest` — run and visualise test results inside Neovim (bats, phpunit, jest...)
+  - [x] `neotest-bash` adapter — bats-core support
+  - [ ] Profile-driven adapters: `neotest-jest`/`neotest-vitest` (web), `neotest-phpunit` (php), `neotest-rust` (rust) — load conditionally via profiles (same pattern as LSP servers and null-ls sources)
 - [ ] `nvim-dap` + `nvim-dap-ui` — interactive debugger with breakpoints and UI
 
 ### Writing

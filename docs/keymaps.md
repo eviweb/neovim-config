@@ -189,6 +189,17 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 
 `:DiffviewClose` or `q` to close. Full diff and file history across all commits.
 
+### Testing (neotest)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>Tr` | Run nearest test |
+| `<Leader>Tf` | Run test file |
+| `<Leader>Ts` | Toggle test summary panel |
+| `<Leader>To` | Toggle output panel |
+
+Active in `.bats` files (neotest-bash adapter). Other adapters (jest, phpunit, cargo test) planned as profile-driven additions.
+
 ### Toggle / Terminal
 
 | Key | Action |
