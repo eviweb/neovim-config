@@ -67,8 +67,10 @@ map('n', '<C-l>', '<C-w>l', opts)
 map('n', '<A-j>', ':m .+1<CR>==', opts)
 map('n', '<A-k>', ':m .-2<CR>==', opts)
 
--- maps undo to Ctrl-z
-map('n', '<C-z>', 'u', opts)
+-- saves the current file
+map('n', '<C-s>', ':w<CR>', opts)
+
+
 
 --[[
     Insert mode
@@ -83,9 +85,6 @@ map('i', '<A-k>', '<Esc>:m .-2<CR>==gi', opts)
 -- saves the current file
 map('i', '<C-s>', '<Esc>:w<CR>A', opts)
 
--- maps undo/redo to Ctrl-z/Ctrl-r
-map('i', '<C-z>', '<Esc>ui', opts)
-map('i', '<C-r>', '<Esc><C-r>i', opts)
 
 --[[
     Visual mode
