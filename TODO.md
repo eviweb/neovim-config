@@ -129,3 +129,15 @@
 - [x] Implement `lua/ui/modern.lua` once evaluation is done
 - [x] Add `nvim-config ui set|unset` CLI subcommand
 - [x] Add `.nvim-ui` to `.gitignore`
+
+## Phase 12 - Themes, Markdown And Filetype Detection
+
+- [x] Persistent colorscheme system — `lua/ui/theme.lua`, `.nvim-theme` (gitignored), 14 dark themes
+- [x] 4 new colorscheme plugins — catppuccin (3 variants), tokyonight (3), kanagawa (2), gruvbox-material
+- [x] `theme-init` lazy.nvim spec at `priority=0` — applies active colorscheme after all plugins, prevents flash
+- [x] `:Theme [name]` user command — applies and persists colorscheme, tab-completion on all 14 names
+- [x] `nvim-config theme set|unset` CLI subcommand — mirrors `ui` command; bash and zsh completions updated
+- [x] `render-markdown.nvim` — in-buffer markdown rendering (headings, code blocks, bullets, checkboxes, tables); lazy-loaded on `ft=markdown`
+- [x] Bash shebang detection — extensionless files with `#!/.../bin/bash` or `#!/.../env bash` auto-detected as `sh` via `vim.filetype.add`
+- [x] Keymaps cleanup — `<C-s>` added in normal mode; `<C-z>` and `<C-r>` removed from insert mode (terminal conflicts, native Vim override)
+- [x] Test coverage — 43 new tests (229 total) covering all Phase 12 additions
