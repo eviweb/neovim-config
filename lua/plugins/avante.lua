@@ -7,7 +7,6 @@ return {
     dependencies = {
         'nvim-lua/plenary.nvim',
         'MunifTanjim/nui.nvim',
-        'stevearc/dressing.nvim',
         'nvim-treesitter/nvim-treesitter',
         'MeanderingProgrammer/render-markdown.nvim',
     },

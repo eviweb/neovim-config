@@ -115,7 +115,11 @@ vim.api.nvim_create_user_command('Cheat', function(opts)
     end)
 end, {
     nargs    = '?',
-    complete = function() return cheat_topics end,
+    complete = function(arglead)
+        return vim.tbl_filter(function(t)
+            return t:find(arglead, 1, true) == 1
+        end, cheat_topics)
+    end,
     desc     = 'Open a cheatsheet in a floating window',
 })
 

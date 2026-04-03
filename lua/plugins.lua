@@ -25,6 +25,9 @@ local base_plugins = {
     -- Parsers
     require('plugins.treesitter'),
 
+    -- UI input/select enhancement (must load early — used by :Cheat, :NvimProfile, etc.)
+    require('plugins.dressing'),
+
     -- Utils
     require('plugins.nvim-autopairs'),
     require('plugins.vim-surround'),
