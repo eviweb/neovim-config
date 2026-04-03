@@ -36,6 +36,8 @@ return {
         { 'marilari88/neotest-vitest', lazy = true },
     },
 
+    dap_mason_packages = { 'js-debug-adapter' },
+
     -- DAP: JS/TS via vscode-js-debug (Mason: js-debug-adapter).
     -- Install with :MasonInstall js-debug-adapter
     dap_setup = function(dap)

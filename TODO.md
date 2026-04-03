@@ -82,28 +82,6 @@
 - [x] Move Node-specific Telescope integrations behind project profiles
 - [x] Decide whether `none-ls.nvim` should remain global or have profile-driven sources
 
-## Phase 10 - Test Suite Maintenance
-
-- [x] Split `tests/nvim-config.bats` by domain (CLI, profiles, LSP/completion, UI/plugins, docs) for readability
-
-## Phase 11 - Quality of Life
-
-> Incremental improvements with high daily value, low implementation cost.
-> Ordered by recommended priority.
-
-### High value
-
-- [x] Clear search highlight — `<Leader><CR>` in normal mode to call `:noh`
-- [x] Auto-save on focus loss — autocmd `FocusLost`/`BufLeave` → `:silent! wa`
-- [x] `gitsigns.nvim` — inline diff signs, line blame, hunk navigation (`]h`/`[h`), stage/reset hunk
-- [x] Line number toggle — `<Leader>tn` cycles absolute → relative → none; new `<Leader>t` Toggle group
-
-### Medium value
-
-- [x] `:w!!` sudo save — write system files without relaunching Neovim as root
-- [x] `:Cheat` picker — `:Cheat` with no argument opens `vim.ui.select` (variant-agnostic); with argument opens directly
-- [x] Session restore — `persistence.nvim`: auto-restore on startup (no args), `<Leader>qs` restore, `<Leader>qd` stop
-
 ## Phase 9 - UI Consolidation (Long-term)
 
 > Two interchangeable UI variants: `classic` (current stack) and `modern` (snacks.nvim suite).
@@ -129,6 +107,28 @@
 - [x] Implement `lua/ui/modern.lua` once evaluation is done
 - [x] Add `nvim-config ui set|unset` CLI subcommand
 - [x] Add `.nvim-ui` to `.gitignore`
+
+## Phase 10 - Test Suite Maintenance
+
+- [x] Split `tests/nvim-config.bats` by domain (CLI, profiles, LSP/completion, UI/plugins, docs) for readability
+
+## Phase 11 - Quality of Life
+
+> Incremental improvements with high daily value, low implementation cost.
+> Ordered by recommended priority.
+
+### High value
+
+- [x] Clear search highlight — `<Leader><CR>` in normal mode to call `:noh`
+- [x] Auto-save on focus loss — autocmd `FocusLost`/`BufLeave` → `:silent! wa`
+- [x] `gitsigns.nvim` — inline diff signs, line blame, hunk navigation (`]h`/`[h`), stage/reset hunk
+- [x] Line number toggle — `<Leader>tn` cycles absolute → relative → none; new `<Leader>t` Toggle group
+
+### Medium value
+
+- [x] `:w!!` sudo save — write system files without relaunching Neovim as root
+- [x] `:Cheat` picker — `:Cheat` with no argument opens `vim.ui.select` (variant-agnostic); with argument opens directly
+- [x] Session restore — `persistence.nvim`: auto-restore on startup (no args), `<Leader>qs` restore, `<Leader>qd` stop
 
 ## Phase 12 - Themes, Markdown And Filetype Detection
 
@@ -169,6 +169,7 @@
   - [x] `nvim-dap-virtual-text` — inline variable values during debug
   - [x] `one-small-step-for-vimkind` — Lua DAP adapter (built-in, no Mason install)
   - [x] Profile-driven adapters: pwa-node/JS-TS (web), Xdebug/PHP (php/laravel), codelldb/Rust (rust)
+  - [x] Auto-install DAP Mason packages at startup via `profiles.get_dap_mason_packages()` + Mason registry
 
 ### Writing
 - [x] `zen-mode.nvim` — distraction-free fullscreen mode (`<Leader>tz`)
@@ -177,9 +178,22 @@
 - [x] `toggleterm.nvim` — floating terminal (`<C-\>`, `<Leader>tt`); dedicated Claude Code (`<Leader>tC`) and Codex CLI (`<Leader>tX`) instances
 - [x] `install claude` CLI subcommand — install Claude Code CLI (`npm install -g @anthropic-ai/claude-code`); skips if present; errors if npm missing
 - [x] `install codex` CLI subcommand — install OpenAI Codex CLI (`npm install -g @openai/codex`); same guards
+- [x] `codeium.nvim` — free inline AI completion; nvim-cmp source `[AI]`; `:Codeium Auth` on first use
+
+---
+
+## Deferred / Under Consideration
+
+> Items intentionally set aside — either pending a decision, requiring an external dependency
+> (subscription, API key, billing), or not yet prioritised.
+
 - [ ] `avante.nvim` — Cursor-like AI assistant (chat + inline edits); supports Claude
   (Anthropic API key) and GPT-4o (OpenAI API key); requires API billing separate from
-  chat subscriptions
+  Pro chat subscriptions; blocked on decision to use API key vs Pro account
 - [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription
-  (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface
-- [x] `codeium.nvim` — free inline AI completion; nvim-cmp source `[AI]`; `:Codeium Auth` on first use
+  (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface;
+  deferred — `codeium.nvim` covers the free inline completion use case
+- [ ] neotest profile-driven adapters — `neotest-jest` (web, when Jest is preferred over Vitest),
+  `neotest-busted` (Lua/busted projects); deferred until relevant project context
+- [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to
+  current manual registry approach); evaluate if the current approach proves insufficient

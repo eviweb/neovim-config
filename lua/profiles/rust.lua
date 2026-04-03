@@ -21,6 +21,8 @@ return {
         return { adapter }
     end,
 
+    dap_mason_packages = { 'codelldb' },
+
     -- DAP: Rust via codelldb (Mason: codelldb).
     -- Install with :MasonInstall codelldb
     dap_setup = function(dap)

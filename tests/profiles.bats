@@ -250,3 +250,33 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"dap_setup"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# DAP Mason auto-install
+# ---------------------------------------------------------------------------
+
+@test "profiles init defines get_dap_mason_packages" {
+  run grep -n "get_dap_mason_packages" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "web profile declares dap_mason_packages with js-debug-adapter" {
+  run grep -n "js-debug-adapter" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile declares dap_mason_packages with php-debug-adapter" {
+  run grep -n "php-debug-adapter" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "rust profile declares dap_mason_packages with codelldb" {
+  run grep -n "codelldb" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp config auto-installs DAP mason packages" {
+  run grep -n "get_dap_mason_packages\|mason-registry" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"get_dap_mason_packages"* ]]
+}

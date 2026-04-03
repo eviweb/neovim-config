@@ -32,6 +32,8 @@ return {
         return { adapter }
     end,
 
+    dap_mason_packages = { 'php-debug-adapter' },
+
     -- DAP: PHP via Xdebug (Mason: php-debug-adapter).
     -- Install with :MasonInstall php-debug-adapter
     dap_setup = function(dap)

@@ -84,6 +84,16 @@ require('mason-lspconfig').setup({
     ensure_installed = vim.list_extend({ 'jsonls', 'lua_ls' }, profiles.get_lsp_servers()),
 })
 
+-- Auto-install DAP Mason packages required by active profiles.
+-- Runs at startup so adapters are ready before the first debug session.
+local registry = require('mason-registry')
+for _, pkg_name in ipairs(profiles.get_dap_mason_packages()) do
+    local ok, pkg = pcall(registry.get_package, pkg_name)
+    if ok and not pkg:is_installed() then
+        pkg:install()
+    end
+end
+
 vim.diagnostic.config({
     virtual_text = false,
     float = {

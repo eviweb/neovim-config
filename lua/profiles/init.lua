@@ -154,6 +154,20 @@ function M.get_lsp_servers()
     return servers
 end
 
+-- Return Mason package names for DAP adapters required by active profiles.
+function M.get_dap_mason_packages()
+    local packages = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.dap_mason_packages then
+            for _, pkg in ipairs(profile.dap_mason_packages) do
+                table.insert(packages, pkg)
+            end
+        end
+    end
+    return packages
+end
+
 -- Call dap_setup(dap) for each active profile that declares it.
 -- Must be called after nvim-dap is loaded.
 function M.setup_dap(dap)
