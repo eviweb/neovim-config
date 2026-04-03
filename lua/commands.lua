@@ -105,7 +105,14 @@ local function open_cheatsheet(topic)
 end
 
 vim.api.nvim_create_user_command('Cheat', function(opts)
-    open_cheatsheet(vim.trim(opts.args))
+    local topic = vim.trim(opts.args)
+    if topic ~= '' then
+        open_cheatsheet(topic)
+        return
+    end
+    vim.ui.select(cheat_topics, { prompt = 'Cheatsheet:' }, function(choice)
+        if choice then open_cheatsheet(choice) end
+    end)
 end, {
     nargs    = '?',
     complete = function() return cheat_topics end,

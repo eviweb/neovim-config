@@ -101,7 +101,7 @@
 ### Medium value
 
 - [x] `:w!!` sudo save — write system files without relaunching Neovim as root
-- [ ] `:Cheat` Telescope picker — replace text prompt with a Telescope picker + preview
+- [x] `:Cheat` picker — `:Cheat` with no argument opens `vim.ui.select` (variant-agnostic); with argument opens directly
 - [ ] Session restore — `persistence.nvim` or `auto-session`: reopen last workspace on startup
 
 ## Phase 9 - UI Consolidation (Long-term)
