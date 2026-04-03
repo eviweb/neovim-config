@@ -178,3 +178,48 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"profiles.picker"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# neotest profile-driven adapters
+# ---------------------------------------------------------------------------
+
+@test "profiles init defines get_neotest_adapters" {
+  run grep -n "get_neotest_adapters" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "web profile declares neotest-vitest plugin" {
+  run grep -n "neotest-vitest" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "web profile defines neotest_adapters with vitest detection" {
+  run grep -n "neotest_adapters\|vitest" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"neotest_adapters"* ]]
+}
+
+@test "php profile declares neotest-phpunit plugin" {
+  run grep -n "neotest-phpunit" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile defines neotest_adapters" {
+  run grep -n "neotest_adapters" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "rust profile declares neotest-rust plugin" {
+  run grep -n "neotest-rust" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "rust profile defines neotest_adapters" {
+  run grep -n "neotest_adapters" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "neotest config merges profile adapters" {
+  run grep -n "get_neotest_adapters" lua/config/neotest.lua
+  [ "$status" -eq 0 ]
+}

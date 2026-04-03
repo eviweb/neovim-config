@@ -2,10 +2,13 @@
 
 local neotest = require('neotest')
 
+local adapters = vim.list_extend(
+    { require('neotest-bash') },
+    require('profiles').get_neotest_adapters()
+)
+
 neotest.setup({
-    adapters = {
-        require('neotest-bash'),
-    },
+    adapters = adapters,
 })
 
 local opts = { noremap = true, silent = true }

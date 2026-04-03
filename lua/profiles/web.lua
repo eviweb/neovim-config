@@ -33,7 +33,17 @@ return {
             'nvim-telescope/telescope-node_modules.nvim',
             lazy = true,
         },
+        { 'marilari88/neotest-vitest', lazy = true },
     },
+
+    -- Only activate the vitest adapter when vitest is present in the project.
+    neotest_adapters = function()
+        local ok, adapter = pcall(require, 'neotest-vitest')
+        if not ok then return {} end
+        local has_vitest = vim.fn.executable(vim.fn.getcwd() .. '/node_modules/.bin/vitest') == 1
+        if not has_vitest then return {} end
+        return { adapter }
+    end,
 
     null_ls_sources = function(null_ls)
         return {

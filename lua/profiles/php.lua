@@ -22,7 +22,15 @@ return {
 
     lsp_servers = { 'intelephense' },
 
-    plugins = {},
+    plugins = {
+        { 'olimorris/neotest-phpunit', lazy = true },
+    },
+
+    neotest_adapters = function()
+        local ok, adapter = pcall(require, 'neotest-phpunit')
+        if not ok then return {} end
+        return { adapter }
+    end,
 
     null_ls_sources = function(null_ls)
         return {

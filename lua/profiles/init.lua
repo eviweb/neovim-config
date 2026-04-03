@@ -154,6 +154,21 @@ function M.get_lsp_servers()
     return servers
 end
 
+-- Return all neotest adapter instances contributed by active profiles.
+function M.get_neotest_adapters()
+    local adapters = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.neotest_adapters then
+            local profile_adapters = profile.neotest_adapters()
+            for _, adapter in ipairs(profile_adapters) do
+                table.insert(adapters, adapter)
+            end
+        end
+    end
+    return adapters
+end
+
 -- Return all null-ls sources contributed by active profiles.
 function M.get_null_ls_sources()
     local sources = {}

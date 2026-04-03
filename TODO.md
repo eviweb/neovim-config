@@ -164,7 +164,7 @@
 ### Testing and debugging
 - [x] `neotest` — run and visualise test results inside Neovim (bats, phpunit, jest...)
   - [x] `neotest-bash` adapter — bats-core support
-  - [ ] Profile-driven adapters: `neotest-jest`/`neotest-vitest` (web), `neotest-phpunit` (php), `neotest-rust` (rust) — load conditionally via profiles (same pattern as LSP servers and null-ls sources)
+  - [x] Profile-driven adapters: `neotest-vitest` (web), `neotest-phpunit` (php/laravel), `neotest-rust` (rust) — loaded via `profiles.get_neotest_adapters()` + profile `neotest_adapters` field
 - [ ] `nvim-dap` + `nvim-dap-ui` — interactive debugger with breakpoints and UI
 
 ### Writing

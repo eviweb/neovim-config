@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `zen-mode.nvim`: distraction-free fullscreen mode; `<Leader>tz` toggle
 - `lazygit` integration via `toggleterm.nvim`: `<Leader>gg` opens lazygit in a floating terminal; requires `lazygit` installed on the system
 - `neotest` + `neotest-bash`: test runner integrated in Neovim; `<Leader>Tr` run nearest, `<Leader>Tf` run file, `<Leader>Ts` summary panel, `<Leader>To` output panel; `<Leader>T` Testing group in which-key
+- neotest profile-driven adapters: `neotest-vitest` (web, vitest detection via `node_modules/.bin/vitest`), `neotest-phpunit` (php/laravel), `neotest-rust` (rust); loaded conditionally via `profiles.get_neotest_adapters()` — same pattern as LSP servers and null-ls sources
 - `codeium.nvim`: free inline AI completion; integrated as nvim-cmp source (`[AI]` label); activate with `:Codeium Auth` on first use
 - `mini.ai`: extended text objects — smarter `a`/`i` for function args, brackets, quotes across multiple lines; `n_lines=500`
 - `toggleterm.nvim`: persistent floating terminal (`<C-\>`); `<Leader>tt` general toggle; `<Leader>tC` dedicated Claude Code session; `<Leader>tX` dedicated Codex CLI session
