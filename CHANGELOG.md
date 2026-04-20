@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `nvim-config status` — shows active Neovim version, UI variant, theme, and profile at a glance
+- `nvim-config doctor` — checks required binaries (git, make, rg, fdfind, node, npm) and optional tools (lazygit, tmux, claude, codex, gemini, cargo, gcc)
+- `nvim-config theme info` — prints the active colorscheme; `theme list` lists all 14 themes and marks the active one with `*`
+- `nvim-config ui info` — prints the active UI variant
+- `nvim-config profile info` — prints active profile with its LSP servers and DAP packages parsed from the profile Lua file
+- `nvim-config profile list` now marks the active profile with `*` and skips internal files (init, picker)
+- `nvim-config update dap-adapters` — reads the active profile's `dap_mason_packages` and triggers Mason install headlessly
+- `nvim-config keymaps` — opens `docs/keymaps.md` in `$PAGER`
+- bash/zsh/fish completions updated for all new commands (`status`, `doctor`, `keymaps`) and subcommands (`theme info/list`, `ui info`, `profile info`, `update dap-adapters`)
 - Session restore: `persistence.nvim` saves session per directory on exit and auto-restores on startup when Neovim is opened with no arguments; `<Leader>qs` restore, `<Leader>qd` stop persistence; `<Leader>q` group annotated as Session in which-key
 - `:Cheat` with no argument opens a `vim.ui.select` picker (works in both UI variants) instead of showing a usage message
 - `:w!!` sudo save — write system files without relaunching Neovim as root (`cabbrev w!!` → `w !sudo tee % > /dev/null`)

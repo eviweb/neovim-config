@@ -29,6 +29,17 @@ COMMAND=""
 SUBCOMMAND=""
 COMPLETION_SHELL=""
 
+VALID_THEMES=(
+  carbonfox
+  catppuccin-frappe catppuccin-macchiato catppuccin-mocha
+  duskfox
+  gruvbox-material
+  kanagawa-dragon kanagawa-wave
+  nightfox nordfox
+  terafox
+  tokyonight-moon tokyonight-night tokyonight-storm
+)
+
 NVM_VERSION="0.39.7"
 NVM_DIR="${HOME}/.nvm"
 
@@ -60,29 +71,40 @@ Commands:
                         --snap  Install Neovim via snap (default for install nvim)
                         --apt   Install Neovim via apt instead of snap
 
-  update [nvim|plugins|all]
-                        Update Neovim and/or plugins
-                          nvim    — refresh Neovim (snap or apt, auto-detected)
-                          plugins — run Lazy! sync headlessly
-                          all     — nvim then plugins (default)
+  update [nvim|plugins|dap-adapters|all]
+                        Update Neovim, plugins, or DAP adapters
+                          nvim         — refresh Neovim (snap or apt, auto-detected)
+                          plugins      — run Lazy! sync headlessly
+                          dap-adapters — install/update Mason DAP packages for active profile
+                          all          — nvim then plugins (default)
 
-  profile [list|detect|set|unset|create] [<name>]
+  profile [list|detect|set|unset|create|info] [<name>]
                         Manage per-project Neovim profiles
-                          list   — list available profiles
+                          list   — list available profiles (marks active with *)
                           detect — detect profiles for the current directory
                           set    — write .nvim-profile in the current directory
                           unset  — remove .nvim-profile from the current directory
                           create — generate a new profile template in lua/profiles/
+                          info   — show active profile details (LSP servers, DAP packages)
 
-  ui [set|unset] [classic|modern]
+  ui [set|unset|info] [classic|modern]
                         Manage the active UI variant
                           set    — write .nvim-ui at the config root
                           unset  — remove .nvim-ui (reverts to classic)
+                          info   — show the active UI variant
 
-  theme [set|unset] [<name>]
+  theme [set|unset|info|list] [<name>]
                         Manage the active colorscheme
                           set    — write .nvim-theme at the config root
                           unset  — remove .nvim-theme (reverts to nightfox)
+                          info   — show the active theme
+                          list   — list all available themes (marks active with *)
+
+  status                Show current configuration summary (nvim, UI, theme, profile)
+
+  doctor                Check that required tools and binaries are installed
+
+  keymaps               Open the keymaps reference in \$PAGER
 
 Global options:
   -h, --help            Display usage and exit
@@ -158,6 +180,113 @@ run_command() {
   "$@"
 }
 
+_read_active_theme() {
+  local theme_file="${PROJECT_DIR}/.nvim-theme"
+  if [ -f "${theme_file}" ]; then
+    tr -d '[:space:]' < "${theme_file}"
+  else
+    printf 'nightfox'
+  fi
+}
+
+_read_active_ui() {
+  local ui_file="${PROJECT_DIR}/.nvim-ui"
+  if [ -f "${ui_file}" ]; then
+    tr -d '[:space:]' < "${ui_file}"
+  else
+    printf 'classic'
+  fi
+}
+
+_read_active_profile() {
+  local profile_file="${PWD}/.nvim-profile"
+  if [ -f "${profile_file}" ]; then
+    tr -d '[:space:]' < "${profile_file}"
+  fi
+}
+
+# Extract single-quoted string values from a Lua list declaration.
+# Usage: _extract_lua_list <file> <key>
+_extract_lua_list() {
+  local file="$1"
+  local key="$2"
+  awk -v k="${key}" '
+    $0 ~ k"[[:space:]]*=" { in_list=1 }
+    in_list { print }
+    /}/ { if (in_list) { in_list=0 } }
+  ' "${file}" | grep -oP "'\K[^']+"
+}
+
+_check_bin() {
+  local bin="$1"
+  if command -v "${bin}" > /dev/null 2>&1; then
+    log_message "INFO" "  [ok]  ${bin}"
+  else
+    log_message "WARN" "  [!!]  ${bin} — not found"
+    return 1
+  fi
+}
+
+run_status() {
+  local nvim_version="not installed"
+  if command -v nvim > /dev/null 2>&1; then
+    nvim_version="$(nvim --version 2>/dev/null | head -1 | sed 's/NVIM //')"
+  fi
+  local theme; theme="$(_read_active_theme)"
+  local ui; ui="$(_read_active_ui)"
+  local profile; profile="$(_read_active_profile)"
+  [ -z "${profile}" ] && profile="(none)"
+  log_message "INFO" "Neovim  : ${nvim_version}"
+  log_message "INFO" "UI      : ${ui}"
+  log_message "INFO" "Theme   : ${theme}"
+  log_message "INFO" "Profile : ${profile}"
+}
+
+run_doctor() {
+  local all_ok=1
+
+  log_message "INFO" "=== Neovim ==="
+  if command -v nvim > /dev/null 2>&1; then
+    local ver
+    ver="$(nvim --version 2>/dev/null | head -1)"
+    log_message "INFO" "  [ok]  ${ver}"
+  else
+    log_message "ERROR" "  [!!]  nvim — not installed"
+    all_ok=0
+  fi
+
+  log_message "INFO" "=== Required binaries ==="
+  for bin in git make rg fdfind node npm; do
+    _check_bin "${bin}" || all_ok=0
+  done
+
+  log_message "INFO" "=== Optional tools ==="
+  for bin in lazygit tmux claude codex gemini; do
+    _check_bin "${bin}" || true
+  done
+
+  log_message "INFO" "=== Build tools ==="
+  for bin in cargo gcc; do
+    _check_bin "${bin}" || true
+  done
+
+  if [ "${all_ok}" -eq 1 ]; then
+    log_message "INFO" "All required checks passed."
+  else
+    log_message "WARN" "Some required tools are missing — run 'install deps' to fix."
+    return 1
+  fi
+}
+
+run_keymaps() {
+  local keymaps_file="${PROJECT_DIR}/docs/keymaps.md"
+  if [ ! -f "${keymaps_file}" ]; then
+    log_message "ERROR" "Keymaps file not found: ${keymaps_file}"
+    return 1
+  fi
+  "${PAGER:-less}" "${keymaps_file}"
+}
+
 _show_completion_bash() {
   cat <<'EOF'
 _nvim_config_completions() {
@@ -175,15 +304,15 @@ _nvim_config_completions() {
       return 0
       ;;
     update|plugins)
-      COMPREPLY=( $(compgen -W "nvim plugins all" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "nvim plugins dap-adapters all" -- "${current_word}") )
       return 0
       ;;
-    profile|list|detect|set|unset|create)
-      COMPREPLY=( $(compgen -W "list detect set unset create" -- "${current_word}") )
+    profile|list|detect|set|unset|create|info)
+      COMPREPLY=( $(compgen -W "list detect set unset create info" -- "${current_word}") )
       return 0
       ;;
     ui)
-      COMPREPLY=( $(compgen -W "set unset" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "info set unset" -- "${current_word}") )
       return 0
       ;;
     classic|modern)
@@ -191,13 +320,13 @@ _nvim_config_completions() {
       return 0
       ;;
     theme)
-      COMPREPLY=( $(compgen -W "set unset" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "info list set unset" -- "${current_word}") )
       return 0
       ;;
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile ui theme" -- "${current_word}") )
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile ui theme status doctor keymaps" -- "${current_word}") )
     return 0
   fi
 
@@ -251,33 +380,41 @@ _nvim_config() {
   update_subcmds=(
     'nvim:Refresh Neovim (snap or apt, auto-detected)'
     'plugins:Run Lazy! sync headlessly'
+    'dap-adapters:Install/update Mason DAP packages for active profile'
     'all:Update nvim then plugins (default)'
   )
 
   profile_subcmds=(
-    'list:List available profiles'
+    'list:List available profiles (marks active with *)'
     'detect:Detect profiles for the current directory'
     'set:Write .nvim-profile in the current directory'
     'unset:Remove .nvim-profile from the current directory'
     'create:Generate a new profile template in lua/profiles/'
+    'info:Show active profile details'
   )
 
   ui_subcmds=(
+    'info:Show the active UI variant'
     'set:Write .nvim-ui at the config root'
     'unset:Remove .nvim-ui (reverts to classic)'
   )
 
   theme_subcmds=(
+    'info:Show the active theme'
+    'list:List all available themes'
     'set:Write .nvim-theme at the config root'
     'unset:Remove .nvim-theme (reverts to nightfox)'
   )
 
   commands=(
     'install:Install system dependencies and/or config symlinks'
-    'update:Update Neovim and/or plugins'
+    'update:Update Neovim, plugins, or DAP adapters'
     'profile:Manage per-project Neovim profiles'
     'ui:Manage the active UI variant'
     'theme:Manage the active colorscheme'
+    'status:Show current configuration summary'
+    'doctor:Check that required tools and binaries are installed'
+    'keymaps:Open the keymaps reference in $PAGER'
   )
 
   case "${words[2]}" in
@@ -295,6 +432,8 @@ _nvim_config() {
       ;;
     theme)
       _arguments : "${theme_subcmds[@]}"
+      ;;
+    status|doctor|keymaps)
       ;;
     *)
       _arguments : "${global_opts[@]}" "${commands[@]}"
@@ -327,16 +466,22 @@ complete -c nvim-config -l show-completion   -d 'Print the completion script' -a
 complete -c nvim-config -l install-completion -d 'Install completion for the current user' -a 'bash zsh fish'
 
 # Top-level commands (shown when no subcommand has been typed yet)
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
   -a install -d 'Install system dependencies and/or config symlinks'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
-  -a update  -d 'Update Neovim and/or plugins'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+  -a update  -d 'Update Neovim, plugins, or DAP adapters'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
   -a profile -d 'Manage per-project Neovim profiles'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
   -a ui      -d 'Manage the active UI variant'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
   -a theme   -d 'Manage the active colorscheme'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+  -a status  -d 'Show current configuration summary'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+  -a doctor  -d 'Check that required tools and binaries are installed'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+  -a keymaps -d 'Open the keymaps reference in $PAGER'
 
 # install subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a deps    -d 'Install apt packages only'
@@ -352,24 +497,29 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d '
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Install Neovim via apt'
 
 # update subcommands
-complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim    -d 'Refresh Neovim'
-complete -c nvim-config -n '__fish_seen_subcommand_from update' -a plugins -d 'Run Lazy! sync headlessly'
-complete -c nvim-config -n '__fish_seen_subcommand_from update' -a all     -d 'Update nvim then plugins (default)'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim         -d 'Refresh Neovim'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a plugins      -d 'Run Lazy! sync headlessly'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a dap-adapters -d 'Install/update Mason DAP packages for active profile'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a all          -d 'Update nvim then plugins (default)'
 
 # profile subcommands
-complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a list   -d 'List available profiles'
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a list   -d 'List available profiles (marks active with *)'
 complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a detect -d 'Detect profiles for the current directory'
 complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a set    -d 'Write .nvim-profile in the current directory'
 complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a unset  -d 'Remove .nvim-profile from the current directory'
 complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a create -d 'Generate a new profile template'
+complete -c nvim-config -n '__fish_seen_subcommand_from profile' -a info   -d 'Show active profile details'
 
 # ui subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from ui' -a info  -d 'Show the active UI variant'
 complete -c nvim-config -n '__fish_seen_subcommand_from ui' -a set   -d 'Write .nvim-ui at the config root'
 complete -c nvim-config -n '__fish_seen_subcommand_from ui' -a unset -d 'Remove .nvim-ui (reverts to classic)'
 complete -c nvim-config -n '__fish_seen_subcommand_from ui; and __fish_seen_subcommand_from set' \
   -a 'classic modern'
 
 # theme subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a info  -d 'Show the active theme'
+complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a list  -d 'List all available themes'
 complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a set   -d 'Write .nvim-theme at the config root'
 complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a unset -d 'Remove .nvim-theme (reverts to nightfox)'
 EOF
@@ -490,6 +640,41 @@ run_update_plugins() {
   run_command nvim --headless -u "${PROJECT_DIR}/init.lua" +"Lazy! sync" +qa
 }
 
+run_update_dap_adapters() {
+  local profile; profile="$(_read_active_profile)"
+  if [ -z "${profile}" ]; then
+    log_message "INFO" "No active profile — nothing to update"
+    return 0
+  fi
+  local lua_file="${PROJECT_DIR}/lua/profiles/${profile}.lua"
+  if [ ! -f "${lua_file}" ]; then
+    log_message "ERROR" "Profile file not found: ${lua_file}"
+    return 1
+  fi
+  local pkgs
+  pkgs="$(_extract_lua_list "${lua_file}" "dap_mason_packages" 2>/dev/null || true)"
+  if [ -z "${pkgs}" ]; then
+    log_message "INFO" "No DAP packages declared for profile '${profile}'"
+    return 0
+  fi
+  log_message "INFO" "DAP packages for profile '${profile}':"
+  while IFS= read -r pkg; do
+    [ -n "${pkg}" ] && log_message "INFO" "  ${pkg}"
+  done <<< "${pkgs}"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "nvim --headless: MasonInstall (packages listed above)"
+    return 0
+  fi
+  local mason_cmds=()
+  while IFS= read -r pkg; do
+    [ -n "${pkg}" ] && mason_cmds+=("+MasonInstall ${pkg}")
+  done <<< "${pkgs}"
+  log_message "INFO" "Installing DAP adapters via Mason (this may take a moment)..."
+  # shellcheck disable=SC2068
+  nvim --headless -u "${PROJECT_DIR}/init.lua" ${mason_cmds[@]} +qa 2>/dev/null || true
+  log_message "INFO" "Done — verify inside Neovim with :Mason"
+}
+
 run_update() {
   local subcommand="${1:-all}"
   case "${subcommand}" in
@@ -498,6 +683,9 @@ run_update() {
       ;;
     plugins)
       run_update_plugins
+      ;;
+    dap-adapters)
+      run_update_dap_adapters
       ;;
     all)
       run_update_nvim
@@ -517,13 +705,52 @@ run_profile_list() {
     log_message "ERROR" "No profiles directory found at ${profiles_dir}"
     return 1
   fi
+  local active; active="$(_read_active_profile)"
   for f in "${profiles_dir}"/*.lua; do
     local name
     name="$(basename "$f" .lua)"
-    if [ "${name}" != "init" ]; then
-      log_message "INFO" "${name}"
+    if [ "${name}" = "init" ] || [ "${name}" = "picker" ]; then
+      continue
+    fi
+    if [ "${name}" = "${active}" ]; then
+      log_message "INFO" "* ${name}"
+    else
+      log_message "INFO" "  ${name}"
     fi
   done
+  if [ -z "${active}" ]; then
+    log_message "INFO" "(no active profile in current directory)"
+  fi
+}
+
+run_profile_info() {
+  local profile; profile="$(_read_active_profile)"
+  if [ -z "${profile}" ]; then
+    log_message "INFO" "Active profile: (none)"
+    return 0
+  fi
+  local lua_file="${PROJECT_DIR}/lua/profiles/${profile}.lua"
+  log_message "INFO" "Active profile: ${profile}"
+  if [ ! -f "${lua_file}" ]; then
+    log_message "WARN" "Profile file not found: ${lua_file}"
+    return 1
+  fi
+  local lsp_servers
+  lsp_servers="$(_extract_lua_list "${lua_file}" "lsp_servers" 2>/dev/null || true)"
+  if [ -n "${lsp_servers}" ]; then
+    log_message "INFO" "LSP servers:"
+    while IFS= read -r srv; do
+      [ -n "${srv}" ] && log_message "INFO" "  ${srv}"
+    done <<< "${lsp_servers}"
+  fi
+  local dap_pkgs
+  dap_pkgs="$(_extract_lua_list "${lua_file}" "dap_mason_packages" 2>/dev/null || true)"
+  if [ -n "${dap_pkgs}" ]; then
+    log_message "INFO" "DAP packages:"
+    while IFS= read -r pkg; do
+      [ -n "${pkg}" ] && log_message "INFO" "  ${pkg}"
+    done <<< "${dap_pkgs}"
+  fi
 }
 
 run_profile_detect() {
@@ -628,6 +855,9 @@ run_profile() {
       fi
       run_profile_create "${PROFILE_NAME}"
       ;;
+    info)
+      run_profile_info
+      ;;
     *)
       printf 'Unknown profile subcommand: %s\n' "${PROFILE_SUBCOMMAND}" >&2
       print_usage
@@ -665,8 +895,16 @@ run_ui_unset() {
   fi
 }
 
+run_ui_info() {
+  local ui; ui="$(_read_active_ui)"
+  log_message "INFO" "Active UI variant: ${ui}"
+}
+
 run_ui() {
   case "${UI_SUBCOMMAND:-}" in
+    info)
+      run_ui_info
+      ;;
     set)
       if [ -z "${UI_VARIANT}" ]; then
         printf 'Missing variant for: ui set (classic|modern)\n' >&2
@@ -678,7 +916,7 @@ run_ui() {
       run_ui_unset
       ;;
     *)
-      printf 'Unknown ui subcommand: %s\n' "${UI_SUBCOMMAND}" >&2
+      printf 'Unknown ui subcommand: %s. Use: info, set, unset\n' "${UI_SUBCOMMAND}" >&2
       print_usage
       exit 1
       ;;
@@ -710,8 +948,30 @@ run_theme_unset() {
   fi
 }
 
+run_theme_info() {
+  local theme; theme="$(_read_active_theme)"
+  log_message "INFO" "Active theme: ${theme}"
+}
+
+run_theme_list() {
+  local active; active="$(_read_active_theme)"
+  for theme in "${VALID_THEMES[@]}"; do
+    if [ "${theme}" = "${active}" ]; then
+      log_message "INFO" "* ${theme}"
+    else
+      log_message "INFO" "  ${theme}"
+    fi
+  done
+}
+
 run_theme() {
   case "${THEME_SUBCOMMAND:-}" in
+    info)
+      run_theme_info
+      ;;
+    list)
+      run_theme_list
+      ;;
     set)
       if [ -z "${THEME_NAME}" ]; then
         printf 'Missing theme name for: theme set\n' >&2
@@ -723,7 +983,7 @@ run_theme() {
       run_theme_unset
       ;;
     *)
-      printf 'Unknown theme subcommand: %s\n' "${THEME_SUBCOMMAND}" >&2
+      printf 'Unknown theme subcommand: %s. Use: info, list, set, unset\n' "${THEME_SUBCOMMAND}" >&2
       print_usage
       exit 1
       ;;
@@ -938,6 +1198,18 @@ while [ "$#" -gt 0 ]; do
         fi
       fi
       ;;
+    status)
+      COMMAND="status"
+      shift
+      ;;
+    doctor)
+      COMMAND="doctor"
+      shift
+      ;;
+    keymaps)
+      COMMAND="keymaps"
+      shift
+      ;;
     *)
       printf 'Unknown argument: %s\n' "$1" >&2
       exit 1
@@ -972,6 +1244,15 @@ case "${COMMAND}" in
     ;;
   theme)
     run_theme
+    ;;
+  status)
+    run_status
+    ;;
+  doctor)
+    run_doctor
+    ;;
+  keymaps)
+    run_keymaps
     ;;
   *)
     print_usage

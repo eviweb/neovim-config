@@ -440,3 +440,177 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"gemini"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Phase 14 — CLI enhancements
+# ---------------------------------------------------------------------------
+
+@test "help documents status command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"status"* ]]
+}
+
+@test "help documents doctor command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"doctor"* ]]
+}
+
+@test "help documents keymaps command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"keymaps"* ]]
+}
+
+@test "help documents theme info and list subcommands" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"info"* ]]
+  [[ "$output" == *"list"* ]]
+}
+
+@test "help documents profile info subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"profile"* ]]
+  [[ "$output" == *"info"* ]]
+}
+
+@test "help documents update dap-adapters subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap-adapters"* ]]
+}
+
+@test "status command exits successfully" {
+  run ./bin/nvim-config status
+  [ "$status" -eq 0 ]
+}
+
+@test "status command shows Neovim version or not installed" {
+  run ./bin/nvim-config status
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Neovim"* ]] || [[ "$output" == *"nvim"* ]]
+}
+
+@test "status command shows UI variant" {
+  run ./bin/nvim-config status
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"UI"* ]]
+}
+
+@test "status command shows theme" {
+  run ./bin/nvim-config status
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Theme"* ]]
+}
+
+@test "status command shows profile" {
+  run ./bin/nvim-config status
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Profile"* ]]
+}
+
+@test "theme info command shows active theme" {
+  run ./bin/nvim-config theme info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"theme"* ]] || [[ "$output" == *"Theme"* ]]
+}
+
+@test "theme list command lists available themes" {
+  run ./bin/nvim-config theme list
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nightfox"* ]]
+  [[ "$output" == *"catppuccin"* ]]
+  [[ "$output" == *"tokyonight"* ]]
+}
+
+@test "theme list marks the active theme with asterisk" {
+  local config_dir
+  config_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  printf 'nightfox\n' > "${config_dir}/.nvim-theme"
+  run ./bin/nvim-config theme list
+  rm -f "${config_dir}/.nvim-theme"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"* nightfox"* ]]
+}
+
+@test "ui info command shows active ui variant" {
+  run ./bin/nvim-config ui info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"classic"* ]] || [[ "$output" == *"modern"* ]]
+}
+
+@test "profile list marks active profile with asterisk when profile file exists" {
+  local tmpdir; tmpdir="$BATS_TEST_TMPDIR/proj"
+  mkdir -p "${tmpdir}"
+  printf 'web\n' > "${tmpdir}/.nvim-profile"
+  cd "${tmpdir}"
+  run "$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/bin/nvim-config" profile list
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"* web"* ]]
+}
+
+@test "profile info shows no active profile when no .nvim-profile file" {
+  run ./bin/nvim-config profile info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"none"* ]] || [[ "$output" == *"(none)"* ]]
+}
+
+@test "update dap-adapters dry-run with no profile reports nothing to update" {
+  run ./bin/nvim-config --dry-run update dap-adapters
+  [ "$status" -eq 0 ]
+}
+
+@test "bash completion includes status command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"status"* ]]
+}
+
+@test "bash completion includes doctor command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"doctor"* ]]
+}
+
+@test "bash completion includes keymaps command" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"keymaps"* ]]
+}
+
+@test "bash completion includes dap-adapters in update subcommands" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap-adapters"* ]]
+}
+
+@test "zsh completion includes status doctor keymaps" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"status"* ]]
+  [[ "$output" == *"doctor"* ]]
+  [[ "$output" == *"keymaps"* ]]
+}
+
+@test "zsh completion includes dap-adapters for update" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap-adapters"* ]]
+}
+
+@test "fish completion includes status doctor keymaps" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"status"* ]]
+  [[ "$output" == *"doctor"* ]]
+  [[ "$output" == *"keymaps"* ]]
+}
+
+@test "fish completion includes dap-adapters for update" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"dap-adapters"* ]]
+}

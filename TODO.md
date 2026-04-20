@@ -187,19 +187,19 @@
 ## Phase 14 - CLI Enhancements
 
 ### Info and diagnostics
-- [ ] `nvim-config status` — one-line summary: active variant, theme, profile, Neovim version
-- [ ] `nvim-config doctor` — health check: Neovim minimum version, required binaries, Mason package status for active profile
-- [ ] `nvim-config theme info` — current active theme (reads `.nvim-theme`)
-- [ ] `nvim-config ui info` — current active UI variant (reads `.nvim-ui`)
-- [ ] `nvim-config profile info` — active profile(s) + associated LSP servers, formatters, DAP adapter, neotest adapter
+- [x] `nvim-config status` — summary: active variant, theme, profile, Neovim version
+- [x] `nvim-config doctor` — health check: Neovim, required binaries (git, make, rg, fdfind, node, npm), optional tools (lazygit, tmux, claude, codex, gemini, cargo, gcc)
+- [x] `nvim-config theme info` — current active theme (reads `.nvim-theme`)
+- [x] `nvim-config ui info` — current active UI variant (reads `.nvim-ui`)
+- [x] `nvim-config profile info` — active profile + associated LSP servers and DAP packages (parsed from profile lua file)
 
 ### Discovery
-- [ ] `nvim-config theme list` — list all 14 available themes, mark the active one
-- [ ] `nvim-config profile list` — list all available profiles (already partly implemented via `profile list`; verify completeness)
-- [ ] `nvim-config keymaps` — open `docs/keymaps.md` in `$PAGER`
+- [x] `nvim-config theme list` — list all 14 available themes, mark the active one with `*`
+- [x] `nvim-config profile list` — list all available profiles, mark active with `*`; skip internal files (init, picker)
+- [x] `nvim-config keymaps` — open `docs/keymaps.md` in `$PAGER`
 
 ### Maintenance
-- [ ] `nvim-config update dap-adapters` — update Mason DAP packages for the active profile (`MasonUpdate <pkg>` headless)
+- [x] `nvim-config update dap-adapters` — show DAP packages for active profile, trigger Mason install headlessly
 
 ---
 
