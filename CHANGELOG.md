@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `oil.nvim`: edit the filesystem as a buffer (rename, move, delete via normal editing); `-` opens the parent directory of the current file; coexists with neo-tree (`default_file_explorer = false`)
+- `noice.nvim`: floating cmdline (`cmdline_popup` centered at 40% row), popup messages, LSP progress indicator; `notify.enabled` disabled in modern variant (snacks.nvim owns `vim.notify`); LSP hover/signature kept native to avoid conflicts
 - `nvim-config status` — shows active Neovim version, UI variant, theme, and profile at a glance
 - `nvim-config doctor` — checks required binaries (git, make, rg, fdfind, node, npm) and optional tools (lazygit, tmux, claude, codex, gemini, cargo, gcc)
 - `nvim-config theme info` — prints the active colorscheme; `theme list` lists all 14 themes and marks the active one with `*`

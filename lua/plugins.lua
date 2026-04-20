@@ -19,14 +19,18 @@ local ui_plugins = vim.list_extend(
 )
 
 local base_plugins = {
-    -- File browser
+    -- File browser + directory editor
     require('plugins.neo-tree'),
+    require('plugins.oil'),
 
     -- Parsers
     require('plugins.treesitter'),
 
     -- UI input/select enhancement (must load early — used by :Cheat, :NvimProfile, etc.)
     require('plugins.dressing'),
+
+    -- UI: floating cmdline, popup messages, LSP progress
+    require('plugins.noice'),
 
     -- Utils
     require('plugins.nvim-autopairs'),

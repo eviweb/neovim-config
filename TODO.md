@@ -211,11 +211,11 @@
 - [ ] Migrate profiles to use conform/nvim-lint sources instead of none-ls (additive, keep none-ls as fallback during transition)
 
 ### UI enhancements
-- [ ] `noice.nvim` — modern UI for cmdline (floating), messages (popup), LSP progress; replaces default bottom bar prompts
+- [x] `noice.nvim` — floating cmdline (`cmdline_popup`), popup messages, LSP progress; `notify.enabled` false in modern variant (snacks owns `vim.notify`); LSP hover/signature kept native
 - [ ] `nvim-ufo` — LSP/treesitter-aware folding with fold preview (`zR` open all, `zM` close all, `K` peek fold)
 
 ### File management
-- [ ] `oil.nvim` — edit filesystem as a buffer (rename, move, delete via normal editing); complement to neo-tree for bulk operations
+- [x] `oil.nvim` — edit filesystem as a buffer (rename, move, delete via normal editing); `-` to open parent dir; `default_file_explorer = false` to coexist with neo-tree
 
 ### Navigation
 - [ ] `marks.nvim` — visual marks in sign column with `m[a-z]` gutter indicators and `` `[a-z] `` jump shortcuts

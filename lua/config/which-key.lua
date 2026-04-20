@@ -62,6 +62,7 @@ wk.add({
     { '<Leader>tX', desc  = 'Toggle Codex CLI' },
     { '<Leader>tG', desc  = 'Toggle Gemini CLI' },
     { '<Leader>n',  desc  = 'Toggle file explorer' },
+    { '-',          desc  = 'Open parent directory (oil)' },
     { '<Leader>?',  desc  = 'Browse keymaps' },
     { '<Leader>fp', desc  = 'Browse profiles' },
     { '<Leader>hc', desc  = 'Open cheatsheet' },
