@@ -57,7 +57,10 @@ Press `<Leader>?` to browse all keymaps with Telescope.
 
 | Key | Action |
 |-----|--------|
-| `<Leader>n` | Toggle neo-tree file explorer |
+| `<Leader>n` | Toggle neo-tree file explorer (sidebar tree view) |
+| `-` | Open parent directory in oil.nvim (editable buffer) |
+
+Inside an oil buffer: edit filenames directly, `dd` to mark for deletion, `:w` to apply changes, `q` to close, `?` for help.
 
 ## Insert mode
 
@@ -232,7 +235,23 @@ Adapters are profile-driven. Required Mason packages per profile:
 | `<Leader>Ts` | Toggle test summary panel |
 | `<Leader>To` | Toggle output panel |
 
-Active in `.bats` files (neotest-bash adapter). Other adapters (jest, phpunit, cargo test) planned as profile-driven additions.
+Core adapter: `neotest-bash` (`.bats` files). Profile-driven adapters loaded automatically:
+- **web** — `neotest-vitest` (detected via `node_modules/.bin/vitest`)
+- **php / laravel** — `neotest-phpunit`
+- **rust** — `neotest-rust`
+
+### UI (noice.nvim)
+
+noice.nvim replaces the default cmdline and message display with floating popups.
+
+| Key / Command | Action |
+|---------------|--------|
+| `:` | Opens the floating cmdline popup (centered) |
+| `:Noice` | Browse the full message history |
+| `:Noice dismiss` | Clear all active notifications |
+| `<Esc>` | Close the cmdline popup without executing |
+
+In the **modern** variant (snacks.nvim active), `vim.notify` is owned by snacks — noice handles cmdline and messages only.
 
 ### Toggle / Terminal
 

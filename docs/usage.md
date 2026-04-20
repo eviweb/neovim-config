@@ -246,3 +246,58 @@ Or use the bufferline right-click context menu if your terminal supports mouse i
 ```
 
 Or use `<Leader>fb` — the fuzzy picker is faster than cycling when many buffers are open.
+
+---
+
+## Oil.nvim (filesystem editing)
+
+oil.nvim lets you edit the filesystem as a regular buffer — rename, move, and
+delete files using normal Neovim motions, then save to apply.
+
+### Opening
+
+Press `-` in any buffer to open the parent directory as an oil buffer.
+
+### Editing files and directories
+
+| Action | How |
+|--------|-----|
+| Rename a file | Edit the filename on the line, then `:w` |
+| Move a file | Cut the line (`dd`) and paste it in another oil buffer |
+| Delete a file | Delete the line (`dd`), then `:w` to confirm |
+| Create a file | Add a new line with the filename, then `:w` |
+
+Hidden files (dotfiles) are visible by default.
+
+### Keymaps inside an oil buffer
+
+| Key | Action |
+|-----|--------|
+| `-` | Go up to the parent directory |
+| `<CR>` | Open the file or directory under the cursor |
+| `q` | Close the oil buffer |
+| `?` | Show all available oil keymaps |
+
+oil.nvim complements neo-tree: use neo-tree (`<Leader>n`) for the persistent
+sidebar tree view, and oil for quick bulk filesystem operations.
+
+---
+
+## Noice.nvim (UI)
+
+noice.nvim replaces three built-in Neovim UI elements:
+
+- **Cmdline** — `:`, `/`, `?` open a centered floating popup instead of the bottom bar
+- **Messages** — echoed messages, warnings, and errors appear as dismissible popups
+- **LSP progress** — language server loading indicator shown in the top-right corner
+
+No special keymaps are required — the behaviour is automatic. To inspect or
+clear accumulated messages:
+
+```vim
+:Noice           " browse full message history
+:Noice dismiss   " clear all active notifications
+```
+
+In the **modern** variant (snacks.nvim active), `vim.notify` is owned by snacks —
+noice handles cmdline and messages only, without creating duplicate notifications.

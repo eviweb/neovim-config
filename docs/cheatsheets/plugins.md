@@ -22,6 +22,23 @@ See `:h snacks.picker` for the full source list.
 
 Inside neo-tree: `a` new · `d` delete · `r` rename · `y` copy · `x` cut · `p` paste · `<CR>` open
 
+## Oil.nvim (directory editor)
+| Key           | Action                              |
+|---------------|-------------------------------------|
+| `-`           | Open parent directory as a buffer   |
+| `q`           | Close oil buffer                    |
+| `?`           | Show help                           |
+
+Rename, move, or delete files by editing the buffer normally, then `:w` to apply. Hidden files are visible by default.
+
+## Noice.nvim (UI)
+| Command           | Action                          |
+|-------------------|---------------------------------|
+| `:Noice`          | Browse message history          |
+| `:Noice dismiss`  | Clear all active notifications  |
+
+Replaces the cmdline with a centered floating popup. Messages (echoes, warnings) appear as popups. LSP progress shown in the top-right corner.
+
 ## Bufferline
 | Key     | Action              |
 |---------|---------------------|
