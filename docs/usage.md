@@ -301,3 +301,216 @@ clear accumulated messages:
 
 In the **modern** variant (snacks.nvim active), `vim.notify` is owned by snacks —
 noice handles cmdline and messages only, without creating duplicate notifications.
+
+---
+
+## Git
+
+### Inline hunks (gitsigns)
+
+Gitsigns shows added/changed/deleted lines in the sign column and provides
+hunk-level operations. Active automatically in any git-tracked buffer.
+
+| Key | Action |
+|-----|--------|
+| `]h` / `[h` | Jump to next / previous hunk |
+| `<Leader>gp` | Preview hunk inline |
+| `<Leader>gs` | Stage hunk |
+| `<Leader>gr` | Reset hunk to HEAD |
+| `<Leader>gb` | Full blame for the current line |
+| `<Leader>gd` | Diff current file against HEAD |
+
+### Lazygit
+
+| Key | Action |
+|-----|--------|
+| `<Leader>gg` | Open lazygit in a floating terminal |
+
+Requires `lazygit` on the system (`apt install lazygit` or equivalent).
+All git operations (stage, commit, push, rebase, stash…) are available from within the UI.
+
+### Diffview
+
+| Key | Action |
+|-----|--------|
+| `<Leader>gv` | Open full diff view for the current repo |
+| `<Leader>gH` | Open commit history for the current file |
+
+Close with `:DiffviewClose` or `q`. Use `<Tab>` / `<S-Tab>` to cycle between
+changed files in the panel.
+
+---
+
+## Harpoon (per-project bookmarks)
+
+Harpoon keeps a short per-project list of files for instant jumping.
+
+| Key | Action |
+|-----|--------|
+| `<Leader>ha` | Add current file to the list |
+| `<Leader>hh` | Open the list (edit order, remove entries) |
+| `<C-1>` … `<C-4>` | Jump directly to file 1–4 |
+
+The list is stored per directory and persists across sessions. Inside the
+quick menu: edit filenames to reorder, `dd` to remove, `:w` to save.
+
+---
+
+## Search and replace (Spectre)
+
+Spectre provides project-wide regex search and replace with a preview buffer.
+
+| Key | Action |
+|-----|--------|
+| `<Leader>sr` | Open Spectre |
+| `<Leader>sw` | Open Spectre pre-filled with the word under cursor |
+
+Inside Spectre:
+
+| Key | Action |
+|-----|--------|
+| `<CR>` | Confirm and apply the replace for the current match |
+| `dd` | Exclude the current match from the replace |
+| `R` | Replace all remaining matches |
+
+---
+
+## Session (persistence.nvim)
+
+Sessions are saved automatically per directory when Neovim exits and
+restored automatically when Neovim is opened with no file arguments.
+
+| Key | Action |
+|-----|--------|
+| `<Leader>qs` | Restore the session for the current directory manually |
+| `<Leader>qd` | Stop session persistence (next quit will not save) |
+
+---
+
+## Testing (neotest)
+
+neotest runs tests inside Neovim and shows results inline and in panels.
+
+| Key | Action |
+|-----|--------|
+| `<Leader>Tr` | Run the test nearest to the cursor |
+| `<Leader>Tf` | Run all tests in the current file |
+| `<Leader>Ts` | Toggle the test summary panel |
+| `<Leader>To` | Toggle the output panel |
+
+Active adapters:
+- **neotest-bash** — `.bats` files (always active)
+- **neotest-vitest** — loaded by the `web` profile when `node_modules/.bin/vitest` is present
+- **neotest-phpunit** — loaded by the `php` and `laravel` profiles
+- **neotest-rust** — loaded by the `rust` profile
+
+Pass/fail icons appear in the sign column after a run. Navigate with `]t` / `[t`
+(if configured) or use the summary panel to jump.
+
+---
+
+## Debugging (nvim-dap)
+
+nvim-dap provides an interactive debugger. The UI (dap-ui) opens automatically
+when a session starts and closes when it ends.
+
+### Session control
+
+| Key | Action |
+|-----|--------|
+| `<Leader>Dc` | Start or continue the session |
+| `<Leader>Di` | Step into |
+| `<Leader>Do` | Step over |
+| `<Leader>DO` | Step out |
+| `<Leader>Dt` | Terminate the session |
+
+### Breakpoints
+
+| Key | Action |
+|-----|--------|
+| `<Leader>Db` | Toggle breakpoint on the current line |
+| `<Leader>DB` | Set a conditional breakpoint (prompts for expression) |
+
+### UI and REPL
+
+| Key | Action |
+|-----|--------|
+| `<Leader>Du` | Toggle the DAP UI manually |
+| `<Leader>Dr` | Open the REPL |
+| `<Leader>Dl` | Re-run the last debug configuration |
+
+Inline variable values are shown via **nvim-dap-virtual-text** during a session.
+
+Active adapters per profile:
+- **web** — `pwa-node` (JS/TS) via Mason `js-debug-adapter`
+- **php / laravel** — Xdebug on port 9003 via Mason `php-debug-adapter`
+- **rust** — codelldb via Mason `codelldb`
+- **core** — Lua adapter built-in (`one-small-step-for-vimkind`)
+
+Run `nvim-config update dap-adapters` to install the Mason packages for the
+active profile, or open `:Mason` and install them manually.
+
+---
+
+## AI tools
+
+### Avante (AI assistant)
+
+Avante provides a Cursor-like sidebar for code chat and inline edits.
+Authentication uses the Claude Pro subscription (browser OAuth, no API key needed).
+
+| Key | Action |
+|-----|--------|
+| `<Leader>aa` | Open the sidebar and ask a question |
+| `<Leader>ae` | Edit the current selection with AI (visual mode) |
+| `<Leader>at` | Toggle the sidebar |
+| `<Leader>af` | Focus the sidebar |
+| `<Leader>ar` | Refresh the last response |
+
+On first use, `:AvanteSwitchProvider claude` may be needed if another provider
+was previously active. The auth flow opens a browser window.
+
+### Codeium (inline completion)
+
+Codeium provides free inline AI completion as a `[AI]` source in nvim-cmp.
+Activate once with `:Codeium Auth` (opens a browser for the token).
+Completions then appear automatically alongside LSP suggestions.
+
+### Terminal AI agents
+
+Each tool opens in a persistent floating terminal — toggling the keymap
+re-opens the same session.
+
+| Key | Tool |
+|-----|------|
+| `<Leader>tC` | Claude Code CLI |
+| `<Leader>tX` | OpenAI Codex CLI |
+| `<Leader>tG` | Google Gemini CLI |
+
+Install any missing tool with `nvim-config install claude|codex|gemini`
+(requires Node.js / npm).
+
+---
+
+## Zen mode
+
+| Key | Action |
+|-----|--------|
+| `<Leader>tz` | Toggle distraction-free fullscreen |
+
+Zen mode hides the statusline, tabline, line numbers, and side panels.
+Press `<Leader>tz` again or `:ZenMode` to exit.
+
+---
+
+## TODO comments
+
+todo-comments.nvim highlights `TODO`, `FIXME`, `HACK`, `NOTE`, `WARN`, and
+`PERF` tags in any file with distinctive colours.
+
+| Key / Command | Action |
+|---------------|--------|
+| `<Leader>ft` | List all tagged comments in the project via Telescope |
+| `]t` / `[t` | Jump to next / previous tagged comment |
+
+Tags are case-insensitive and recognised in any comment syntax.
