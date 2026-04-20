@@ -999,8 +999,8 @@ setup() {
   [ -f lua/config/avante.lua ]
 }
 
-@test "avante config sets auth_type to pro" {
-  run grep -n "auth_type.*pro" lua/config/avante.lua
+@test "avante config sets auth_type to max for Pro/Max subscription" {
+  run grep -n "auth_type.*max" lua/config/avante.lua
   [ "$status" -eq 0 ]
 }
 

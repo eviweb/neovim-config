@@ -153,12 +153,11 @@ automatically. This may take a minute. Once complete:
 
 ## Updating
 
-The CLI can update both Neovim and plugins in one command:
-
 ```bash
-./bin/nvim-config update          # nvim + plugins
-./bin/nvim-config update nvim     # Neovim only
-./bin/nvim-config update plugins  # plugins only
+./bin/nvim-config update                   # nvim + plugins
+./bin/nvim-config update nvim              # Neovim only
+./bin/nvim-config update plugins           # plugins only
+./bin/nvim-config update dap-adapters      # Mason DAP packages for the active profile
 ```
 
 ### Neovim (manual)
@@ -227,14 +226,24 @@ plugin changes require a restart):
 
 Or use the Telescope picker: `<Leader>fp` — shows active (●) / inactive (○) profiles.
 
+### DAP adapters
+
+Profile-driven DAP adapters are installed automatically via Mason at Neovim startup.
+To install or refresh them from the terminal:
+
+```bash
+./bin/nvim-config update dap-adapters
+```
+
 ### CLI
 
 ```bash
-./bin/nvim-config profile list           # list available profiles
-./bin/nvim-config profile detect         # detect for the current directory
-./bin/nvim-config profile set <name>     # write .nvim-profile
-./bin/nvim-config profile unset          # remove .nvim-profile
-./bin/nvim-config profile create <name>  # generate a new profile template
+./bin/nvim-config profile list            # list profiles, marks active with *
+./bin/nvim-config profile detect          # detect for the current directory
+./bin/nvim-config profile set <name>      # write .nvim-profile
+./bin/nvim-config profile unset           # remove .nvim-profile
+./bin/nvim-config profile create <name>   # generate a new profile template
+./bin/nvim-config profile info            # active profile + LSP servers + DAP packages
 ```
 
 ## UI Variants
@@ -284,10 +293,58 @@ Or via the CLI:
 ./bin/nvim-config theme unset   # revert to nightfox
 ```
 
+## AI Tools
+
+### Avante
+
+Cursor-like AI sidebar for code chat and inline edits. Authenticates via Claude Pro/Max subscription (browser OAuth, no API key required):
+
+```vim
+<Leader>aa   " ask
+<Leader>ae   " edit selection (visual mode)
+<Leader>at   " toggle sidebar
+```
+
+### Codeium
+
+Free inline AI completion, active alongside LSP suggestions (`[AI]` label in the completion menu). Activate once:
+
+```vim
+:Codeium Auth
+```
+
+### Terminal AI agents
+
+Install the CLIs, then toggle their dedicated floating terminals from inside Neovim:
+
+```bash
+./bin/nvim-config install claude   # Claude Code CLI
+./bin/nvim-config install codex    # OpenAI Codex CLI
+./bin/nvim-config install gemini   # Google Gemini CLI
+```
+
+| Key | Agent |
+|-----|-------|
+| `<Leader>tC` | Claude Code |
+| `<Leader>tX` | Codex |
+| `<Leader>tG` | Gemini |
+
+Requires Node.js / npm. Use `install deps --with-node` if not already installed.
+
+## Diagnostics and status
+
+```bash
+./bin/nvim-config status    # Neovim version, UI variant, theme, active profile
+./bin/nvim-config doctor    # check required and optional binaries
+./bin/nvim-config keymaps   # open keymaps reference in $PAGER
+```
+
 ## Documentation
 
-- [Usage guide](docs/usage.md) — LSP workflow, completion, diagnostics, Telescope, Bufferline
+- [Usage guide](docs/usage.md) — LSP, completion, diagnostics, git, testing, debugging, AI tools, and more
 - [Keymaps cheatsheet](docs/keymaps.md) — all custom mappings and plugin shortcuts
+- [Plugin quick-reference](docs/cheatsheets/plugins.md) — concise tables per plugin
+- [Cheatsheets](docs/cheatsheets/) — editing, git, LSP, profiles
 
 ## Usage
 

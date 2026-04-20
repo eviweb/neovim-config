@@ -49,6 +49,14 @@ _is_snap_nvim_restricted() {
   [ -z "$missing" ]
 }
 
+@test "every config.X required in plugin specs has a matching lua file" {
+  missing=""
+  while IFS= read -r mod; do
+    [ -f "lua/config/${mod}.lua" ] || missing="${missing} lua/config/${mod}.lua"
+  done < <(grep -rohP "require\('config\.\K[^']+" lua/plugins/ lua/plugins.lua lua/ui/)
+  [ -z "$missing" ]
+}
+
 # ---------------------------------------------------------------------------
 # Option A — Neovim headless startup smoke test
 #
