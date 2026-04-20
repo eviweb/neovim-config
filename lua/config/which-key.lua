@@ -68,6 +68,9 @@ wk.add({
     { '<Leader>hc', desc  = 'Open cheatsheet' },
     { '<Leader>pp', desc  = 'Toggle paste mode' },
     { '<Leader><CR>', desc = 'Clear search highlight' },
+    { 'zR',           desc = 'Open all folds' },
+    { 'zM',           desc = 'Close all folds' },
+    { 'K',            desc = 'Peek fold / LSP hover' },
     { '<Leader>cd', desc  = 'Change CWD to current file' },
     { '<Leader>ss', desc  = 'Toggle spell checking' },
 })

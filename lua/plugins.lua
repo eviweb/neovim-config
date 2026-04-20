@@ -56,6 +56,7 @@ local base_plugins = {
 
     -- Navigation
     require('plugins.harpoon'),
+    require('plugins.marks'),
 
     -- Terminal
     require('plugins.toggleterm'),
@@ -76,6 +77,9 @@ local base_plugins = {
 
     -- Session
     require('plugins.persistence'),
+
+    -- Folding
+    require('plugins.nvim-ufo'),
 
     -- Markdown
     require('plugins.render-markdown'),

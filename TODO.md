@@ -212,13 +212,13 @@
 
 ### UI enhancements
 - [x] `noice.nvim` — floating cmdline (`cmdline_popup`), popup messages, LSP progress; `notify.enabled` false in modern variant (snacks owns `vim.notify`); LSP hover/signature kept native
-- [ ] `nvim-ufo` — LSP/treesitter-aware folding with fold preview (`zR` open all, `zM` close all, `K` peek fold)
+- [x] `nvim-ufo` — LSP/treesitter-aware folding; `zR` open all, `zM` close all, `K` peek fold (falls back to LSP hover); provider chain: lsp → treesitter → indent
 
 ### File management
 - [x] `oil.nvim` — edit filesystem as a buffer (rename, move, delete via normal editing); `-` to open parent dir; `default_file_explorer = false` to coexist with neo-tree
 
 ### Navigation
-- [ ] `marks.nvim` — visual marks in sign column with `m[a-z]` gutter indicators and `` `[a-z] `` jump shortcuts
+- [x] `marks.nvim` — visual marks in sign column with `m[a-z]` gutter indicators; `]'`/`['` line jumps, `` ]` ``/`` [` `` column jumps; builtin marks (`. < > ^`) shown
 
 ---
 

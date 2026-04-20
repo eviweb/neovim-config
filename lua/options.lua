@@ -16,6 +16,12 @@ vim.opt.cursorline = true -- highlights the current line
 vim.opt.number = true -- shows line numbers
 vim.opt.relativenumber = true -- shows line numbers starting from the current line
 
+-- Folding (managed by nvim-ufo — keep all folds open at startup)
+vim.opt.foldcolumn    = '1'
+vim.opt.foldlevel     = 99
+vim.opt.foldlevelstart = 99
+vim.opt.foldenable    = true
+
 -- Search
 vim.opt.hlsearch = true -- highlights search results
 vim.opt.ignorecase = true -- ignores case while searching

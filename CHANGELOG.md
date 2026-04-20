@@ -8,6 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `nvim-ufo`: LSP/treesitter-aware folding; provider chain lsp → treesitter → indent; `zR` open all folds, `zM` close all folds; `K` peeks folded lines under cursor and falls back to LSP hover when not foldable; fold options (`foldlevel=99`, `foldlevelstart=99`) set in `options.lua`
+- `marks.nvim`: visual marks in the sign column; `m[a-z]` to set, `]'`/`['` to navigate by line, `` ]` ``/`` [` `` by column; builtin marks (`. < > ^`) displayed
 - `oil.nvim`: edit the filesystem as a buffer (rename, move, delete via normal editing); `-` opens the parent directory of the current file; coexists with neo-tree (`default_file_explorer = false`)
 - `noice.nvim`: floating cmdline (`cmdline_popup` centered at 40% row), popup messages, LSP progress indicator; `notify.enabled` disabled in modern variant (snacks.nvim owns `vim.notify`); LSP hover/signature kept native to avoid conflicts
 - `nvim-config status` — shows active Neovim version, UI variant, theme, and profile at a glance
