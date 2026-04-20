@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Fix avante auth: `auth_type` corrected from `"pro"` to `"max"` — avante only recognises `"api"` and `"max"`; `"max"` covers both Pro and Max Claude subscriptions
 - `nvim-ufo`: LSP/treesitter-aware folding; provider chain lsp → treesitter → indent; `zR` open all folds, `zM` close all folds; `K` peeks folded lines under cursor and falls back to LSP hover when not foldable; fold options (`foldlevel=99`, `foldlevelstart=99`) set in `options.lua`
 - `marks.nvim`: visual marks in the sign column; `m[a-z]` to set, `]'`/`['` to navigate by line, `` ]` ``/`` [` `` by column; builtin marks (`. < > ^`) displayed
 - `oil.nvim`: edit the filesystem as a buffer (rename, move, delete via normal editing); `-` opens the parent directory of the current file; coexists with neo-tree (`default_file_explorer = false`)

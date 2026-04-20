@@ -34,9 +34,10 @@ require('avante').setup({
 
     providers = {
         claude = {
-            -- Authenticate via Claude Pro subscription (browser OAuth).
-            -- Run :AvanteSwitchProvider claude if another provider was active.
-            auth_type = 'pro',
+            -- Authenticate via Claude Pro/Max subscription (browser OAuth).
+            -- auth_type = "max" is the correct value for both Pro and Max plans —
+            -- avante only recognises "api" and "max"; "pro" is not a valid value.
+            auth_type = 'max',
         },
     },
 

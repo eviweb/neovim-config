@@ -202,7 +202,7 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 | `<Leader>af` | Focus AI sidebar |
 | `<Leader>ar` | Refresh AI response |
 
-Authenticates via Claude Pro subscription (`auth_type = "pro"`, browser OAuth).
+Authenticates via Claude Pro/Max subscription (`auth_type = "max"`, browser OAuth).
 Run `:AvanteSwitchProvider claude` if a different provider was previously active.
 
 ### Debug (nvim-dap)

@@ -457,7 +457,7 @@ active profile, or open `:Mason` and install them manually.
 ### Avante (AI assistant)
 
 Avante provides a Cursor-like sidebar for code chat and inline edits.
-Authentication uses the Claude Pro subscription (browser OAuth, no API key needed).
+Authentication uses `auth_type = "max"` (covers both Pro and Max plans, browser OAuth, no API key needed).
 
 | Key | Action |
 |-----|--------|
