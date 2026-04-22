@@ -59,12 +59,27 @@ end, {
 })
 
 -- :Cheat [topic] — open a cheatsheet in a centered floating window
-local cheat_topics = { 'editing', 'git', 'lsp', 'plugins', 'profiles' }
+local function get_cheat_topics()
+    local dir = vim.fn.stdpath('config') .. '/docs/cheatsheets'
+    local topics = {}
+    local handle = vim.loop.fs_scandir(dir)
+    if handle then
+        while true do
+            local fname, ftype = vim.loop.fs_scandir_next(handle)
+            if not fname then break end
+            if ftype == 'file' and fname:match('%.md$') then
+                table.insert(topics, fname:sub(1, -4))
+            end
+        end
+    end
+    table.sort(topics)
+    return topics
+end
 
 local function open_cheatsheet(topic)
     if topic == '' or topic == nil then
         vim.notify(
-            'Usage: :Cheat <topic>  —  topics: ' .. table.concat(cheat_topics, ', '),
+            'Usage: :Cheat <topic>  —  topics: ' .. table.concat(get_cheat_topics(), ', '),
             vim.log.levels.INFO
         )
         return
@@ -117,10 +132,11 @@ vim.api.nvim_create_user_command('Cheat', function(opts)
     local ok_actions, actions      = pcall(require, 'telescope.actions')
     local ok_state,   action_state = pcall(require, 'telescope.actions.state')
 
+    local topics = get_cheat_topics()
     if ok_pickers and ok_finders and ok_conf and ok_actions and ok_state then
         pickers.new({}, {
             prompt_title = 'Cheatsheet',
-            finder  = finders.new_table({ results = cheat_topics }),
+            finder  = finders.new_table({ results = topics }),
             sorter  = tconf.values.generic_sorter({}),
             attach_mappings = function(prompt_bufnr)
                 actions.select_default:replace(function()
@@ -133,7 +149,7 @@ vim.api.nvim_create_user_command('Cheat', function(opts)
         }):find()
     else
         -- Fallback when Telescope is not available (e.g. modern UI variant)
-        vim.ui.select(cheat_topics, { prompt = 'Cheatsheet:' }, function(choice)
+        vim.ui.select(topics, { prompt = 'Cheatsheet:' }, function(choice)
             if choice then open_cheatsheet(choice) end
         end)
     end
@@ -142,7 +158,7 @@ end, {
     complete = function(arglead)
         return vim.tbl_filter(function(t)
             return t:find(arglead, 1, true) == 1
-        end, cheat_topics)
+        end, get_cheat_topics())
     end,
     desc     = 'Open a cheatsheet in a floating window',
 })
@@ -172,11 +188,17 @@ end, {
 -- :w!! — write the current file with sudo (for system files opened without root)
 vim.cmd('cabbrev w!! w !sudo tee % > /dev/null')
 
--- auto-saves all modified buffers when Neovim loses focus or a buffer is left
+-- auto-saves all modified regular buffers when Neovim loses focus or a buffer is left.
+-- Guard on buftype to avoid interfering with scratch/prompt/input floats (e.g. dressing).
 vim.api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
     pattern  = '*',
-    callback = function() vim.cmd('silent! wa') end,
-    desc     = 'Auto-save all buffers on focus loss or buffer leave',
+    callback = function()
+        local bt = vim.bo.buftype
+        if bt == '' or bt == 'acwrite' then
+            vim.cmd('silent! wa')
+        end
+    end,
+    desc = 'Auto-save regular buffers on focus loss or buffer leave',
 })
 
 -- removes all trailing whitespace on save

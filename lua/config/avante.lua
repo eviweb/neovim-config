@@ -1,44 +1,73 @@
 -- lua/config/avante.lua
-
--- Workaround for avante auth flow bugs:
---   1. native.lua passes a non-sequential table as items to vim.ui.select
---   2. native.lua passes nil as the on_choice callback
--- Both trigger vim.validate errors. The wrapper normalises these before
--- delegating to the real implementation (dressing input or builtin).
-do
-    local orig = vim.ui.select
-    vim.ui.select = function(items, opts, on_choice)
-        -- avante calls with 2 args: (items, callback) — no opts table
-        if type(opts) == 'function' and on_choice == nil then
-            on_choice = opts
-            opts = {}
-        end
-        -- normalise items to a proper list
-        if type(items) == 'table' and not vim.islist(items) then
-            local list = {}
-            for _, v in pairs(items) do
-                table.insert(list, v)
-            end
-            items = list
-        end
-        -- ensure on_choice is always a function
-        if type(on_choice) ~= 'function' then
-            on_choice = function() end
-        end
-        orig(items, opts, on_choice)
-    end
-end
+--
+-- Provider switch: <Leader>aP (Telescope picker)
+-- Available providers:
+--   claude-code   — Claude Code CLI (reuses `claude` login) ← default
+--   gemini-cli    — Gemini CLI      (reuses `gemini` login)
+--   codex         — Codex CLI ACP   (requires OPENAI_API_KEY env var)
+--   claude        — Sonnet 4.6 API  (OAuth Pro/Max — triggers browser auth)
+--   claude-opus   — Opus 4.7 API    (OAuth Max only)
+--   gemini        — Gemini API      (requires GEMINI_API_KEY env var)
 
 require('avante').setup({
-    provider = 'claude',
+    -- CLI providers first: no OAuth prompt at load time.
+    -- Switch at runtime with <Leader>aP.
+    provider = 'claude-code',
 
     providers = {
+        -- ── Claude Sonnet 4.6 — OAuth Pro/Max ─────────────────────────────
         claude = {
-            -- Authenticate via Claude Pro/Max subscription (browser OAuth).
-            -- auth_type = "max" is the correct value for both Pro and Max plans —
-            -- avante only recognises "api" and "max"; "pro" is not a valid value.
             auth_type = 'max',
+            model     = 'claude-sonnet-4-6',
+            timeout   = 30000,
+            extra_request_body = {
+                max_tokens  = 64000,
+                temperature = 0.75,
+            },
         },
+
+        -- ── Claude Opus 4.7 — OAuth Max only ──────────────────────────────
+        ['claude-opus'] = {
+            endpoint  = 'https://api.anthropic.com',
+            auth_type = 'max',
+            model     = 'claude-opus-4-7',
+            timeout   = 60000,
+            extra_request_body = {
+                max_tokens  = 32000,
+                temperature = 0.75,
+            },
+        },
+
+        -- ── Gemini 2.5 Pro — API key ───────────────────────────────────────
+        -- Requires: export GEMINI_API_KEY=<key> in ~/.zshrc or ~/.bashrc
+        gemini = {
+            model   = 'gemini-2.5-pro',
+            timeout = 30000,
+            extra_request_body = {
+                generationConfig = { temperature = 0.75 },
+            },
+        },
+    },
+
+    -- ── ACP providers — override defaults ─────────────────────────────────
+    acp_providers = {
+        -- gemini-cli: the avante default forces auth_method="gemini-api-key".
+        -- Remove it so the gemini CLI uses its own Google account auth instead.
+        ['gemini-cli'] = {
+            command = 'gemini',
+            args    = { '--experimental-acp' },
+            env     = { NODE_NO_WARNINGS = '1' },
+            -- no auth_method — gemini CLI handles Google login on its own
+        },
+    },
+    -- Activate any provider with <Leader>aP or:
+    --   :lua require('avante.api').switch_provider('claude-code')
+
+    -- Use dressing.nvim for the auth key input prompt.
+    -- The default "native" provider calls vim.ui.select (not vim.ui.input),
+    -- which closes on FocusLost — unusable when switching to the browser.
+    input = {
+        provider = 'dressing',
     },
 
     mappings = {
@@ -51,3 +80,27 @@ require('avante').setup({
         },
     },
 })
+
+-- Switch provider with <Leader>aP — uses Telescope for a consistent picker.
+vim.keymap.set('n', '<Leader>aP', function()
+    local providers = { 'claude-code', 'gemini-cli', 'codex', 'claude', 'claude-opus', 'gemini' }
+    local pickers   = require('telescope.pickers')
+    local finders   = require('telescope.finders')
+    local conf      = require('telescope.config').values
+    local actions   = require('telescope.actions')
+    local action_state = require('telescope.actions.state')
+
+    pickers.new({}, {
+        prompt_title = 'Avante: switch provider',
+        finder = finders.new_table({ results = providers }),
+        sorter = conf.generic_sorter({}),
+        attach_mappings = function(buf, map)
+            actions.select_default:replace(function()
+                actions.close(buf)
+                local choice = action_state.get_selected_entry()[1]
+                require('avante.api').switch_provider(choice)
+            end)
+            return true
+        end,
+    }):find()
+end, { noremap = true, silent = true, desc = 'Switch Avante provider' })

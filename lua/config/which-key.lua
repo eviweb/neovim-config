@@ -38,6 +38,7 @@ wk.add({
     { '<Leader>ar', desc  = 'Refresh AI response' },
     { '<Leader>af', desc  = 'Focus AI sidebar' },
     { '<Leader>at', desc  = 'Toggle AI sidebar' },
+    { '<Leader>aP', desc  = 'Switch provider (claude/opus/gemini/codex…)' },
     { '<Leader>D',  group = 'Debug (DAP)' },
     { '<Leader>Db', desc  = 'Toggle breakpoint' },
     { '<Leader>DB', desc  = 'Conditional breakpoint' },

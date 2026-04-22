@@ -3,8 +3,9 @@
 -- K peeks the fold under the cursor first; falls back to LSP hover if not foldable.
 
 require('ufo').setup({
+    -- nvim-ufo only supports a {main, fallback} pair — max two providers.
     provider_selector = function()
-        return { 'lsp', 'treesitter', 'indent' }
+        return { 'lsp', 'indent' }
     end,
 })
 

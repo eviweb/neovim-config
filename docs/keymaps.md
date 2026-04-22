@@ -142,9 +142,9 @@ The list is persisted per directory alongside the session.
 |-----|--------|
 | `gD` | Go to declaration |
 | `gd` | Go to definition |
-| `K` | Hover documentation |
+| `K` | Peek fold under cursor, or LSP hover if not foldable (nvim-ufo) |
 | `gi` | Go to implementation |
-| `<C-h>` | Signature help |
+| `<C-h>` | Signature help (insert mode only) |
 | `gr` | References |
 | `<space>D` | Type definition |
 | `<space>rn` | Rename symbol |
@@ -162,7 +162,7 @@ The list is persisted per directory alongside the session.
 
 `:Cheat` with no argument opens a `vim.ui.select` picker. With a topic argument (tab-completion available) it opens directly.
 
-Available topics: `editing`, `git`, `lsp`, `plugins`, `profiles`
+Topics are discovered automatically from `docs/cheatsheets/*.md` — adding a file to that directory makes it immediately available.
 
 ### Git (gitsigns — buffer-local, active in git repos)
 
@@ -201,9 +201,18 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 | `<Leader>at` | Toggle AI sidebar |
 | `<Leader>af` | Focus AI sidebar |
 | `<Leader>ar` | Refresh AI response |
+| `<Leader>aP` | Switch provider (interactive picker) |
 
-Authenticates via Claude Pro/Max subscription (`auth_type = "max"`, browser OAuth).
-Run `:AvanteSwitchProvider claude` if a different provider was previously active.
+Available providers (switch with `<Leader>aP` or `:AvanteSwitchProvider <name>`):
+
+| Provider | Model | Auth |
+|----------|-------|------|
+| `claude-code` | via `claude` CLI | reuses `claude` login **(default)** |
+| `gemini-cli` | via `gemini` CLI | reuses `gemini` login |
+| `codex` | via `codex` CLI | `OPENAI_API_KEY` env var |
+| `claude` | claude-sonnet-4-6 | OAuth Pro/Max (browser auth) |
+| `claude-opus` | claude-opus-4-7 | OAuth Max (browser auth) |
+| `gemini` | gemini-2.5-pro | `GEMINI_API_KEY` env var |
 
 ### Debug (nvim-dap)
 

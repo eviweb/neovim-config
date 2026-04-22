@@ -49,8 +49,9 @@ vim.opt.sessionoptions = vim.opt.sessionoptions + 'globals' -- tracks global var
 vim.opt.showcmd = true -- shows commands
 
 -- Timers
-vim.opt.updatetime = 750 -- sets the time of the update trigger in milliseconds
-vim.opt.ttimeoutlen = 0 -- sets the time in milliseconds to run commands
+vim.opt.updatetime  = 750  -- CursorHold delay in ms
+vim.opt.timeoutlen  = 500  -- ms to wait for a mapped sequence (leader key, etc.)
+vim.opt.ttimeoutlen = 10   -- ms to wait for a terminal key code (0 causes issues in some terminals)
 
 -- Scroll
 vim.opt.scrolloff = 7 -- keeps at least 7 lines visible above and below the cursor
