@@ -226,6 +226,17 @@
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
 
+- [ ] Termux (Android) compatibility profile — `termux` environment profile that disables or
+  replaces plugins incompatible with Android ARM: DAP adapters, heavy LSPs, Avante OAuth flow;
+  adjusts paths (`/data/data/com.termux/files/usr`); uses `pkg` instead of `apt`; validates
+  with `nvim-config doctor` on Termux
+- [ ] AI profile — opt-in `ai` profile that loads `avante.nvim`, `codeium.nvim`, and
+  `mcphub.nvim` together; allows disabling AI tooling globally by not activating the profile;
+  evaluate whether Avante + Codeium is the right combination or whether MCP-only (via
+  `mcphub.nvim` + claude-code/gemini CLI) covers the use cases more lightly
+- [ ] `mcphub.nvim` — MCP hub integration; exposes LSP, filesystem, and git context to
+  LLMs via Model Context Protocol; complementary to Avante (not a replacement); Avante can
+  consume MCP servers as context sources
 - [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription
   (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface;
   deferred — `codeium.nvim` covers the free inline completion use case
