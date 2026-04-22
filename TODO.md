@@ -226,21 +226,74 @@
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
 
+### Portability
+
 - [ ] Termux (Android) compatibility profile — `termux` environment profile that disables or
   replaces plugins incompatible with Android ARM: DAP adapters, heavy LSPs, Avante OAuth flow;
   adjusts paths (`/data/data/com.termux/files/usr`); uses `pkg` instead of `apt`; validates
   with `nvim-config doctor` on Termux
-- [ ] AI profile — opt-in `ai` profile that loads `avante.nvim`, `codeium.nvim`, and
-  `mcphub.nvim` together; allows disabling AI tooling globally by not activating the profile;
-  evaluate whether Avante + Codeium is the right combination or whether MCP-only (via
-  `mcphub.nvim` + claude-code/gemini CLI) covers the use cases more lightly
-- [ ] `mcphub.nvim` — MCP hub integration; exposes LSP, filesystem, and git context to
-  LLMs via Model Context Protocol; complementary to Avante (not a replacement); Avante can
-  consume MCP servers as context sources
-- [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription
-  (~$10/month or free tier); pairs with `CopilotChat.nvim` for chat interface;
+
+### AI tooling
+
+- [ ] AI profile — opt-in `ai` profile that loads AI plugins only when explicitly activated;
+  decide on the stack before implementing (see evaluation notes below); allows disabling all
+  AI tooling globally by not activating the profile
+
+  **Stack evaluation — Avante vs CodeCompanion:**
+  - `avante.nvim` — Cursor-like sidebar + inline edits; CLI-first providers (claude-code,
+    gemini-cli, codex) avoid OAuth at startup; heavier, more opinionated UI
+  - `codecompanion.nvim` — alternative chat + inline assistant; native MCP support (spec
+    2025-11-25); multi-provider (Anthropic, Gemini, Ollama, OpenAI…); honours `CLAUDE.md` /
+    `.cursor/rules`; lighter, more composable — evaluate as a replacement for Avante
+  - `codeium.nvim` — ghost-text inline completion (independent of chat assistant); free,
+    lightweight, no conflict with either Avante or CodeCompanion; keep regardless of choice above
+  - Decision: benchmark Avante vs CodeCompanion on a real project before committing
+
+- [ ] `mcphub.nvim` — MCP client hub for Neovim; manages, tests and toggles MCP servers from
+  a central UI (`:MCPHub`); runs a lightweight Node.js background process; integrates with both
+  Avante and CodeCompanion; **prerequisite for all MCP server entries below**
+  → https://github.com/ravitemer/mcphub.nvim
+
+- [ ] `codecompanion.nvim` — AI chat + inline assistant with native MCP support; potential
+  replacement for `avante.nvim`; evaluate before finalising the AI profile
+  → https://github.com/olimorris/codecompanion.nvim
+
+- [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription;
   deferred — `codeium.nvim` covers the free inline completion use case
+  → https://github.com/zbirenbaum/copilot.lua
+
+### MCP servers (usable via mcphub.nvim)
+
+- [ ] `mcp-server-git` *(official Anthropic)* — git operations via MCP: log, diff, blame,
+  commits; lets the AI query the repo history without copy-paste; Python-based (`uvx mcp-server-git`)
+  → https://github.com/modelcontextprotocol/servers/tree/main/src/git
+
+- [ ] `mcp-server-filesystem` *(official Anthropic)* — secure file read/write with per-directory
+  access control; gives the AI access to files outside the current buffer
+  → https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
+
+- [ ] `mcp-server-fetch` *(official Anthropic)* — fetches web pages and converts HTML to
+  Markdown; useful for querying online docs directly from the chat sidebar
+  → https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
+
+- [ ] `Context7` *(Upstash)* — injects up-to-date, version-specific library documentation into
+  LLM prompts; eliminates hallucinated APIs; installed as `@upstash/context7-mcp` via npm
+  → https://github.com/upstash/context7
+
+- [ ] `mcp-diagnostics.nvim` — exposes Neovim LSP diagnostics (errors, warnings) to AI
+  assistants via MCP; lets Claude read the current buffer's diagnostic state without copy-paste
+  → https://github.com/georgeharker/mcp-diagnostics.nvim
+
+- [ ] `mcp-neovim-server` — exposes Neovim buffers, cursor, registers and vim commands to
+  external MCP clients (Claude Desktop, etc.) via node-client; inverse direction from mcphub
+  → https://github.com/bigcodegen/mcp-neovim-server
+
+### Testing
+
 - [ ] neotest profile-driven adapters — `neotest-jest` (web, when Jest is preferred over Vitest),
   `neotest-busted` (Lua/busted projects); deferred until relevant project context
+
+### Plugin management
+
 - [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to
   current manual registry approach); evaluate if the current approach proves insufficient
