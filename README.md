@@ -1,5 +1,7 @@
 # Neovim Config
 
+[![CI](https://github.com/eviweb/neovim-config/actions/workflows/ci.yml/badge.svg)](https://github.com/eviweb/neovim-config/actions/workflows/ci.yml)
+
 Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
 ## Supported Platforms
