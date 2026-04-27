@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - GitHub Actions CI workflow (`.github/workflows/ci.yml`): `lint` job (shellcheck on `bin/nvim-config`) and `test` job (bats-core + Neovim stable); triggers on `push` and `pull_request`
 - CI status badge in `README.md`
+- `tests/run`: post-run summary — total / passing / failing counts and elapsed time; failing tests listed by file (alphabetical) with tests sorted within each file
 - `nvim-ufo`: LSP/treesitter-aware folding; provider chain lsp → indent; `zR` open all folds, `zM` close all folds; `K` peeks folded lines under cursor and falls back to LSP hover when not foldable; fold options (`foldlevel=99`, `foldlevelstart=99`) set in `options.lua`
 - `marks.nvim`: visual marks in the sign column; `m[a-z]` to set, `]'`/`['` to navigate by line, `` ]` ``/`` [` `` by column; builtin marks (`. < > ^`) displayed
 - `oil.nvim`: edit the filesystem as a buffer (rename, move, delete via normal editing); `-` opens the parent directory of the current file; coexists with neo-tree (`default_file_explorer = false`)

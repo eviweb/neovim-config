@@ -2,4 +2,49 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-exec bats tests
+
+_pass=0
+_fail=0
+declare -A _failures   # stem → newline-separated failing test names
+_start=$(date +%s)
+
+for _f in tests/*.bats; do
+    [[ -e "$_f" ]] || continue
+    _stem=$(basename "$_f" .bats)
+
+    _out=$(bats --formatter tap "$_f" 2>&1) || true
+    printf '%s\n\n' "$_out"
+
+    while IFS= read -r _line; do
+        if   [[ "$_line" == ok\ * ]];       then (( _pass++ )) || true
+        elif [[ "$_line" == "not ok "* ]]; then
+            (( _fail++ )) || true
+            _tmp="${_line#not ok }"
+            _name="${_tmp#*[0-9] }"
+            _failures[$_stem]+="${_name}"$'\n'
+        fi
+    done <<< "$_out"
+done
+
+_end=$(date +%s)
+_total=$(( _pass + _fail ))
+_elapsed=$(( _end - _start ))
+
+printf '\n%s\n' "$(printf '─%.0s' {1..60})"
+printf '  Tests: %-4d  Passing: %-4d  Failing: %-4d  Time: %ds\n' \
+    "$_total" "$_pass" "$_fail" "$_elapsed"
+printf '%s\n' "$(printf '─%.0s' {1..60})"
+
+if (( _fail > 0 )); then
+    printf '\nFailing tests:\n'
+    for _stem in $(printf '%s\n' "${!_failures[@]}" | sort); do
+        printf '\n  %s.bats\n' "$_stem"
+        while IFS= read -r _t; do
+            [[ -z "$_t" ]] && continue
+            printf '    - %s\n' "$_t"
+        done < <(printf '%s' "${_failures[$_stem]}" | sort)
+    done
+    printf '\n'
+fi
+
+(( _fail == 0 ))
