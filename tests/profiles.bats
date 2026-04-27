@@ -280,3 +280,52 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"get_dap_mason_packages"* ]]
 }
+
+@test "profiles init defines get_conform_formatters" {
+  run grep -n "get_conform_formatters" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init defines get_lint_linters" {
+  run grep -n "get_lint_linters" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "web profile defines conform_formatters with prettier" {
+  run grep -n "prettier" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"conform_formatters"* ]] || [[ "$output" == *"prettier"* ]]
+}
+
+@test "web profile defines lint_linters with eslint" {
+  run grep -n "eslint" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"lint_linters"* ]] || [[ "$output" == *"eslint"* ]]
+}
+
+@test "php profile defines conform_formatters with php_cs_fixer" {
+  run grep -n "php_cs_fixer\|php-cs-fixer" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile defines lint_linters with phpstan" {
+  run grep -n "phpstan" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"lint_linters"* ]] || [[ "$output" == *"phpstan"* ]]
+}
+
+@test "php profile defines lint_linters with phpcs" {
+  run grep -n "phpcs" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "laravel profile defines conform_formatters with blade_formatter" {
+  run grep -n "blade_formatter\|blade-formatter" lua/profiles/laravel.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "rust profile defines conform_formatters with rustfmt" {
+  run grep -n "rustfmt" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"conform_formatters"* ]] || [[ "$output" == *"rustfmt"* ]]
+}

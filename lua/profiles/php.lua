@@ -69,4 +69,12 @@ return {
             }),
         }
     end,
+
+    conform_formatters = function()
+        return { php = { 'php_cs_fixer' } }
+    end,
+
+    lint_linters = function()
+        return { php = { 'phpstan', 'phpcs', 'phpmd' } }
+    end,
 }

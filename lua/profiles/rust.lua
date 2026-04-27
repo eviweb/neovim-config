@@ -58,4 +58,8 @@ return {
             null_ls.builtins.formatting.rustfmt,
         }
     end,
+
+    conform_formatters = function()
+        return { rust = { 'rustfmt' } }
+    end,
 }

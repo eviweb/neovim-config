@@ -17,4 +17,8 @@ return {
             null_ls.builtins.formatting.blade_formatter,
         }
     end,
+
+    conform_formatters = function()
+        return { blade = { 'blade_formatter' } }
+    end,
 }

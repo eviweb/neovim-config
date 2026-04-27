@@ -213,6 +213,32 @@ function M.get_null_ls_sources()
     return sources
 end
 
+function M.get_conform_formatters()
+    local formatters = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.conform_formatters then
+            for ft, fmts in pairs(profile.conform_formatters()) do
+                formatters[ft] = fmts
+            end
+        end
+    end
+    return formatters
+end
+
+function M.get_lint_linters()
+    local linters = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.lint_linters then
+            for ft, lnts in pairs(profile.lint_linters()) do
+                linters[ft] = lnts
+            end
+        end
+    end
+    return linters
+end
+
 -- Activate a profile at runtime (additive only).
 -- Loads LSP servers and null-ls sources immediately.
 -- Plugin changes take effect only after a restart.

@@ -160,3 +160,66 @@ setup() {
   run grep -n "get_null_ls_sources" lua/config/null-ls.lua
   [ "$status" -eq 0 ]
 }
+
+@test "conform plugin file exists" {
+  run test -f lua/plugins/conform.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "conform config file exists" {
+  run test -f lua/config/conform.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "conform config sets up format_on_save" {
+  run grep -n "format_on_save" lua/config/conform.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "conform config maps Space f to format" {
+  run grep -n "Space.*f\|<[Ss]pace>f" lua/config/conform.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "conform config integrates profile formatters" {
+  run grep -n "get_conform_formatters" lua/config/conform.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-lint plugin file exists" {
+  run test -f lua/plugins/nvim-lint.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-lint config file exists" {
+  run test -f lua/config/nvim-lint.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "nvim-lint config triggers on BufWritePost and InsertLeave" {
+  run grep -n "BufWritePost\|InsertLeave" lua/config/nvim-lint.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"BufWritePost"* ]]
+  [[ "$output" == *"InsertLeave"* ]]
+}
+
+@test "nvim-lint config integrates profile linters" {
+  run grep -n "get_lint_linters" lua/config/nvim-lint.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list loads conform" {
+  run grep -n "conform" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins list loads nvim-lint" {
+  run grep -n "nvim-lint" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lsp on_attach does not duplicate Space f when conform is present" {
+  # '<space>f' as keymap lhs should not appear (moved to config/conform.lua)
+  run grep -n "'<space>f'" lua/config/lsp.lua
+  [ "$status" -ne 0 ]
+}

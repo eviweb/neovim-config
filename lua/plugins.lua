@@ -50,6 +50,8 @@ local base_plugins = {
     -- LSP Configuration
     require('plugins.lsp'),
     require('plugins.null-ls'),
+    require('plugins.conform'),
+    require('plugins.nvim-lint'),
 
     -- Text Objects
     require('plugins.treesitter-textobjects'),

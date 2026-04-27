@@ -206,9 +206,9 @@
 ## Phase 15 - Plugin Modernization And UX
 
 ### Formatters and linters (modernization)
-- [ ] `conform.nvim` — modern formatter replacing none-ls formatting sources; per-filetype formatter chains; `format_on_save` option
-- [ ] `nvim-lint` — modern linter replacing none-ls diagnostic sources; event-driven (`BufWritePost`, `InsertLeave`)
-- [ ] Migrate profiles to use conform/nvim-lint sources instead of none-ls (additive, keep none-ls as fallback during transition)
+- [x] `conform.nvim` — modern formatter replacing none-ls formatting sources; per-filetype formatter chains; `format_on_save` option
+- [x] `nvim-lint` — modern linter replacing none-ls diagnostic sources; event-driven (`BufWritePost`, `InsertLeave`)
+- [x] Migrate profiles to use conform/nvim-lint sources instead of none-ls (additive, keep none-ls as fallback during transition)
 
 ### UI enhancements
 - [x] `noice.nvim` — floating cmdline (`cmdline_popup`), popup messages, LSP progress; `notify.enabled` false in modern variant (snacks owns `vim.notify`); LSP hover/signature kept native

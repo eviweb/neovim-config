@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `conform.nvim`: formatter replacing none-ls formatting sources; profile-driven `formatters_by_ft`; `format_on_save` (1 s timeout, LSP fallback); `<Space>f` global keymap; local binary resolution (`node_modules/.bin`, `vendor/bin`) evaluated at format time
+- `nvim-lint`: linter replacing none-ls diagnostic sources; profile-driven `linters_by_ft`; event-driven (`BufWritePost`, `InsertLeave`); local binary resolution evaluated at lint time; phpmd ruleset configured to match prior none-ls settings
+- Profiles: `conform_formatters()` and `lint_linters()` fields added to web (prettier/eslint), php (php_cs_fixer/phpstan+phpcs+phpmd), laravel (blade_formatter), rust (rustfmt)
+- `profiles.get_conform_formatters()` and `profiles.get_lint_linters()` in `lua/profiles/init.lua`
+
+### Changed
+- `<Space>f`: moved from `on_attach` buffer-local LSP keymap to a global keymap in `lua/config/conform.lua`; behavior unchanged (falls back to LSP when no conform formatter is configured)
+
 ## [0.4.0] - 2026-04-27
 
 ### Added

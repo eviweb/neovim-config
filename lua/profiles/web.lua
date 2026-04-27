@@ -95,4 +95,27 @@ return {
             }),
         }
     end,
+
+    conform_formatters = function()
+        local fts = {
+            'javascript', 'javascriptreact',
+            'typescript', 'typescriptreact',
+            'vue', 'svelte',
+            'css', 'html', 'json', 'yaml', 'markdown',
+        }
+        local result = {}
+        for _, ft in ipairs(fts) do result[ft] = { 'prettier' } end
+        return result
+    end,
+
+    lint_linters = function()
+        local fts = {
+            'javascript', 'javascriptreact',
+            'typescript', 'typescriptreact',
+            'vue', 'svelte',
+        }
+        local result = {}
+        for _, ft in ipairs(fts) do result[ft] = { 'eslint' } end
+        return result
+    end,
 }
