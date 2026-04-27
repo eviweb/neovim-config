@@ -1,3 +1,6 @@
 .packer
 .nvim-ui
 .nvim-theme
+
+# lua-language-server local config — path is installation-specific (snap, apt, Termux differ)
+.luarc.json

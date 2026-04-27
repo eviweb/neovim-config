@@ -51,13 +51,22 @@ require('avante').setup({
 
     -- ── ACP providers — override defaults ─────────────────────────────────
     acp_providers = {
+        -- claude-code: @zed-industries/claude-code-acp is deprecated (ENOENT).
+        -- args must have the same length as the default { '-y', '-g', '<pkg>' } so
+        -- that tbl_deep_extend replaces each element by index without leaving the
+        -- old package name at index 3.
+        ['claude-code'] = {
+            args = { '-y', '-g', '@agentclientprotocol/claude-agent-acp' },
+        },
         -- gemini-cli: the avante default forces auth_method="gemini-api-key".
-        -- Remove it so the gemini CLI uses its own Google account auth instead.
+        -- tbl_deep_extend preserves absent keys, so we must explicitly set
+        -- auth_method=false (falsy) to bypass the API key check; the gemini
+        -- CLI handles Google account auth on its own.
         ['gemini-cli'] = {
-            command = 'gemini',
-            args    = { '--experimental-acp' },
-            env     = { NODE_NO_WARNINGS = '1' },
-            -- no auth_method — gemini CLI handles Google login on its own
+            command     = 'gemini',
+            args        = { '--experimental-acp' },
+            env         = { NODE_NO_WARNINGS = '1' },
+            auth_method = false,
         },
     },
     -- Activate any provider with <Leader>aP or:
@@ -99,6 +108,7 @@ vim.keymap.set('n', '<Leader>aP', function()
                 actions.close(buf)
                 local choice = action_state.get_selected_entry()[1]
                 require('avante.api').switch_provider(choice)
+                require('avante').open_sidebar({ ask = false })
             end)
             return true
         end,

@@ -262,6 +262,12 @@
   deferred — `codeium.nvim` covers the free inline completion use case
   → https://github.com/zbirenbaum/copilot.lua
 
+- [ ] Avante auth-mode picker — extend `<Leader>aP` provider picker with a second level to
+  select the authentication mode per provider (OAuth Max, OAuth Pro, API key); REST providers
+  (`claude`, `claude-opus`, `gemini`) support multiple `auth_type` values; ACP providers
+  (claude-code, gemini-cli, codex) manage their own auth via CLI; requires building a two-step
+  Telescope picker and a runtime `Config.override({ providers = { … } })` call
+
 ### MCP servers (usable via mcphub.nvim)
 
 - [ ] `mcp-server-git` *(official Anthropic)* — git operations via MCP: log, diff, blame,
