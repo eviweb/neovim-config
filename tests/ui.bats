@@ -788,7 +788,7 @@ setup() {
 @test "Cheat command uses vim.ui.select when no topic is given" {
   run grep -n "vim.ui.select" lua/commands.lua
   [ "$status" -eq 0 ]
-  [[ "$output" == *"cheat_topics"* ]]
+  [[ "$output" == *"topics"* ]]
 }
 
 @test "commands define w!! sudo save abbreviation" {

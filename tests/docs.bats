@@ -124,7 +124,7 @@ setup() {
   [ -f "docs/cheatsheets/git.md" ]
 }
 
-@test "Cheat command includes git topic" {
-  run grep -n "'git'" lua/commands.lua
+@test "Cheat command discovers topics dynamically from cheatsheets directory" {
+  run grep -n "cheatsheets" lua/commands.lua
   [ "$status" -eq 0 ]
 }

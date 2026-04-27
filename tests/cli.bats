@@ -101,7 +101,8 @@ setup() {
 @test "update nvim dry-run prints a refresh or upgrade command" {
   run ./bin/nvim-config --dry-run update nvim
   [ "$status" -eq 0 ]
-  [[ "$output" == *"nvim"* ]]
+  # snap path: "snap refresh nvim"; apt path: "apt install ... neovim"
+  [[ "$output" == *"nvim"* ]] || [[ "$output" == *"neovim"* ]]
 }
 
 @test "update dry-run runs both nvim and plugins" {
