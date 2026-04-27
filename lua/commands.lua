@@ -1,15 +1,13 @@
 -- lua/commands.lua
 
 -- prevents new line to also start with a comment
-vim.api.nvim_exec(
-    [[
-  augroup disable-comments-on-new-lines
-    au!
-    au FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
-  augroup END
-]],
-    false
-)
+vim.api.nvim_create_autocmd('FileType', {
+    group   = vim.api.nvim_create_augroup('disable-comments-on-new-lines', { clear = true }),
+    pattern = '*',
+    callback = function()
+        vim.opt_local.formatoptions:remove({ 'c', 'r', 'o' })
+    end,
+})
 
 -- places the cursor at the last position on file re-opening
 vim.cmd([[
@@ -202,13 +200,13 @@ vim.api.nvim_create_autocmd({ 'FocusLost', 'BufLeave' }, {
 })
 
 -- removes all trailing whitespace on save
-vim.api.nvim_exec(
-    [[
-  augroup trim-white-space-on-save
-    au!
-    autocmd BufWritePre * :%s/\s\+$//e
-  augroup END
-  ]],
-    false
-)
+vim.api.nvim_create_autocmd('BufWritePre', {
+    group    = vim.api.nvim_create_augroup('trim-white-space-on-save', { clear = true }),
+    pattern  = '*',
+    callback = function()
+        local view = vim.fn.winsaveview()
+        vim.cmd([[%s/\s\+$//e]])
+        vim.fn.winrestview(view)
+    end,
+})
 

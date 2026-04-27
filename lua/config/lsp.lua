@@ -74,6 +74,18 @@ vim.lsp.config('jsonls', {
 vim.lsp.config('lua_ls', {
     settings = {
         Lua = {
+            runtime = { version = 'LuaJIT' },
+            workspace = {
+                -- Include the config's lua/ directory and the Neovim runtime so
+                -- LuaLS resolves require('plugins.foo') as lua/plugins/foo.lua
+                -- (module root = lua/) rather than lua.plugins.foo (project root),
+                -- which avoids the "same file required with different names" warning.
+                library = {
+                    vim.fn.stdpath('config') .. '/lua',
+                    vim.env.VIMRUNTIME,
+                },
+                checkThirdParty = false,
+            },
             diagnostics = {
                 globals = { 'vim' },
             },

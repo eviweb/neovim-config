@@ -52,11 +52,16 @@ require('avante').setup({
     -- ── ACP providers — override defaults ─────────────────────────────────
     acp_providers = {
         -- claude-code: @zed-industries/claude-code-acp is deprecated (ENOENT).
-        -- args must have the same length as the default { '-y', '-g', '<pkg>' } so
-        -- that tbl_deep_extend replaces each element by index without leaving the
-        -- old package name at index 3.
+        -- The avante default uses { '-y', '-g', '<pkg>' }; '-g' means "from global
+        -- install" in npm 11 and fails if the package is not globally installed.
+        -- Replace '-g' with '--' (end-of-options separator) and use the new package.
+        -- Three elements → tbl_deep_extend replaces all indices correctly.
         ['claude-code'] = {
-            args = { '-y', '-g', '@agentclientprotocol/claude-agent-acp' },
+            args = { '-y', '--', '@agentclientprotocol/claude-agent-acp' },
+        },
+        -- codex: same '-g' issue in the avante default { '-y', '-g', '@zed-industries/codex-acp' }.
+        ['codex'] = {
+            args = { '-y', '--', '@zed-industries/codex-acp' },
         },
         -- gemini-cli: the avante default forces auth_method="gemini-api-key".
         -- tbl_deep_extend preserves absent keys, so we must explicitly set
@@ -108,6 +113,16 @@ vim.keymap.set('n', '<Leader>aP', function()
                 actions.close(buf)
                 local choice = action_state.get_selected_entry()[1]
                 require('avante.api').switch_provider(choice)
+                -- Clear the cached ACP client and session: avante reuses the open
+                -- subprocess across provider switches, so codex/gemini-cli/claude-code
+                -- would all route to the first provider that connected.
+                local sidebar = require('avante').current.sidebar
+                if sidebar then
+                    sidebar.acp_client = nil
+                    if sidebar.chat_history then
+                        sidebar.chat_history.acp_session_id = nil
+                    end
+                end
                 require('avante').open_sidebar({ ask = false })
             end)
             return true
