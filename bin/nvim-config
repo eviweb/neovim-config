@@ -153,7 +153,9 @@ log_message() {
   local plain_line="[${timestamp}] [${level}] ${message}"
 
   if [ "${QUIET}" -eq 0 ]; then
-    if [ "${NO_COLOR}" -eq 0 ] && [ -t 1 ]; then
+    if [ "${level}" = "DEBUG" ] && [ "${VERBOSE}" -eq 0 ]; then
+      :
+    elif [ "${NO_COLOR}" -eq 0 ] && [ -t 1 ]; then
       printf '%s%s\033[0m\n' "$(_color_for_level "${level}")" "${plain_line}"
     else
       printf '%s\n' "${plain_line}"
