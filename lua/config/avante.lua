@@ -112,10 +112,14 @@ vim.keymap.set('n', '<Leader>aP', function()
             actions.select_default:replace(function()
                 actions.close(buf)
                 local choice = action_state.get_selected_entry()[1]
-                require('avante.api').switch_provider(choice)
-                -- Clear the cached ACP client and session: avante reuses the open
-                -- subprocess across provider switches, so codex/gemini-cli/claude-code
-                -- would all route to the first provider that connected.
+                -- ACP providers (claude-code, gemini-cli, codex) are not registered
+                -- in avante's API provider module table, so refresh() throws
+                -- "Failed to find provider: X". Config.provider is already updated
+                -- before refresh() throws, so the switch still takes effect.
+                local ok, err = pcall(require('avante.api').switch_provider, choice)
+                if not ok and err and not err:find('Failed to find provider') then
+                    vim.notify('Avante: ' .. err, vim.log.levels.ERROR)
+                end
                 local sidebar = require('avante').current.sidebar
                 if sidebar then
                     sidebar.acp_client = nil

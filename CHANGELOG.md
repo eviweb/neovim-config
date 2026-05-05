@@ -8,6 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `.luarc.json`: configures lua-language-server for the Neovim environment (LuaJIT runtime, snap runtime library path, `vim` declared as global) — eliminates 200+ false-positive "Undefined global `vim`" diagnostics
+
+### Fixed
+- avante: `<Leader>aP` picker threw E5108 "Failed to find provider: X" when switching to ACP providers (claude-code, gemini-cli, codex) — avante's `refresh()` looks them up in the API provider module table where they don't exist; `Config.provider` is already updated before the error, so the switch succeeds; wrapped in `pcall` and suppressed the known error
+
+## [0.4.0] - 2026-04-27
+
+### Added
 - `conform.nvim`: formatter replacing none-ls formatting sources; profile-driven `formatters_by_ft`; `format_on_save` (1 s timeout, LSP fallback); `<Space>f` global keymap; local binary resolution (`node_modules/.bin`, `vendor/bin`) evaluated at format time
 - `nvim-lint`: linter replacing none-ls diagnostic sources; profile-driven `linters_by_ft`; event-driven (`BufWritePost`, `InsertLeave`); local binary resolution evaluated at lint time; phpmd ruleset configured to match prior none-ls settings
 - Profiles: `conform_formatters()` and `lint_linters()` fields added to web (prettier/eslint), php (php_cs_fixer/phpstan+phpcs+phpmd), laravel (blade_formatter), rust (rustfmt)

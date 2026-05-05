@@ -10,20 +10,23 @@ vim.api.nvim_create_autocmd('FileType', {
 })
 
 -- places the cursor at the last position on file re-opening
-vim.cmd([[
-augroup vimrc-remember-cursor-position
-  autocmd!
-  autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g`\"" | endif
-augroup END
-]])
+vim.api.nvim_create_autocmd('BufReadPost', {
+    group   = vim.api.nvim_create_augroup('vimrc-remember-cursor-position', { clear = true }),
+    pattern = '*',
+    callback = function()
+        local mark = vim.api.nvim_buf_get_mark(0, '"')
+        if mark[1] > 1 and mark[1] <= vim.api.nvim_buf_line_count(0) then
+            vim.cmd('normal! g`"')
+        end
+    end,
+})
 
--- hightlights any yanked line
-vim.cmd([[
-  augroup highlight-text-on-yank
-    autocmd!
-    autocmd TextYankPost * silent! lua vim.highlight.on_yank()
-  augroup end
-]])
+-- highlights any yanked text
+vim.api.nvim_create_autocmd('TextYankPost', {
+    group    = vim.api.nvim_create_augroup('highlight-text-on-yank', { clear = true }),
+    pattern  = '*',
+    callback = function() vim.highlight.on_yank() end,
+})
 
 -- :NvimProfile [name] — activate a profile or open the profile picker
 vim.api.nvim_create_user_command('NvimProfile', function(opts)
