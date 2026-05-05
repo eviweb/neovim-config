@@ -64,14 +64,14 @@ require('avante').setup({
             args = { '-y', '--', '@zed-industries/codex-acp' },
         },
         -- gemini-cli: the avante default forces auth_method="gemini-api-key".
-        -- tbl_deep_extend preserves absent keys, so we must explicitly set
-        -- auth_method=false (falsy) to bypass the API key check; the gemini
-        -- CLI handles Google account auth on its own.
+        -- The actual id for Google OAuth in gemini CLI ACP is "oauth-personal"
+        -- (confirmed via initialize response). This reuses the OAuth token
+        -- already stored by `gemini` CLI in terminal — no browser needed.
         ['gemini-cli'] = {
             command     = 'gemini',
             args        = { '--experimental-acp' },
             env         = { NODE_NO_WARNINGS = '1' },
-            auth_method = false,
+            auth_method = 'oauth-personal',
         },
     },
     -- Activate any provider with <Leader>aP or:

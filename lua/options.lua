@@ -75,6 +75,10 @@ vim.g.netrw_winsize = 25 -- limits the view size to 25% of the available screen 
 --[[
     Filetype detection
 --]]
+-- KDL (KDL Document Language) used by Zellij and other tools.
+-- Without this, .kdl files have no filetype and ts_ls attaches via root_dir.
+vim.filetype.add({ extension = { kdl = 'kdl' } })
+
 -- Detect shell scripts by shebang for extensionless files.
 -- priority = -math.huge ensures this fires only when no other rule matched.
 vim.filetype.add({

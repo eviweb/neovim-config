@@ -8,9 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `nvim-config update tree-sitter` — downloads the latest tree-sitter CLI binary (Linux x64/arm64) into `vendor/tree-sitter/`; skips when already up to date; integrated into `update all`; bash/zsh/fish completions updated
 - `.luarc.json`: configures lua-language-server for the Neovim environment (LuaJIT runtime, snap runtime library path, `vim` declared as global) — eliminates 200+ false-positive "Undefined global `vim`" diagnostics
 
 ### Fixed
+- treesitter: parser compilation failed with "subcommand 'build' not recognized" — vendored `tree-sitter` CLI was 0.20.6; nvim-treesitter v1.0 requires >= 0.22; updated to 0.26.8
+- LSP: `ts_ls` attached to `.kdl` files (Zellij config) because the extension had no registered filetype; added `vim.filetype.add({ extension = { kdl = 'kdl' } })` so ts_ls ignores them
 - avante: `<Leader>aP` picker threw E5108 "Failed to find provider: X" when switching to ACP providers (claude-code, gemini-cli, codex) — avante's `refresh()` looks them up in the API provider module table where they don't exist; `Config.provider` is already updated before the error, so the switch succeeds; wrapped in `pcall` and suppressed the known error
 
 ## [0.4.0] - 2026-04-27
@@ -133,7 +136,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - avante: ACP providers (claude-code, codex) stuck on "generating" — avante default `args` for ACP providers use `{ '-y', '-g', '<pkg>' }`; in npm 11 `-g` means "from global install only" so the package is never downloaded; replaced `-g` with `--` (end-of-options separator) for claude-code and codex; also replaced deprecated `@zed-industries/claude-code-acp` with `@agentclientprotocol/claude-agent-acp`
 - avante: provider switch routes requests to wrong ACP subprocess — `sidebar.acp_client` is cached after first connection and reused for all subsequent requests regardless of active provider; `switch_provider()` does not clear the cache; fixed by resetting `sidebar.acp_client` and `sidebar.chat_history.acp_session_id` in the `<Leader>aP` picker after the switch
 - avante: sidebar not opening after provider selection — `open_sidebar({ ask = false })` now called after `switch_provider()` in the `<Leader>aP` picker
-- avante: gemini-cli demanding API key — default `auth_method = "gemini-api-key"` survives `tbl_deep_extend` when the key is absent from the override; fixed by setting `auth_method = false` so the ACP client skips the check; gemini CLI handles Google account auth on its own
+- avante: gemini-cli demanding API key — `auth_method = false` skipped auth entirely, causing `create_session` to fail because gemini CLI requires an explicit auth type; the correct Google OAuth method id is `"oauth-personal"` (confirmed via ACP `initialize` response); set `auth_method = "oauth-personal"` to reuse the OAuth token already stored by the gemini CLI
 - LSP: `K → vim.lsp.buf.hover()` removed from `on_attach` buffer-local keymaps — conflicts with nvim-ufo's global `K` (peek fold / LSP hover fallback); nvim-ufo handles both cases correctly
 - LSP: `<C-h> → signature help` moved from normal mode to insert mode in `on_attach` — was shadowing the global `<C-h>` window-navigation keymap in normal mode
 - auto-save: `BufLeave` autocmd now guards on `buftype` (`'' or 'acwrite'` only) — previously interfered with dressing input buffers via trailing-whitespace `BufWritePre` hooks, causing the auth input field to close

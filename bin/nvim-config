@@ -71,12 +71,13 @@ Commands:
                         --snap  Install Neovim via snap (default for install nvim)
                         --apt   Install Neovim via apt instead of snap
 
-  update [nvim|plugins|dap-adapters|all]
+  update [nvim|plugins|dap-adapters|tree-sitter|all]
                         Update Neovim, plugins, or DAP adapters
                           nvim         — refresh Neovim (snap or apt, auto-detected)
                           plugins      — run Lazy! sync headlessly
                           dap-adapters — install/update Mason DAP packages for active profile
-                          all          — nvim then plugins (default)
+                          tree-sitter  — download latest tree-sitter CLI binary into vendor/
+                          all          — nvim, plugins, then tree-sitter (default)
 
   profile [list|detect|set|unset|create|info] [<name>]
                         Manage per-project Neovim profiles
@@ -306,7 +307,7 @@ _nvim_config_completions() {
       return 0
       ;;
     update|plugins)
-      COMPREPLY=( $(compgen -W "nvim plugins dap-adapters all" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "nvim plugins dap-adapters tree-sitter all" -- "${current_word}") )
       return 0
       ;;
     profile|list|detect|set|unset|create|info)
@@ -383,7 +384,8 @@ _nvim_config() {
     'nvim:Refresh Neovim (snap or apt, auto-detected)'
     'plugins:Run Lazy! sync headlessly'
     'dap-adapters:Install/update Mason DAP packages for active profile'
-    'all:Update nvim then plugins (default)'
+    'tree-sitter:Download latest tree-sitter CLI binary into vendor/'
+    'all:Update nvim, plugins, then tree-sitter (default)'
   )
 
   profile_subcmds=(
@@ -502,6 +504,7 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d '
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim         -d 'Refresh Neovim'
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a plugins      -d 'Run Lazy! sync headlessly'
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a dap-adapters -d 'Install/update Mason DAP packages for active profile'
+complete -c nvim-config -n '__fish_seen_subcommand_from update' -a tree-sitter -d 'Download latest tree-sitter CLI binary into vendor/'
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a all          -d 'Update nvim then plugins (default)'
 
 # profile subcommands
@@ -677,6 +680,55 @@ run_update_dap_adapters() {
   log_message "INFO" "Done — verify inside Neovim with :Mason"
 }
 
+run_update_tree_sitter() {
+  local vendor_dir="${PROJECT_DIR}/vendor/tree-sitter"
+  local binary="${vendor_dir}/tree-sitter"
+  local arch; arch="$(uname -m)"
+
+  case "${arch}" in
+    x86_64)  local asset="tree-sitter-linux-x64.gz" ;;
+    aarch64) local asset="tree-sitter-linux-arm64.gz" ;;
+    *)
+      log_message "ERROR" "Unsupported architecture: ${arch}"
+      return 1
+      ;;
+  esac
+
+  command -v curl > /dev/null 2>&1 || { log_message "ERROR" "curl is required" >&2; return 1; }
+
+  local latest_tag
+  latest_tag="$(curl -sf https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest \
+    | grep '"tag_name"' | sed 's/.*"tag_name": "\(.*\)".*/\1/')"
+  if [ -z "${latest_tag}" ]; then
+    log_message "ERROR" "Could not fetch latest tree-sitter release tag"
+    return 1
+  fi
+
+  local current_version="none"
+  if [ -x "${binary}" ]; then
+    current_version="$("${binary}" --version 2>/dev/null | awk '{print $2}')"
+  fi
+  local latest_version="${latest_tag#v}"
+
+  if [ "${current_version}" = "${latest_version}" ]; then
+    log_message "INFO" "tree-sitter is already at ${latest_version} — nothing to do"
+    return 0
+  fi
+
+  log_message "INFO" "Updating tree-sitter ${current_version} → ${latest_version}"
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "  would download: https://github.com/tree-sitter/tree-sitter/releases/download/${latest_tag}/${asset}"
+    return 0
+  fi
+
+  local url="https://github.com/tree-sitter/tree-sitter/releases/download/${latest_tag}/${asset}"
+  run_command mkdir -p "${vendor_dir}"
+  curl -sL "${url}" -o "${binary}.gz"
+  gunzip -f "${binary}.gz"
+  chmod +x "${binary}"
+  log_message "INFO" "tree-sitter updated to $("${binary}" --version)"
+}
+
 run_update() {
   local subcommand="${1:-all}"
   case "${subcommand}" in
@@ -689,9 +741,13 @@ run_update() {
     dap-adapters)
       run_update_dap_adapters
       ;;
+    tree-sitter)
+      run_update_tree_sitter
+      ;;
     all)
       run_update_nvim
       run_update_plugins
+      run_update_tree_sitter
       ;;
     *)
       printf 'Unknown update subcommand: %s\n' "${subcommand}" >&2
