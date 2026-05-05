@@ -222,6 +222,7 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 | `<Leader>af` | Focus AI sidebar |
 | `<Leader>ar` | Refresh AI response |
 | `<Leader>aP` | Switch provider (interactive picker) |
+| `<Leader>am` | Open MCP Hub (browse and toggle MCP servers) |
 
 Available providers (switch with `<Leader>aP` or `:AvanteSwitchProvider <name>`):
 

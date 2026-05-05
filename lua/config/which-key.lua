@@ -39,6 +39,7 @@ wk.add({
     { '<Leader>af', desc  = 'Focus AI sidebar' },
     { '<Leader>at', desc  = 'Toggle AI sidebar' },
     { '<Leader>aP', desc  = 'Switch provider (claude/opus/gemini/codex…)' },
+    { '<Leader>am', desc  = 'Open MCP Hub' },
     { '<Leader>D',  group = 'Debug (DAP)' },
     { '<Leader>Db', desc  = 'Toggle breakpoint' },
     { '<Leader>DB', desc  = 'Conditional breakpoint' },

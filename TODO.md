@@ -237,13 +237,13 @@
 
 ### MCP ecosystem
 
-- [ ] `mcphub.nvim` — MCP client hub; prerequisite for all MCP server items below
+- [x] `mcphub.nvim` — MCP client hub; `<Leader>am` UI; avante integration; disabled on Termux
   → https://github.com/ravitemer/mcphub.nvim
-- [ ] `mcp-server-git` *(official Anthropic)* — git operations via MCP (`uvx mcp-server-git`)
+- [x] `mcp-server-git` *(official Anthropic)* — git operations via MCP (`uvx mcp-server-git`)
   → https://github.com/modelcontextprotocol/servers/tree/main/src/git
-- [ ] `mcp-diagnostics.nvim` — LSP diagnostics exposed to AI via MCP
+- [ ] `mcp-diagnostics.nvim` — LSP diagnostics exposed to AI via MCP; to validate
   → https://github.com/georgeharker/mcp-diagnostics.nvim
-- [ ] `Context7` *(Upstash)* — versioned library docs injected into LLM prompts (`@upstash/context7-mcp`)
+- [x] `Context7` *(Upstash)* — versioned library docs injected into LLM prompts (`@upstash/context7-mcp`)
   → https://github.com/upstash/context7
 
 ### AI stack (after codecompanion.nvim benchmark)
