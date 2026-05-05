@@ -258,20 +258,33 @@ run_doctor() {
     all_ok=0
   fi
 
-  log_message "INFO" "=== Required binaries ==="
-  for bin in git make rg fdfind node npm; do
-    _check_bin "${bin}" || all_ok=0
-  done
-
-  log_message "INFO" "=== Optional tools ==="
-  for bin in lazygit tmux claude codex gemini; do
-    _check_bin "${bin}" || true
-  done
-
-  log_message "INFO" "=== Build tools ==="
-  for bin in cargo gcc; do
-    _check_bin "${bin}" || true
-  done
+  if [ -n "${TERMUX_VERSION:-}" ]; then
+    log_message "INFO" "=== Termux environment (Android ${TERMUX_VERSION}) ==="
+    for bin in git make rg fd node npm; do
+      _check_bin "${bin}" || all_ok=0
+    done
+    log_message "INFO" "=== Optional tools ==="
+    for bin in lazygit tmux claude codex gemini; do
+      _check_bin "${bin}" || true
+    done
+    log_message "INFO" "=== Build tools ==="
+    for bin in clang; do
+      _check_bin "${bin}" || true
+    done
+  else
+    log_message "INFO" "=== Required binaries ==="
+    for bin in git make rg fdfind node npm; do
+      _check_bin "${bin}" || all_ok=0
+    done
+    log_message "INFO" "=== Optional tools ==="
+    for bin in lazygit tmux claude codex gemini; do
+      _check_bin "${bin}" || true
+    done
+    log_message "INFO" "=== Build tools ==="
+    for bin in cargo gcc; do
+      _check_bin "${bin}" || true
+    done
+  fi
 
   if [ "${all_ok}" -eq 1 ]; then
     log_message "INFO" "All required checks passed."
@@ -1076,10 +1089,15 @@ run_install_node() {
 }
 
 run_install_deps() {
-  run_command sudo apt update
-  run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat
-  if [ "${WITH_NODE}" -eq 1 ]; then
-    run_install_node
+  if [ -n "${TERMUX_VERSION:-}" ]; then
+    run_command pkg update
+    run_command pkg install curl ripgrep fd git make nodejs npm
+  else
+    run_command sudo apt update
+    run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat
+    if [ "${WITH_NODE}" -eq 1 ]; then
+      run_install_node
+    fi
   fi
 }
 

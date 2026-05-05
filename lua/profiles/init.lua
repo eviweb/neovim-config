@@ -38,6 +38,10 @@ end
 
 -- Auto-detect profiles from project files in dir.
 local detectors = {
+    -- Termux: environment-based, dir argument is irrelevant.
+    termux = function(_)
+        return os.getenv('TERMUX_VERSION') ~= nil
+    end,
     web = function(dir)
         return vim.fn.filereadable(dir .. '/package.json') == 1
     end,

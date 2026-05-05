@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Termux profile (`lua/profiles/termux.lua`) — Android/ARM environment profile; auto-detected via `$TERMUX_VERSION`; disables DAP adapters, avante, and codeium; LSP limited to `lua_ls`; `install deps` routes to `pkg install` instead of `apt`; `doctor` shows Termux-specific required binaries (`fd`, `clang` instead of `fd-find`, `cargo/gcc`)
+- `lua/profiles/init.lua`: `termux` detector added (environment-based, reads `TERMUX_VERSION`)
+- `lua/plugins/avante.lua` + `lua/plugins/codeium.lua`: `cond` guard — both plugins skip load when the termux profile is active
+
 ## [0.4.1] - 2026-05-05
 
 ### Added
