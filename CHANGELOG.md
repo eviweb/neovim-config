@@ -7,8 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Changed
-- `docs/keymaps.md`: add missing sections for nvim-ufo (`zR`/`zM`/`K` with async fold note) and marks.nvim (`m[a-z]`, `]'`/`['`, `` ]`/[` ``); clarify `<space>f` routes through conform.nvim
+## [0.4.1] - 2026-05-05
 
 ### Added
 - `nvim-config update tree-sitter` — downloads the latest tree-sitter CLI binary (Linux x64/arm64) into `vendor/tree-sitter/`; skips when already up to date; integrated into `update all`; bash/zsh/fish completions updated
@@ -19,6 +18,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - LSP: `ts_ls` attached to `.kdl` files (Zellij config) because the extension had no registered filetype; added `vim.filetype.add({ extension = { kdl = 'kdl' } })` so ts_ls ignores them
 - avante: `<Leader>aP` picker threw E5108 "Failed to find provider: X" when switching to ACP providers (claude-code, gemini-cli, codex) — avante's `refresh()` looks them up in the API provider module table where they don't exist; `Config.provider` is already updated before the error, so the switch succeeds; wrapped in `pcall` and suppressed the known error
 
+### Changed
+- `docs/keymaps.md`: add missing sections for nvim-ufo (`zR`/`zM`/`K` with async fold note) and marks.nvim (`m[a-z]`, `]'`/`['`, `` ]`/[` ``); clarify `<space>f` routes through conform.nvim
+
 ## [0.4.0] - 2026-04-27
 
 ### Added
@@ -26,11 +28,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `nvim-lint`: linter replacing none-ls diagnostic sources; profile-driven `linters_by_ft`; event-driven (`BufWritePost`, `InsertLeave`); local binary resolution evaluated at lint time; phpmd ruleset configured to match prior none-ls settings
 - Profiles: `conform_formatters()` and `lint_linters()` fields added to web (prettier/eslint), php (php_cs_fixer/phpstan+phpcs+phpmd), laravel (blade_formatter), rust (rustfmt)
 - `profiles.get_conform_formatters()` and `profiles.get_lint_linters()` in `lua/profiles/init.lua`
-
-### Changed
-- `<Space>f`: moved from `on_attach` buffer-local LSP keymap to a global keymap in `lua/config/conform.lua`; behavior unchanged (falls back to LSP when no conform formatter is configured)
-
-## [0.4.0] - 2026-04-27
 
 ### Added
 - GitHub Actions CI workflow (`.github/workflows/ci.yml`): `lint` job (shellcheck on `bin/nvim-config`) and `test` job (bats-core + Neovim stable); triggers on `push` and `pull_request`
@@ -147,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `lua/plugins.lua`: UI plugins (telescope, lualine, bufferline, which-key, trouble, nvim-navic, nightfox) are now loaded via `lua/ui/` instead of inline requires
 - Plugin loading deferred with lazy.nvim triggers: `neo-tree` and `trouble` on `cmd`; `telescope` on `cmd`; `treesitter`, `lsp`, `null-ls` on `BufReadPre/BufNewFile`; `nvim-cmp` on `InsertEnter`; `comment` and `vim-surround` on `BufReadPost`; `which-key` on `VeryLazy`; `emmet` on web filetypes only; `bufferline` explicitly `lazy = false`
+- `<Space>f`: moved from `on_attach` buffer-local LSP keymap to a global keymap in `lua/config/conform.lua`; behavior unchanged (falls back to LSP when no conform formatter is configured)
 - avante: model updated to `claude-sonnet-4-6` (replaces deprecated `claude-sonnet-4-5-20250929`) and `claude-opus-4-7`; provider set expanded to `claude-code` (CLI, default), `gemini-cli` (CLI), `codex` (CLI), `claude` (API, OAuth), `claude-opus` (API, OAuth), `gemini` (API key)
 - `timeoutlen = 500` (explicit, was implicit 1000ms); `ttimeoutlen = 10` (was 0, caused intermittent terminal escape-sequence issues)
 - `:Cheat` auto-discovers topics by scanning `docs/cheatsheets/*.md` instead of a hardcoded list — adding a file to that directory makes it immediately available in the picker and tab-completion
@@ -200,7 +198,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.4.0...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.4.1...HEAD
+[0.4.1]: https://github.com/eviweb/neovim-config/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/eviweb/neovim-config/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/eviweb/neovim-config/compare/0.2.0...0.3.0
 [0.2.0]: https://github.com/eviweb/neovim-config/compare/0.1.0...0.2.0
