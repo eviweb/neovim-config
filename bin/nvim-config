@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# Resolve symlinks so PROJECT_DIR points to the repo root even when
+# nvim-config is invoked via a symlink (e.g. ~/bin/nvim-config → repo/bin/).
+SCRIPT_DIR="$(cd "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")" && pwd)"
 PROJECT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
 SCRIPT_NAME="nvim-config"
 VERSION_FILE="${PROJECT_DIR}/VERSION"
@@ -268,9 +270,8 @@ run_doctor() {
       _check_bin "${bin}" || true
     done
     log_message "INFO" "=== Build tools ==="
-    for bin in clang; do
-      _check_bin "${bin}" || true
-    done
+    _check_bin "clang" || true
+    _check_bin "make"  || true
   else
     log_message "INFO" "=== Required binaries ==="
     for bin in git make rg fdfind node npm; do
