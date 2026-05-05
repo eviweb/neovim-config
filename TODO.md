@@ -241,7 +241,7 @@
   → https://github.com/ravitemer/mcphub.nvim
 - [x] `mcp-server-git` *(official Anthropic)* — git operations via MCP (`uvx mcp-server-git`)
   → https://github.com/modelcontextprotocol/servers/tree/main/src/git
-- [ ] `mcp-diagnostics.nvim` — LSP diagnostics exposed to AI via MCP; to validate
+- [x] `mcp-diagnostics.nvim` — LSP diagnostics exposed to AI via MCP; bundled Node.js server registered in mcphub config; pending live validation
   → https://github.com/georgeharker/mcp-diagnostics.nvim
 - [x] `Context7` *(Upstash)* — versioned library docs injected into LLM prompts (`@upstash/context7-mcp`)
   → https://github.com/upstash/context7

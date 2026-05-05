@@ -5,10 +5,9 @@
 -- so they stay version-controlled alongside the Neovim config.
 --
 -- Active servers:
---   mcp-server-git  — git operations (log, diff, blame) via uvx
---   context7        — versioned library documentation via npx
---
--- Add mcp-diagnostics.nvim once it is validated on this setup.
+--   mcp-server-git    — git operations (log, diff, blame) via uvx
+--   context7          — versioned library documentation via npx
+--   mcp-diagnostics   — LSP diagnostics exposed to AI via mcp-diagnostics.nvim
 
 require('mcphub').setup({
     -- Path to the mcp-hub binary (installed via build command).
@@ -34,6 +33,17 @@ require('mcphub').setup({
             command = 'npx',
             args    = { '-y', '@upstash/context7-mcp' },
             env     = { NODE_NO_WARNINGS = '1' },
+        },
+
+        -- ── mcp-diagnostics ───────────────────────────────────────────────
+        -- Exposes Neovim LSP diagnostics (errors, warnings) to AI via MCP.
+        -- The Node.js server is bundled inside the mcp-diagnostics.nvim plugin.
+        -- Path is resolved at runtime after lazy.nvim installs the plugin.
+        ['mcp-diagnostics'] = {
+            command = 'node',
+            args    = {
+                vim.fn.stdpath('data') .. '/lazy/mcp-diagnostics.nvim/server/mcp-diagnostics/dist/index.js',
+            },
         },
     },
 

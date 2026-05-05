@@ -74,6 +74,7 @@ local base_plugins = {
     -- AI assistant
     require('plugins.avante'),
     require('plugins.mcphub'),
+    require('plugins.mcp-diagnostics'),
 
     -- Code quality
     require('plugins.todo-comments'),

@@ -9,7 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `mcphub.nvim`: MCP client hub for Neovim; `:MCPHub` UI to browse, toggle and test MCP servers; `<Leader>am` keymap; integrates with avante as context source; disabled on Termux; build installs `mcp-hub` globally via npm
-- MCP servers configured via `lua/config/mcphub.lua`: `mcp-server-git` (git log/diff/blame via `uvx`) and `Context7` (versioned library docs via `npx @upstash/context7-mcp`)
+- MCP servers configured via `lua/config/mcphub.lua`: `mcp-server-git` (git log/diff/blame via `uvx`), `Context7` (versioned library docs via `npx @upstash/context7-mcp`), `mcp-diagnostics` (LSP diagnostics via bundled Node.js server)
+- `mcp-diagnostics.nvim`: exposes Neovim LSP diagnostics to AI assistants via MCP; loaded on `LspAttach`; disabled on Termux
 - Termux profile (`lua/profiles/termux.lua`) — Android/ARM environment profile; auto-detected via `$TERMUX_VERSION`; disables DAP adapters, avante, and codeium; LSP limited to `lua_ls`; `install deps` routes to `pkg install` instead of `apt`; `doctor` shows Termux-specific required binaries (`fd`, `clang` instead of `fd-find`, `cargo/gcc`)
 - `lua/profiles/init.lua`: `termux` detector added (environment-based, reads `TERMUX_VERSION`)
 - `lua/plugins/avante.lua` + `lua/plugins/codeium.lua`: `cond` guard — both plugins skip load when the termux profile is active
