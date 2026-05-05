@@ -222,16 +222,43 @@
 
 ---
 
-## Deferred / Under Consideration
-
-> Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
+## Phase 16 — Portability and MCP ecosystem (target 0.5.0)
 
 ### Portability
 
-- [ ] Termux (Android) compatibility profile — `termux` environment profile that disables or
-  replaces plugins incompatible with Android ARM: DAP adapters, heavy LSPs, Avante OAuth flow;
-  adjusts paths (`/data/data/com.termux/files/usr`); uses `pkg` instead of `apt`; validates
-  with `nvim-config doctor` on Termux
+- [ ] Termux profile (`lua/profiles/termux.lua`) — environment profile for Android ARM:
+  - Detection: `$TERMUX_VERSION` env var or `uname -o | grep -i android`
+  - Auto-activated when detected, overridable via `.nvim-profile`
+  - Disabled: DAP adapters (pwa-node, Xdebug, codelldb), avante OAuth flow, heavy LSPs
+  - LSP set: `lua_ls` only (+ `clangd` if available via `pkg`)
+  - `install deps` variant: `pkg install` instead of `apt install`, no `sudo`, Termux paths
+  - `nvim-config doctor` Termux-aware checks (pkg, Termux paths, no snap/apt)
+  - Milestone: validate with `nvim-config doctor` on a real Termux session
+
+### MCP ecosystem
+
+- [ ] `mcphub.nvim` — MCP client hub; prerequisite for all MCP server items below
+  → https://github.com/ravitemer/mcphub.nvim
+- [ ] `mcp-server-git` *(official Anthropic)* — git operations via MCP (`uvx mcp-server-git`)
+  → https://github.com/modelcontextprotocol/servers/tree/main/src/git
+- [ ] `mcp-diagnostics.nvim` — LSP diagnostics exposed to AI via MCP
+  → https://github.com/georgeharker/mcp-diagnostics.nvim
+- [ ] `Context7` *(Upstash)* — versioned library docs injected into LLM prompts (`@upstash/context7-mcp`)
+  → https://github.com/upstash/context7
+
+### AI stack (after codecompanion.nvim benchmark)
+
+- [ ] Benchmark `codecompanion.nvim` vs `avante.nvim` on a real project — evaluate native MCP
+  support, multi-provider, CLAUDE.md handling, composability; decide before implementing AI profile
+  → https://github.com/olimorris/codecompanion.nvim
+- [ ] AI profile — opt-in profile grouping avante (or codecompanion) + codeium + mcphub; allows
+  disabling all AI tooling by not activating the profile
+
+---
+
+## Deferred / Under Consideration
+
+> Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
 
 ### AI tooling
 
@@ -249,15 +276,6 @@
     lightweight, no conflict with either Avante or CodeCompanion; keep regardless of choice above
   - Decision: benchmark Avante vs CodeCompanion on a real project before committing
 
-- [ ] `mcphub.nvim` — MCP client hub for Neovim; manages, tests and toggles MCP servers from
-  a central UI (`:MCPHub`); runs a lightweight Node.js background process; integrates with both
-  Avante and CodeCompanion; **prerequisite for all MCP server entries below**
-  → https://github.com/ravitemer/mcphub.nvim
-
-- [ ] `codecompanion.nvim` — AI chat + inline assistant with native MCP support; potential
-  replacement for `avante.nvim`; evaluate before finalising the AI profile
-  → https://github.com/olimorris/codecompanion.nvim
-
 - [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription;
   deferred — `codeium.nvim` covers the free inline completion use case
   → https://github.com/zbirenbaum/copilot.lua
@@ -268,11 +286,7 @@
   (claude-code, gemini-cli, codex) manage their own auth via CLI; requires building a two-step
   Telescope picker and a runtime `Config.override({ providers = { … } })` call
 
-### MCP servers (usable via mcphub.nvim)
-
-- [ ] `mcp-server-git` *(official Anthropic)* — git operations via MCP: log, diff, blame,
-  commits; lets the AI query the repo history without copy-paste; Python-based (`uvx mcp-server-git`)
-  → https://github.com/modelcontextprotocol/servers/tree/main/src/git
+### MCP servers (usable via mcphub.nvim — deferred until Phase 16 mcphub is in place)
 
 - [ ] `mcp-server-filesystem` *(official Anthropic)* — secure file read/write with per-directory
   access control; gives the AI access to files outside the current buffer
@@ -281,14 +295,6 @@
 - [ ] `mcp-server-fetch` *(official Anthropic)* — fetches web pages and converts HTML to
   Markdown; useful for querying online docs directly from the chat sidebar
   → https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
-
-- [ ] `Context7` *(Upstash)* — injects up-to-date, version-specific library documentation into
-  LLM prompts; eliminates hallucinated APIs; installed as `@upstash/context7-mcp` via npm
-  → https://github.com/upstash/context7
-
-- [ ] `mcp-diagnostics.nvim` — exposes Neovim LSP diagnostics (errors, warnings) to AI
-  assistants via MCP; lets Claude read the current buffer's diagnostic state without copy-paste
-  → https://github.com/georgeharker/mcp-diagnostics.nvim
 
 - [ ] `mcp-neovim-server` — exposes Neovim buffers, cursor, registers and vim commands to
   external MCP clients (Claude Desktop, etc.) via node-client; inverse direction from mcphub
