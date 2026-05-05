@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `docs/keymaps.md`: add missing sections for nvim-ufo (`zR`/`zM`/`K` with async fold note) and marks.nvim (`m[a-z]`, `]'`/`['`, `` ]`/[` ``); clarify `<space>f` routes through conform.nvim
+
 ### Added
 - `nvim-config update tree-sitter` — downloads the latest tree-sitter CLI binary (Linux x64/arm64) into `vendor/tree-sitter/`; skips when already up to date; integrated into `update all`; bash/zsh/fish completions updated
 - `.luarc.json`: configures lua-language-server for the Neovim environment (LuaJIT runtime, snap runtime library path, `vim` declared as global) — eliminates 200+ false-positive "Undefined global `vim`" diagnostics

@@ -136,6 +136,26 @@ The list is persisted per directory alongside the session.
 | `<Leader>dq` | Quickfix list |
 | `gR` | LSP references |
 
+### Folding (nvim-ufo)
+
+| Key | Action |
+|-----|--------|
+| `zR` | Open all folds |
+| `zM` | Close all folds |
+| `K` | Peek fold under cursor (falls back to LSP hover when not foldable) |
+
+Folds are computed asynchronously by the LSP — wait 2–3 s after opening a file before using `zM`.
+
+### Marks (marks.nvim)
+
+| Key | Action |
+|-----|--------|
+| `m[a-z]` | Set mark at current position |
+| `]'` / `['` | Jump to next / previous mark (by line) |
+| `` ]` `` / `` [` `` | Jump to next / previous mark (by column) |
+
+Builtin marks (`. < > ^`) are also displayed in the sign column.
+
 ### LSP (active when a language server is attached)
 
 | Key | Action |
@@ -149,7 +169,7 @@ The list is persisted per directory alongside the session.
 | `<space>D` | Type definition |
 | `<space>rn` | Rename symbol |
 | `<space>ca` | Code action |
-| `<space>f` | Format buffer (async) |
+| `<space>f` | Format buffer (async, via conform.nvim) |
 | `<space>wa` | Add workspace folder |
 | `<space>wr` | Remove workspace folder |
 | `<space>wl` | List workspace folders |
