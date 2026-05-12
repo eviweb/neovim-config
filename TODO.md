@@ -284,14 +284,12 @@
   (claude-code, gemini-cli, codex) manage their own auth via CLI; requires building a two-step
   Telescope picker and a runtime `Config.override({ providers = { … } })` call
 
-### MCP servers (usable via mcphub.nvim — deferred until Phase 16 mcphub is in place)
+### MCP servers
 
-- [ ] `mcp-server-filesystem` *(official Anthropic)* — secure file read/write with per-directory
-  access control; gives the AI access to files outside the current buffer
+- [x] `mcp-server-filesystem` *(official Anthropic)* — secure file read/write; access scoped to CWD
   → https://github.com/modelcontextprotocol/servers/tree/main/src/filesystem
 
-- [ ] `mcp-server-fetch` *(official Anthropic)* — fetches web pages and converts HTML to
-  Markdown; useful for querying online docs directly from the chat sidebar
+- [x] `mcp-server-fetch` *(official Anthropic)* — web fetch + HTML→Markdown via `uvx`
   → https://github.com/modelcontextprotocol/servers/tree/main/src/fetch
 
 - [ ] `mcp-neovim-server` — exposes Neovim buffers, cursor, registers and vim commands to

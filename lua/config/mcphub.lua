@@ -5,9 +5,11 @@
 -- so they stay version-controlled alongside the Neovim config.
 --
 -- Active servers:
---   mcp-server-git    — git operations (log, diff, blame) via uvx
---   context7          — versioned library documentation via npx
---   mcp-diagnostics   — LSP diagnostics exposed to AI via mcp-diagnostics.nvim
+--   mcp-server-git        — git operations (log, diff, blame) via uvx
+--   context7              — versioned library documentation via npx
+--   mcp-diagnostics       — LSP diagnostics exposed to AI via mcp-diagnostics.nvim
+--   mcp-server-filesystem — secure file read/write with configurable access
+--   mcp-server-fetch      — web page fetch and HTML→Markdown conversion
 
 require('mcphub').setup({
     -- Path to the mcp-hub binary (installed via build command).
@@ -33,6 +35,25 @@ require('mcphub').setup({
             command = 'npx',
             args    = { '-y', '@upstash/context7-mcp' },
             env     = { NODE_NO_WARNINGS = '1' },
+        },
+
+        -- ── mcp-server-filesystem ─────────────────────────────────────────
+        -- Secure file read/write with per-directory access control.
+        -- The '.' arg grants access to the current working directory only.
+        -- Requires: Node.js
+        ['mcp-server-filesystem'] = {
+            command = 'npx',
+            args    = { '-y', '@modelcontextprotocol/server-filesystem', '.' },
+            env     = { NODE_NO_WARNINGS = '1' },
+        },
+
+        -- ── mcp-server-fetch ──────────────────────────────────────────────
+        -- Fetches web pages and converts HTML to Markdown for LLM consumption.
+        -- Useful for querying online docs directly from the chat sidebar.
+        -- Requires: Python (uvx)
+        ['mcp-server-fetch'] = {
+            command = 'uvx',
+            args    = { 'mcp-server-fetch' },
         },
 
         -- ── mcp-diagnostics ───────────────────────────────────────────────
