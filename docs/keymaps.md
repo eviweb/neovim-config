@@ -224,6 +224,16 @@ Requires `lazygit` installed on the system (`apt install lazygit` or equivalent)
 | `<Leader>aP` | Switch provider (interactive picker) |
 | `<Leader>am` | Open MCP Hub (browse and toggle MCP servers) |
 
+### CodeCompanion (evaluation — running alongside Avante)
+
+| Key | Action |
+|-----|--------|
+| `<Leader>cc` | Toggle CodeCompanion chat (normal and visual) |
+| `<Leader>cx` | CodeCompanion action palette (normal and visual) |
+
+Default adapter: `claude_code` (CLI, no OAuth). Switch with `:CodeCompanionChat <adapter>`.
+Available adapters: `claude_code`, `anthropic` (API key), `gemini_cli`.
+
 Available providers (switch with `<Leader>aP` or `:AvanteSwitchProvider <name>`):
 
 | Provider | Model | Auth |

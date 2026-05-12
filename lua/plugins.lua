@@ -73,6 +73,7 @@ local base_plugins = {
 
     -- AI assistant
     require('plugins.avante'),
+    require('plugins.codecompanion'),
     require('plugins.mcphub'),
     require('plugins.mcp-diagnostics'),
 

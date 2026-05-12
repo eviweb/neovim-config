@@ -248,8 +248,8 @@
 
 ### AI stack (after codecompanion.nvim benchmark)
 
-- [ ] Benchmark `codecompanion.nvim` vs `avante.nvim` on a real project — evaluate native MCP
-  support, multi-provider, CLAUDE.md handling, composability; decide before implementing AI profile
+- [x] Benchmark `codecompanion.nvim` vs `avante.nvim` — plugin installed alongside avante;
+  `<Leader>cc`/`<Leader>cx`; evaluation pending on a real project
   → https://github.com/olimorris/codecompanion.nvim
 - [ ] AI profile — opt-in profile grouping avante (or codecompanion) + codeium + mcphub; allows
   disabling all AI tooling by not activating the profile
