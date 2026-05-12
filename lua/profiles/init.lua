@@ -59,6 +59,12 @@ local detectors = {
         local content = table.concat(vim.fn.readfile(dir .. '/composer.json'), '\n')
         return content:find('laravel/framework') == nil
     end,
+    python = function(dir)
+        return vim.fn.filereadable(dir .. '/pyproject.toml') == 1
+            or vim.fn.filereadable(dir .. '/setup.py') == 1
+            or vim.fn.filereadable(dir .. '/setup.cfg') == 1
+            or vim.fn.filereadable(dir .. '/requirements.txt') == 1
+    end,
     rust = function(dir)
         return vim.fn.filereadable(dir .. '/Cargo.toml') == 1
     end,

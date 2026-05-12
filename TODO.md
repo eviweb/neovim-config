@@ -228,9 +228,9 @@
 
 - [x] Termux profile (`lua/profiles/termux.lua`) — environment profile for Android ARM:
 
-- [ ] Python language profile (`lua/profiles/python.lua`) — auto-detected from `pyproject.toml`,
-  `setup.py`, `requirements.txt`; LSP: `pyright` or `python-lsp-server`; conform: `black` or
-  `ruff`; lint: `ruff`, `mypy`; neotest: `neotest-python`; DAP: `debugpy` (Mason)
+- [x] Python language profile (`lua/profiles/python.lua`) — auto-detected from `pyproject.toml`,
+  `setup.py`, `setup.cfg`, `requirements.txt`; LSP: `pyright`; conform: `ruff_format`+`black`;
+  lint: `ruff`, `mypy`; neotest: `neotest-python`; DAP: `debugpy` (Mason)
   - *(details in `.private/termux.md`)*
 
 ### MCP ecosystem

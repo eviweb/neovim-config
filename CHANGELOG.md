@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Python profile (`lua/profiles/python.lua`) — auto-detected from `pyproject.toml`, `setup.py`, `setup.cfg`, or `requirements.txt`; LSP: `pyright`; formatter: `ruff_format` then `black`; linters: `ruff`, `mypy`; DAP: `debugpy` (Mason); neotest: `neotest-python` with two launch configurations (file and module)
+- `nvim-config doctor`: Python tools section (`python3`, `pyright`, `ruff`, `black`, `mypy`) shown as optional checks
+
 ## [0.5.0] - 2026-05-12
 
 ### Added

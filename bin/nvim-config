@@ -281,6 +281,10 @@ run_doctor() {
     for bin in lazygit tmux claude codex gemini; do
       _check_bin "${bin}" || true
     done
+    log_message "INFO" "=== Python tools (optional) ==="
+    for bin in python3 pyright ruff black mypy; do
+      _check_bin "${bin}" || true
+    done
     log_message "INFO" "=== Build tools ==="
     for bin in cargo gcc; do
       _check_bin "${bin}" || true
