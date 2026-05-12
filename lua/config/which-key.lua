@@ -9,9 +9,10 @@ wk.setup({
         },
     },
     icons = {
-        -- Disable all icons: no Nerd Font, no mini.icons dependency.
+        -- Disable keymap icons (no Nerd Font). keys must remain a table
+        -- (which-key indexes it); setting it to false causes a crash.
         mappings = false,
-        keys     = false,
+        keys     = {},
     },
 })
 
