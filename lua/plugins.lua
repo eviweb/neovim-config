@@ -46,6 +46,7 @@ local base_plugins = {
 
     -- Text objects
     require('plugins.mini-ai'),
+    require('plugins.mini-icons'),
 
     -- LSP Configuration
     require('plugins.lsp'),

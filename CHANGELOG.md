@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - `render-markdown.nvim`: remove `heading.sign` and `code.sign` (invalid fields in current version, caused `table - expected: nil, got: table` health error); add `latex = { enabled = false }` to suppress LaTeX tool warnings
 - `noice.lua`: enable `lsp.override` for the three markdown utility functions (`convert_input_to_markdown_lines`, `stylize_markdown`, `cmp.entry.get_documentation`) — improves markdown rendering quality and eliminates 3 health warnings; hover and signature remain native
+- `mini.icons` (`echasnovski/mini.icons`): lightweight icon provider; satisfies which-key's health check (`mini.icons not installed` warning); no configuration required
 - `options.lua`: disable unused language providers (`python3`, `ruby`, `perl`, `node`) — eliminates four `:checkhealth` warnings for runtimes not installed
 - `which-key.lua`: add `icons.keys = false` alongside existing `icons.mappings = false` — eliminates `mini.icons not installed` warning
 - `treesitter.lua`: add `regex` parser — required by noice.nvim for cmdline regex syntax highlighting
