@@ -21,6 +21,13 @@ vim.api.nvim_create_autocmd('BufReadPost', {
     end,
 })
 
+-- tracks the last accessed tab so <Leader>tl can jump back to it
+vim.g.last_tab = 1
+vim.api.nvim_create_autocmd('TabLeave', {
+    group    = vim.api.nvim_create_augroup('track-last-tab', { clear = true }),
+    callback = function() vim.g.last_tab = vim.fn.tabpagenr() end,
+})
+
 -- highlights any yanked text
 vim.api.nvim_create_autocmd('TextYankPost', {
     group    = vim.api.nvim_create_augroup('highlight-text-on-yank', { clear = true }),

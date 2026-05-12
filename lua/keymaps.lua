@@ -170,6 +170,11 @@ vim.keymap.set('n', '<Leader>tn', function()
     end
 end, { noremap = true, silent = true, desc = 'Cycle line numbers' })
 
+-- jump back to the last accessed tab
+vim.keymap.set('n', '<Leader>tl', function()
+    vim.cmd('tabn ' .. vim.g.last_tab)
+end, { noremap = true, silent = true, desc = 'Switch to last tab' })
+
 --[[
     Search (<Leader>s is Spell — use <Leader>S for search/replace)
 --]]

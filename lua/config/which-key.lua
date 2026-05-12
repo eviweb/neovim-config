@@ -62,6 +62,7 @@ wk.add({
     { '<Leader>t',  group = 'Toggle/Terminal' },
     { '<Leader>tz', desc  = 'Toggle Zen mode' },
     { '<Leader>tn', desc  = 'Cycle line numbers' },
+    { '<Leader>tl', desc  = 'Switch to last tab' },
     { '<Leader>tt', desc  = 'Toggle terminal' },
     { '<Leader>tC', desc  = 'Toggle Claude Code' },
     { '<Leader>tX', desc  = 'Toggle Codex CLI' },

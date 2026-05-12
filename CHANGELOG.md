@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `<Leader>tl` — switch to last accessed tab; tab index tracked via `TabLeave` autocmd; ported from the classic `.vimrc` `g:lasttab` pattern
+
 ### Fixed
 - `lua/profiles/web.lua`: remove `null_ls.builtins.diagnostics.eslint` and `formatting.prettier` from `null_ls_sources` — both were migrated to nvim-lint and conform.nvim; `diagnostics.eslint` was removed from none-ls builtins in recent versions causing a nil-index error on startup
 - `lua/config/lsp.lua`: skip `mason-lspconfig` `ensure_installed` on Termux — Mason binaries are often unavailable for ARM; servers must be installed manually on Android

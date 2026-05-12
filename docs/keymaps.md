@@ -298,6 +298,7 @@ In the **modern** variant (snacks.nvim active), `vim.notify` is owned by snacks 
 | Key | Action |
 |-----|--------|
 | `<Leader>tn` | Cycle line numbers (absolute → relative → none) |
+| `<Leader>tl` | Switch to last accessed tab |
 | `<Leader>tz` | Toggle Zen mode (distraction-free fullscreen) |
 | `<C-\>` | Toggle floating terminal |
 | `<Leader>tt` | Toggle terminal |
