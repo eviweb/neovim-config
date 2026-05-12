@@ -73,6 +73,20 @@ vim.g.netrw_localcopydircmd = 'cp -r' -- recursively copies directories
 vim.g.netrw_winsize = 25 -- limits the view size to 25% of the available screen space
 
 --[[
+    Bracketed paste
+--]]
+-- Auto-enable paste mode when the terminal sends the xterm bracketed-paste
+-- start sequence (\e[200~) and disable it on the end sequence (\e[201~).
+-- Neovim handles bracketed paste natively in GUI/modern terminals, but many
+-- SSH and Tmux setups still rely on this explicit mapping.
+-- Equivalent of the classic Vim XTermPasteBegin() approach.
+vim.keymap.set('i', '<Esc>[200~', function()
+    vim.o.pastetoggle = '<Esc>[201~'
+    vim.o.paste = true
+    return ''
+end, { expr = true, silent = true, desc = 'Bracketed paste start' })
+
+--[[
     Filetype detection
 --]]
 -- KDL (KDL Document Language) used by Zellij and other tools.

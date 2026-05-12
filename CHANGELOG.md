@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `lua/profiles/web.lua`: remove `null_ls.builtins.diagnostics.eslint` and `formatting.prettier` from `null_ls_sources` — both were migrated to nvim-lint and conform.nvim; `diagnostics.eslint` was removed from none-ls builtins in recent versions causing a nil-index error on startup
+- `lua/config/lsp.lua`: skip `mason-lspconfig` `ensure_installed` on Termux — Mason binaries are often unavailable for ARM; servers must be installed manually on Android
+
 ### Added
+- Bracketed paste: auto-enable `paste` mode on xterm `\e[200~` sequence and auto-disable on `\e[201~`; equivalent of the classic Vim `XTermPasteBegin()` approach; works in SSH and tmux sessions
 - `mcphub.nvim`: MCP client hub for Neovim; `:MCPHub` UI to browse, toggle and test MCP servers; `<Leader>am` keymap; integrates with avante as context source; disabled on Termux; build installs `mcp-hub` globally via npm
 - MCP servers configured via `lua/config/mcphub.lua`: `mcp-server-git` (git log/diff/blame via `uvx`), `Context7` (versioned library docs via `npx @upstash/context7-mcp`), `mcp-diagnostics` (LSP diagnostics via bundled Node.js server)
 - `mcp-diagnostics.nvim`: exposes Neovim LSP diagnostics to AI assistants via MCP; loaded on `LspAttach`; disabled on Termux

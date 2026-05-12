@@ -94,9 +94,15 @@ vim.lsp.config('lua_ls', {
 })
 
 require('mason').setup()
-require('mason-lspconfig').setup({
-    ensure_installed = vim.list_extend({ 'jsonls', 'lua_ls' }, profiles.get_lsp_servers()),
-})
+-- On Termux, Mason binaries are often unavailable for ARM; skip auto-install
+-- and rely on manually installed servers only.
+if not profiles.is_active('termux') then
+    require('mason-lspconfig').setup({
+        ensure_installed = vim.list_extend({ 'jsonls', 'lua_ls' }, profiles.get_lsp_servers()),
+    })
+else
+    require('mason-lspconfig').setup({})
+end
 
 -- Auto-install DAP Mason packages required by active profiles.
 -- Runs at startup so adapters are ready before the first debug session.

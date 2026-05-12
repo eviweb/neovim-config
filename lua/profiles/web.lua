@@ -85,15 +85,10 @@ return {
         return { adapter }
     end,
 
-    null_ls_sources = function(null_ls)
-        return {
-            null_ls.builtins.diagnostics.eslint.with({
-                command = find_bin('eslint'),
-            }),
-            null_ls.builtins.formatting.prettier.with({
-                command = find_bin('prettier'),
-            }),
-        }
+    null_ls_sources = function(_)
+        -- eslint: migrated to nvim-lint (lint_linters below)
+        -- prettier: migrated to conform.nvim (conform_formatters below)
+        return {}
     end,
 
     conform_formatters = function()
