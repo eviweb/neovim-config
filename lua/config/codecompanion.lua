@@ -19,25 +19,11 @@ require('codecompanion').setup({
 
     -- ── Adapters ──────────────────────────────────────────────────────────
     adapters = {
-        -- Claude Code CLI — same CLI as avante's claude-code ACP provider
-        claude_code = function()
-            return require('codecompanion.adapters').extend('claude_code', {
-                -- Default command is 'claude-agent-acp' (must be globally installed).
-                -- Use npx so the package downloads on demand without a global install.
-                commands = {
-                    default = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp' },
-                    yolo    = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp', '--yolo' },
-                },
-            })
-        end,
-
         -- Anthropic API — fallback when API key is available
         anthropic = function()
             return require('codecompanion.adapters').extend('anthropic', {
                 schema = {
-                    model = {
-                        default = 'claude-sonnet-4-6',
-                    },
+                    model = { default = 'claude-sonnet-4-6' },
                 },
             })
         end,
@@ -46,6 +32,19 @@ require('codecompanion').setup({
         gemini_cli = function()
             return require('codecompanion.adapters').extend('gemini_cli', {})
         end,
+
+        -- ACP adapters: codecompanion consults config.adapters.acp[name] first
+        -- (via acp/init.lua Adapter.extend). Override commands to use npx so
+        -- @agentclientprotocol/claude-agent-acp downloads on demand instead of
+        -- requiring a global install of the 'claude-agent-acp' binary.
+        acp = {
+            claude_code = {
+                commands = {
+                    default = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp' },
+                    yolo    = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp', '--yolo' },
+                },
+            },
+        },
     },
 
     -- ── MCP integration ───────────────────────────────────────────────────
