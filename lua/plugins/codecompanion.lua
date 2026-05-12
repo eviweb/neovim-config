@@ -11,6 +11,9 @@
 
 return {
     'olimorris/codecompanion.nvim',
+    -- Install the ACP binary globally so both avante and codecompanion find
+    -- 'claude-agent-acp' in PATH without needing complex config overrides.
+    build = 'npm install -g @agentclientprotocol/claude-agent-acp',
     dependencies = {
         'nvim-lua/plenary.nvim',
         'nvim-treesitter/nvim-treesitter',

@@ -51,18 +51,10 @@ require('avante').setup({
 
     -- ── ACP providers — override defaults ─────────────────────────────────
     acp_providers = {
-        -- claude-code: avante default is now command='claude-agent-acp', args={}.
-        -- Use npx so the package is downloaded on demand without a global install.
-        -- Default args is now empty so tbl_deep_extend merges cleanly.
-        ['claude-code'] = {
-            command = 'npx',
-            args    = { '-y', '@agentclientprotocol/claude-agent-acp' },
-        },
-        -- codex: same pattern — avante default is command='codex-acp', args={}.
-        ['codex'] = {
-            command = 'npx',
-            args    = { '-y', '@zed-industries/codex-acp' },
-        },
+        -- claude-code and codex: default commands are 'claude-agent-acp' and
+        -- 'codex-acp'. Both binaries are installed globally by the codecompanion
+        -- build step (npm install -g @agentclientprotocol/claude-agent-acp).
+        -- No override needed — avante uses the binaries directly.
         -- gemini-cli: the avante default forces auth_method="gemini-api-key".
         -- The actual id for Google OAuth in gemini CLI ACP is "oauth-personal"
         -- (confirmed via initialize response). This reuses the OAuth token

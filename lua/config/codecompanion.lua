@@ -32,19 +32,6 @@ require('codecompanion').setup({
         gemini_cli = function()
             return require('codecompanion.adapters').extend('gemini_cli', {})
         end,
-
-        -- ACP adapters: codecompanion consults config.adapters.acp[name] first
-        -- (via acp/init.lua Adapter.extend). Override commands to use npx so
-        -- @agentclientprotocol/claude-agent-acp downloads on demand instead of
-        -- requiring a global install of the 'claude-agent-acp' binary.
-        acp = {
-            claude_code = {
-                commands = {
-                    default = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp' },
-                    yolo    = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp', '--yolo' },
-                },
-            },
-        },
     },
 
     -- ── MCP integration ───────────────────────────────────────────────────
