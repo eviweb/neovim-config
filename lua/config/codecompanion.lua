@@ -56,6 +56,28 @@ require('codecompanion').setup({
         },
     },
 
+    -- ── Rules ────────────────────────────────────────────────────────────
+    -- Exclude ~/.claude/CLAUDE.md from automatic rules loading: it contains
+    -- @rules/*.md includes that resolve to the global ai-rules repo, not the
+    -- project CWD — causes "Could not find rules file" warnings on every chat.
+    rules = {
+        default = {
+            files = {
+                '.clinerules',
+                '.cursorrules',
+                '.goosehints',
+                '.rules',
+                '.windsurfrules',
+                '.github/copilot-instructions.md',
+                'AGENT.md',
+                'AGENTS.md',
+                { path = 'CLAUDE.md',       parser = 'claude' },
+                { path = 'CLAUDE.local.md', parser = 'claude' },
+                -- ~/.claude/CLAUDE.md intentionally omitted
+            },
+        },
+    },
+
     -- ── Display ───────────────────────────────────────────────────────────
     display = {
         chat = {

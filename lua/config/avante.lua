@@ -51,17 +51,17 @@ require('avante').setup({
 
     -- ── ACP providers — override defaults ─────────────────────────────────
     acp_providers = {
-        -- claude-code: @zed-industries/claude-code-acp is deprecated (ENOENT).
-        -- The avante default uses { '-y', '-g', '<pkg>' }; '-g' means "from global
-        -- install" in npm 11 and fails if the package is not globally installed.
-        -- Replace '-g' with '--' (end-of-options separator) and use the new package.
-        -- Three elements → tbl_deep_extend replaces all indices correctly.
+        -- claude-code: avante default is now command='claude-agent-acp', args={}.
+        -- Use npx so the package is downloaded on demand without a global install.
+        -- Default args is now empty so tbl_deep_extend merges cleanly.
         ['claude-code'] = {
-            args = { '-y', '--', '@agentclientprotocol/claude-agent-acp' },
+            command = 'npx',
+            args    = { '-y', '@agentclientprotocol/claude-agent-acp' },
         },
-        -- codex: same '-g' issue in the avante default { '-y', '-g', '@zed-industries/codex-acp' }.
+        -- codex: same pattern — avante default is command='codex-acp', args={}.
         ['codex'] = {
-            args = { '-y', '--', '@zed-industries/codex-acp' },
+            command = 'npx',
+            args    = { '-y', '@zed-industries/codex-acp' },
         },
         -- gemini-cli: the avante default forces auth_method="gemini-api-key".
         -- The actual id for Google OAuth in gemini CLI ACP is "oauth-personal"
