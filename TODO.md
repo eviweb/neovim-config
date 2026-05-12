@@ -226,14 +226,12 @@
 
 ### Portability
 
-- [ ] Termux profile (`lua/profiles/termux.lua`) — environment profile for Android ARM:
-  - Detection: `$TERMUX_VERSION` env var or `uname -o | grep -i android`
-  - Auto-activated when detected, overridable via `.nvim-profile`
-  - Disabled: DAP adapters (pwa-node, Xdebug, codelldb), avante OAuth flow, heavy LSPs
-  - LSP set: `lua_ls` only (+ `clangd` if available via `pkg`)
-  - `install deps` variant: `pkg install` instead of `apt install`, no `sudo`, Termux paths
-  - `nvim-config doctor` Termux-aware checks (pkg, Termux paths, no snap/apt)
-  - Milestone: validate with `nvim-config doctor` on a real Termux session
+- [x] Termux profile (`lua/profiles/termux.lua`) — environment profile for Android ARM:
+
+- [ ] Python language profile (`lua/profiles/python.lua`) — auto-detected from `pyproject.toml`,
+  `setup.py`, `requirements.txt`; LSP: `pyright` or `python-lsp-server`; conform: `black` or
+  `ruff`; lint: `ruff`, `mypy`; neotest: `neotest-python`; DAP: `debugpy` (Mason)
+  - *(details in `.private/termux.md`)*
 
 ### MCP ecosystem
 
@@ -309,3 +307,15 @@
 
 - [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to
   current manual registry approach); evaluate if the current approach proves insufficient
+
+### Config distribution selector
+
+- [ ] `nvim-config install config --preset <name|url>` — extend `install config` to support
+  alternative Neovim distributions as presets; back up existing `~/.config/nvim` before
+  switching; supported presets to evaluate:
+  - `nvchad`   → https://nvchad.com
+  - `lazyvim`  → https://www.lazyvim.org
+  - `astronvim` → https://astronvim.com
+  - `<url>`    → any git repository (generic clone)
+  - `default`  → this config (current behaviour, always available)
+  - CLI clones the target repo, symlinks `~/.config/nvim`, documents prerequisites per preset
