@@ -14,6 +14,6 @@ return {
     dependencies = { 'ravitemer/mcphub.nvim' },
     event        = 'LspAttach',
     config       = function()
-        require('mcp-diagnostics').setup()
+        require('mcp-diagnostics').setup({ mode = 'mcphub' })
     end,
 }

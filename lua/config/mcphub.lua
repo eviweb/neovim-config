@@ -7,7 +7,7 @@
 -- Active servers:
 --   mcp-server-git        — git operations (log, diff, blame) via uvx
 --   context7              — versioned library documentation via npx
---   mcp-diagnostics       — LSP diagnostics exposed to AI via mcp-diagnostics.nvim
+--   mcp-diagnostics       — LSP diagnostics via mcp-diagnostics.nvim (native Lua, no server)
 --   mcp-server-filesystem — secure file read/write with configurable access
 --   mcp-server-fetch      — web page fetch and HTML→Markdown conversion
 
@@ -56,16 +56,8 @@ require('mcphub').setup({
             args    = { 'mcp-server-fetch' },
         },
 
-        -- ── mcp-diagnostics ───────────────────────────────────────────────
-        -- Exposes Neovim LSP diagnostics (errors, warnings) to AI via MCP.
-        -- The Node.js server is bundled inside the mcp-diagnostics.nvim plugin.
-        -- Path is resolved at runtime after lazy.nvim installs the plugin.
-        ['mcp-diagnostics'] = {
-            command = 'node',
-            args    = {
-                vim.fn.stdpath('data') .. '/lazy/mcp-diagnostics.nvim/server/mcp-diagnostics/dist/index.js',
-            },
-        },
+        -- mcp-diagnostics: registered natively via mcp-diagnostics.nvim in
+        -- mcphub mode (Lua integration) — no external Node.js server needed.
     },
 
     -- Avante integration: expose MCP tools in the avante sidebar.

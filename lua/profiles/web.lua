@@ -16,7 +16,7 @@ return {
     name = 'web',
     extends = {},
 
-    lsp_servers = { 'ts_ls', 'volar', 'svelte-language-server' },
+    lsp_servers = { 'ts_ls', 'vue_ls', 'svelte' },
 
     plugins = {
         {

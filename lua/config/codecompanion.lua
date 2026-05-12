@@ -22,9 +22,11 @@ require('codecompanion').setup({
         -- Claude Code CLI — same CLI as avante's claude-code ACP provider
         claude_code = function()
             return require('codecompanion.adapters').extend('claude_code', {
-                env = {
-                    -- Reuse the claude CLI already in PATH
-                    api_key = '',
+                -- Default command is 'claude-agent-acp' (must be globally installed).
+                -- Use npx so the package downloads on demand without a global install.
+                commands = {
+                    default = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp' },
+                    yolo    = { 'npx', '-y', '@agentclientprotocol/claude-agent-acp', '--yolo' },
                 },
             })
         end,
@@ -52,7 +54,9 @@ require('codecompanion').setup({
     extensions = {
         mcphub = {
             callback = 'mcphub.extensions.codecompanion',
-            opts     = { make_vars = true, make_slash_commands = true },
+            -- make_vars=true requires config.interactions.chat.variables which
+            -- is nil in this version — causes a pairs() crash at startup.
+            opts     = { make_vars = false, make_slash_commands = true },
         },
     },
 
