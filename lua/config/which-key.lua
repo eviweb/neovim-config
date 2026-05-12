@@ -9,8 +9,9 @@ wk.setup({
         },
     },
     icons = {
-        -- Disable automatic keymap icons (requires Nerd Font; causes boxes without one).
+        -- Disable all icons: no Nerd Font, no mini.icons dependency.
         mappings = false,
+        keys     = false,
     },
 })
 

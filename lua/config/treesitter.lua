@@ -7,7 +7,7 @@
 -- ---------------------------------------------------------------------------
 local parsers = {
     'bash', 'css', 'html', 'javascript', 'json', 'lua',
-    'markdown', 'markdown_inline', 'query', 'typescript',
+    'markdown', 'markdown_inline', 'query', 'regex', 'typescript',
     'vim', 'vimdoc', 'yaml',
 }
 

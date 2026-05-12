@@ -3,9 +3,9 @@
 require('render-markdown').setup({
     enabled      = true,
     render_modes = { 'n', 'c' },
-    heading      = { enabled = true, sign = true },
-    code         = { enabled = true, sign = false },
+    heading      = { enabled = true },
+    code         = { enabled = true },
     bullet       = { enabled = true },
     checkbox     = { enabled = true },
-    table        = { enabled = true },
+    latex        = { enabled = false },
 })

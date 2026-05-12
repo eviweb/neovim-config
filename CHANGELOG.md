@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `render-markdown.nvim`: remove `heading.sign` and `code.sign` (invalid fields in current version, caused `table - expected: nil, got: table` health error); add `latex = { enabled = false }` to suppress LaTeX tool warnings
+- `options.lua`: disable unused language providers (`python3`, `ruby`, `perl`, `node`) — eliminates four `:checkhealth` warnings for runtimes not installed
+- `which-key.lua`: add `icons.keys = false` alongside existing `icons.mappings = false` — eliminates `mini.icons not installed` warning
+- `treesitter.lua`: add `regex` parser — required by noice.nvim for cmdline regex syntax highlighting
+
 ### Added
 - `<Leader>tl` — switch to last accessed tab; tab index tracked via `TabLeave` autocmd; ported from the classic `.vimrc` `g:lasttab` pattern
 
