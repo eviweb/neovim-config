@@ -7,30 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-- `render-markdown.nvim`: remove `heading.sign` and `code.sign` (invalid fields in current version, caused `table - expected: nil, got: table` health error); add `latex = { enabled = false }` to suppress LaTeX tool warnings
-- `noice.lua`: enable `lsp.override` for the three markdown utility functions (`convert_input_to_markdown_lines`, `stylize_markdown`, `cmp.entry.get_documentation`) — improves markdown rendering quality and eliminates 3 health warnings; hover and signature remain native
-- `mini.icons` (`echasnovski/mini.icons`): lightweight icon provider; satisfies which-key's health check (`mini.icons not installed` warning); no configuration required
-- `options.lua`: disable unused language providers (`python3`, `ruby`, `perl`, `node`) — eliminates four `:checkhealth` warnings for runtimes not installed
-- `which-key.lua`: add `icons.keys = false` alongside existing `icons.mappings = false` — eliminates `mini.icons not installed` warning
-- `treesitter.lua`: add `regex` parser — required by noice.nvim for cmdline regex syntax highlighting
+## [0.5.0] - 2026-05-12
 
 ### Added
-- `<Leader>tl` — switch to last accessed tab; tab index tracked via `TabLeave` autocmd; ported from the classic `.vimrc` `g:lasttab` pattern
+- Termux profile (`lua/profiles/termux.lua`) — Android/ARM environment profile; auto-detected via `$TERMUX_VERSION`; disables DAP adapters, avante, and codeium; LSP limited to `lua_ls`; `install deps` routes to `pkg install` (no `sudo`); `doctor` shows Termux-specific binaries
+- `mcphub.nvim` — MCP client hub; `:MCPHub` UI; `<Leader>am`; integrates with avante and codecompanion; disabled on Termux; build installs `mcp-hub` via npm
+- MCP servers: `mcp-server-git` (git log/diff/blame via `uvx`), `Context7` (versioned library docs via `npx @upstash/context7-mcp`), `mcp-diagnostics` (LSP diagnostics via bundled Node.js server)
+- `mcp-diagnostics.nvim` — exposes Neovim LSP diagnostics to AI via MCP; loaded on `LspAttach`; disabled on Termux
+- `codecompanion.nvim` — AI chat + inline assistant alongside avante for evaluation; default adapter `claude_code` (CLI, no OAuth); also supports `anthropic` and `gemini_cli`; native MCP via mcphub; honours `CLAUDE.md`/`.cursor/rules`; `<Leader>cc` toggle, `<Leader>cx` actions; disabled on Termux
+- `mini.icons` (`echasnovski/mini.icons`) — lightweight icon provider required by which-key health check
+- `<Leader>tl` — switch to last accessed tab; tab index tracked via `TabLeave` autocmd
+- Bracketed paste: auto-enable `paste` mode on xterm `\e[200~` / auto-disable on `\e[201~`; works in SSH and tmux sessions
 
 ### Fixed
-- `lua/profiles/web.lua`: remove `null_ls.builtins.diagnostics.eslint` and `formatting.prettier` from `null_ls_sources` — both were migrated to nvim-lint and conform.nvim; `diagnostics.eslint` was removed from none-ls builtins in recent versions causing a nil-index error on startup
-- `lua/config/lsp.lua`: skip `mason-lspconfig` `ensure_installed` on Termux — Mason binaries are often unavailable for ARM; servers must be installed manually on Android
-
-### Added
-- Bracketed paste: auto-enable `paste` mode on xterm `\e[200~` sequence and auto-disable on `\e[201~`; equivalent of the classic Vim `XTermPasteBegin()` approach; works in SSH and tmux sessions
-- `mcphub.nvim`: MCP client hub for Neovim; `:MCPHub` UI to browse, toggle and test MCP servers; `<Leader>am` keymap; integrates with avante as context source; disabled on Termux; build installs `mcp-hub` globally via npm
-- MCP servers configured via `lua/config/mcphub.lua`: `mcp-server-git` (git log/diff/blame via `uvx`), `Context7` (versioned library docs via `npx @upstash/context7-mcp`), `mcp-diagnostics` (LSP diagnostics via bundled Node.js server)
-- `mcp-diagnostics.nvim`: exposes Neovim LSP diagnostics to AI assistants via MCP; loaded on `LspAttach`; disabled on Termux
-- `codecompanion.nvim`: AI chat + inline assistant loaded alongside avante for evaluation; default adapter `claude_code` (CLI, no OAuth); also supports `anthropic` (API key) and `gemini_cli`; native MCP via mcphub extension; honours `CLAUDE.md`/`.cursor/rules`; `<Leader>cc` toggle chat, `<Leader>cx` action palette; disabled on Termux
-- Termux profile (`lua/profiles/termux.lua`) — Android/ARM environment profile; auto-detected via `$TERMUX_VERSION`; disables DAP adapters, avante, and codeium; LSP limited to `lua_ls`; `install deps` routes to `pkg install` instead of `apt`; `doctor` shows Termux-specific required binaries (`fd`, `clang` instead of `fd-find`, `cargo/gcc`)
-- `lua/profiles/init.lua`: `termux` detector added (environment-based, reads `TERMUX_VERSION`)
-- `lua/plugins/avante.lua` + `lua/plugins/codeium.lua`: `cond` guard — both plugins skip load when the termux profile is active
+- `lua/profiles/web.lua`: remove stale `null_ls_sources` for `diagnostics.eslint` and `formatting.prettier` — both migrated to nvim-lint/conform; `diagnostics.eslint` removed from none-ls builtins in recent versions causing nil-index crash on startup
+- `lua/config/lsp.lua`: skip `mason-lspconfig` `ensure_installed` on Termux — Mason ARM binaries often unavailable; servers must be installed manually
+- `render-markdown.nvim`: remove `heading.sign` and `code.sign` (invalid in current version, caused `table - expected: nil, got: table` health ERROR); add `latex = { enabled = false }` to suppress LaTeX tool warnings
+- `noice.lua`: enable `lsp.override` for `convert_input_to_markdown_lines`, `stylize_markdown`, `cmp.entry.get_documentation` — improves markdown rendering and eliminates 3 health warnings; hover and signature remain native
+- `options.lua`: disable unused language providers (`python3`, `ruby`, `perl`, `node`) — eliminates 4 `:checkhealth` warnings
+- `which-key.lua`: add `icons.keys = false` — eliminates `mini.icons not installed` warning
+- `treesitter.lua`: add `regex` parser — required by noice.nvim for cmdline regex highlighting
+- `bin/nvim-config`: resolve symlinks in `SCRIPT_DIR` (`readlink -f`) — `PROJECT_DIR` was resolving to `$HOME` when invoked via `~/bin/nvim-config` symlink, causing `install config` to link `~/.config/nvim → $HOME`
+- `commands.lua`: skip trailing whitespace trim on non-modifiable / readonly buffers (E21 on `:w` in `:checkhealth` and help buffers)
 
 ## [0.4.1] - 2026-05-05
 
@@ -223,7 +221,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.4.1...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/eviweb/neovim-config/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/eviweb/neovim-config/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/eviweb/neovim-config/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/eviweb/neovim-config/compare/0.2.0...0.3.0
