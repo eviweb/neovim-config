@@ -207,6 +207,7 @@ vim.api.nvim_create_autocmd('BufWritePre', {
     group    = vim.api.nvim_create_augroup('trim-white-space-on-save', { clear = true }),
     pattern  = '*',
     callback = function()
+        if not vim.bo.modifiable or vim.bo.readonly then return end
         local view = vim.fn.winsaveview()
         vim.cmd([[%s/\s\+$//e]])
         vim.fn.winrestview(view)
