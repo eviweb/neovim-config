@@ -22,12 +22,17 @@ require('noice').setup({
     },
     lsp = {
         progress  = { enabled = true },
+        -- hover and signature kept native (avoid E565 in lazy callback context
+        -- and conflicts with nvim-ufo K mapping).
         hover     = { enabled = false },
         signature = { enabled = false },
+        -- Route markdown rendering through noice for better formatting.
+        -- Does not affect hover/signature behaviour — only the markdown
+        -- conversion utilities used by cmp and other sources.
         override  = {
-            ['vim.lsp.util.convert_input_to_markdown_lines'] = false,
-            ['vim.lsp.util.stylize_markdown']                = false,
-            ['cmp.entry.get_documentation']                  = false,
+            ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
+            ['vim.lsp.util.stylize_markdown']                = true,
+            ['cmp.entry.get_documentation']                  = true,
         },
     },
     notify = {
