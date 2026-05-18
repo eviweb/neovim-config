@@ -24,14 +24,16 @@ local overrides = {
     phpmd   = function() return vendor_bin('phpmd') end,
 }
 for name, cmd_fn in pairs(overrides) do
-    if lint.linters[name] then
-        lint.linters[name] = vim.tbl_extend('force', lint.linters[name], { cmd = cmd_fn })
+    local linter = lint.linters[name]
+    if linter then
+        lint.linters[name] = vim.tbl_extend('force', linter, { cmd = cmd_fn })
     end
 end
 
 -- phpmd: explicit ruleset args matching the none-ls configuration.
-if lint.linters.phpmd then
-    lint.linters.phpmd = vim.tbl_extend('force', lint.linters.phpmd, {
+local phpmd = lint.linters.phpmd
+if phpmd then
+    lint.linters.phpmd = vim.tbl_extend('force', phpmd, {
         args = { '$FILENAME', 'text', 'cleancode,codesize,controversial,design,naming,unusedcode' },
     })
 end
