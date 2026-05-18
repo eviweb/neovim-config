@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-05-18
+
 ### Added
 - `ai` profile (`lua/profiles/ai.lua`) — opt-in flag profile activating the full AI tooling stack; never auto-detected; activate via `.nvim-profile` or `nvim-config profile set ai`; all five AI plugins (avante, codecompanion, codeium, mcphub, mcp-diagnostics) now guard their `cond` with `is_active('ai') and not is_active('termux')`
 - `mcp-server-filesystem` and `mcp-server-fetch` added to `lua/config/mcphub.lua`: filesystem gives AI scoped read/write access to CWD; fetch retrieves web pages as Markdown (both official Anthropic servers)
@@ -227,7 +229,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.5.0...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/eviweb/neovim-config/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/eviweb/neovim-config/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/eviweb/neovim-config/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/eviweb/neovim-config/compare/0.3.0...0.4.0
