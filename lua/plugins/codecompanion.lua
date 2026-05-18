@@ -20,7 +20,10 @@ return {
         -- mcphub extension: reuses the same MCP servers already configured
         'ravitemer/mcphub.nvim',
     },
-    cond = function() return not require('profiles').is_active('termux') end,
+    cond = function()
+        local p = require('profiles')
+        return p.is_active('ai') and not p.is_active('termux')
+    end,
     cmd  = { 'CodeCompanion', 'CodeCompanionChat', 'CodeCompanionActions' },
     keys = {
         { '<Leader>cc', '<Cmd>CodeCompanionChat Toggle<CR>', mode = { 'n', 'v' }, desc = 'Toggle CodeCompanion chat' },

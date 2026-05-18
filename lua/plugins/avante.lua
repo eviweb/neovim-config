@@ -4,7 +4,10 @@ return {
     'yetone/avante.nvim',
     build = 'make',
     -- Not supported on Termux: no browser for OAuth, build requires x86_64.
-    cond  = function() return not require('profiles').is_active('termux') end,
+    cond = function()
+        local p = require('profiles')
+        return p.is_active('ai') and not p.is_active('termux')
+    end,
     -- VeryLazy: avante's safe_keymap_set skips any key that lazy has registered as
     -- a handler (Keys:have check). String entries in `keys` would prevent avante
     -- from defining <Leader>at, <Leader>aa, etc. Loading via VeryLazy lets avante's

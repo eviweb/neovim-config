@@ -249,8 +249,7 @@
 - [x] Benchmark `codecompanion.nvim` vs `avante.nvim` — plugin installed alongside avante;
   `<Leader>cc`/`<Leader>cx`; evaluation pending on a real project
   → https://github.com/olimorris/codecompanion.nvim
-- [ ] AI profile — opt-in profile grouping avante (or codecompanion) + codeium + mcphub; allows
-  disabling all AI tooling by not activating the profile
+- [x] AI profile — opt-in `ai` profile (`lua/profiles/ai.lua`) activating avante, codecompanion, codeium, mcphub, mcp-diagnostics via `cond = is_active('ai')` (implemented)
 
 ---
 
@@ -260,19 +259,8 @@
 
 ### AI tooling
 
-- [ ] AI profile — opt-in `ai` profile that loads AI plugins only when explicitly activated;
-  decide on the stack before implementing (see evaluation notes below); allows disabling all
-  AI tooling globally by not activating the profile
-
-  **Stack evaluation — Avante vs CodeCompanion:**
-  - `avante.nvim` — Cursor-like sidebar + inline edits; CLI-first providers (claude-code,
-    gemini-cli, codex) avoid OAuth at startup; heavier, more opinionated UI
-  - `codecompanion.nvim` — alternative chat + inline assistant; native MCP support (spec
-    2025-11-25); multi-provider (Anthropic, Gemini, Ollama, OpenAI…); honours `CLAUDE.md` /
-    `.cursor/rules`; lighter, more composable — evaluate as a replacement for Avante
-  - `codeium.nvim` — ghost-text inline completion (independent of chat assistant); free,
-    lightweight, no conflict with either Avante or CodeCompanion; keep regardless of choice above
-  - Decision: benchmark Avante vs CodeCompanion on a real project before committing
+- [x] AI profile — implemented in Phase 16; both avante and codecompanion shipped;
+  benchmark ongoing on real projects
 
 - [ ] `copilot.lua` (zbirenbaum) — inline AI completions via GitHub Copilot subscription;
   deferred — `codeium.nvim` covers the free inline completion use case

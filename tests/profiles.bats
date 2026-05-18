@@ -329,3 +329,38 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"conform_formatters"* ]] || [[ "$output" == *"rustfmt"* ]]
 }
+
+@test "ai profile definition file exists" {
+  run test -f lua/profiles/ai.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "ai profile name is ai" {
+  run grep -n "name.*=.*'ai'" lua/profiles/ai.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "avante plugin cond requires ai profile" {
+  run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/avante.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "codecompanion plugin cond requires ai profile" {
+  run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/codecompanion.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "codeium plugin cond requires ai profile" {
+  run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/codeium.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "mcphub plugin cond requires ai profile" {
+  run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/mcphub.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "mcp-diagnostics plugin cond requires ai profile" {
+  run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/mcp-diagnostics.lua
+  [ "$status" -eq 0 ]
+}

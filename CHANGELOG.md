@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `ai` profile (`lua/profiles/ai.lua`) — opt-in flag profile activating the full AI tooling stack; never auto-detected; activate via `.nvim-profile` or `nvim-config profile set ai`; all five AI plugins (avante, codecompanion, codeium, mcphub, mcp-diagnostics) now guard their `cond` with `is_active('ai') and not is_active('termux')`
 - `mcp-server-filesystem` and `mcp-server-fetch` added to `lua/config/mcphub.lua`: filesystem gives AI scoped read/write access to CWD; fetch retrieves web pages as Markdown (both official Anthropic servers)
 - Python profile (`lua/profiles/python.lua`) — auto-detected from `pyproject.toml`, `setup.py`, `setup.cfg`, or `requirements.txt`; LSP: `pyright`; formatter: `ruff_format` then `black`; linters: `ruff`, `mypy`; DAP: `debugpy` (Mason); neotest: `neotest-python` with two launch configurations (file and module)
 - `nvim-config doctor`: Python tools section (`python3`, `pyright`, `ruff`, `black`, `mypy`) shown as optional checks

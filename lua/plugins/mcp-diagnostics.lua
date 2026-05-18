@@ -10,7 +10,10 @@ return {
     'georgeharker/mcp-diagnostics.nvim',
     -- TypeScript plugin: compile on install/update.
     build        = 'cd server/mcp-diagnostics && npm install && npm run build',
-    cond         = function() return not require('profiles').is_active('termux') end,
+    cond = function()
+        local p = require('profiles')
+        return p.is_active('ai') and not p.is_active('termux')
+    end,
     dependencies = { 'ravitemer/mcphub.nvim' },
     event        = 'LspAttach',
     config       = function()
