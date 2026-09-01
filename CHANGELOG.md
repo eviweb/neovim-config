@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- Harden GitHub Actions CI workflow: pin `actions/checkout` to a full commit SHA instead of the mutable `v4` tag, add `permissions: contents: read` at workflow level (least privilege), disable `persist-credentials` on checkout, pin `bats-core` install to a tagged release instead of the default branch, and fail closed on HTTP errors when downloading Neovim (`curl --fail`)
+
 ## [0.6.0] - 2026-05-18
 
 ### Added

@@ -4,6 +4,9 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
@@ -13,7 +16,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: shellcheck
         run: shellcheck bin/nvim-config
@@ -23,16 +28,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
 
       - name: Install bats-core
         run: |
-          git clone --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+          set -euo pipefail
+          git clone --branch v1.9.0 --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
           sudo /tmp/bats-core/install.sh /usr/local
 
       - name: Install Neovim stable
         run: |
-          curl -sLo /tmp/nvim.tar.gz \
+          set -euo pipefail
+          curl -sLo /tmp/nvim.tar.gz --fail \
             https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz
           sudo tar -xzf /tmp/nvim.tar.gz -C /usr/local --strip-components=1
 
