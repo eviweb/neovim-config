@@ -7,8 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-09-01
+
 ### Security
 - Harden GitHub Actions CI workflow: pin `actions/checkout` to a full commit SHA instead of the mutable `v4` tag, add `permissions: contents: read` at workflow level (least privilege), disable `persist-credentials` on checkout, pin `bats-core` install to a tagged release instead of the default branch, and fail closed on HTTP errors when downloading Neovim (`curl --fail`)
+
+### Changed
+- Update pinned plugin commits in `lazy-lock.json` (routine `:Lazy sync`); note that `neotest-rust`'s pin was dropped as a side effect of syncing without the `rust` profile active — the plugin spec in `lua/profiles/rust.lua` is unchanged and will simply reinstall unpinned on the next sync with that profile active
 
 ## [0.6.0] - 2026-05-18
 
@@ -232,7 +237,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.6.0...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.6.1...HEAD
+[0.6.1]: https://github.com/eviweb/neovim-config/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/eviweb/neovim-config/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/eviweb/neovim-config/compare/0.4.1...0.5.0
 [0.4.1]: https://github.com/eviweb/neovim-config/compare/0.4.0...0.4.1
