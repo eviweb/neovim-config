@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `install nvim` auto mode no longer aborts the whole cascade when the optional `mise` (or `snapd`) install step fails (e.g. `gpg` missing) — it now logs a warning and falls through to the next fallback (snap, then apt) instead of failing outright, matching `mise`'s "optional" status
 - `install all` no longer silently skips `install deps` / `install config` when the `nvim` step fails — each step now runs independently and the command reports overall failure via its exit code instead of aborting on the first error (a side effect of `set -e` combined with the unguarded `run_install_nvim` call)
 - `install deps` now installs `gnupg`, required to verify the `mise` installer signature (previously `install mise` could fail on a fresh machine with `gpg is required` even after running `install deps`)
+- `install nvim` auto mode: accepting the "install mise?" prompt when `curl` and/or `gnupg` are missing used to fail with a bare `gpg is required` error and silently fall through to snap/apt, defeating the user's explicit choice of mise. The prompt now detects and lists every missing prerequisite up front (e.g. "mise is not installed and requires: gnupg. Install gnupg + mise now?") and installs it via apt before installing mise, so answering "yes" actually results in mise being used
 
 ## [0.6.1] - 2026-09-01
 

@@ -650,13 +650,10 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "install mise script checks for curl before downloading" {
-  run grep -n "curl is required to install mise" bin/nvim-config
+@test "install mise reports all missing prerequisites (curl and gnupg) together" {
+  run grep -n "_mise_missing_deps" bin/nvim-config
   [ "$status" -eq 0 ]
-}
-
-@test "install mise script checks for gpg before verifying" {
-  run grep -n "gpg is required to verify the mise installer" bin/nvim-config
+  run grep -n "mise install requires" bin/nvim-config
   [ "$status" -eq 0 ]
 }
 
@@ -744,6 +741,17 @@ EOF
 @test "install all continues with deps and config even if the nvim step fails" {
   run grep -n "run_install_nvim ||" bin/nvim-config
   [ "$status" -eq 0 ]
+}
+
+@test "install nvim auto mode offers to install missing mise prerequisites via apt in the same prompt" {
+  run grep -n -- "+ mise now" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim auto mode reuses the mise prerequisite check (no duplicated logic)" {
+  run grep -c "_mise_missing_deps" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 3 ]
 }
 
 @test "install nvim via mise requires mise to be installed" {

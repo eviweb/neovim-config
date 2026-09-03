@@ -92,10 +92,11 @@ Complete setup sequence for a new machine.
 With no flag, this cascades interactively based on what's available:
 [mise](https://mise.jdx.dev) if present on `PATH` → otherwise prompts to
 install it (curl download, GPG signature verified against the official mise
-release key) → declined or unavailable, uses snap if present → otherwise
-prompts to install `snapd` → declined, falls back to apt. Prompts
-auto-decline (no blocking) outside an interactive terminal, under
-`--quiet`, or under `--dry-run`.
+release key — any missing prerequisite, i.e. `curl` or `gnupg`, is listed
+and installed via apt in the same step) → declined or unavailable, uses
+snap if present → otherwise prompts to install `snapd` → declined, falls
+back to apt. Prompts auto-decline (no blocking, Ctrl+C always aborts)
+outside an interactive terminal, under `--quiet`, or under `--dry-run`.
 
 Force a specific method — skips the cascade and errors immediately if the
 tool isn't installed:

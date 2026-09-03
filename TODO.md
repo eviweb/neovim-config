@@ -265,6 +265,7 @@
 - [x] Fix: cascade no longer aborts on a failed optional step (mise/snapd) — falls through to the next fallback instead
 - [x] Fix: `install all` runs deps/config independently of the nvim step's outcome instead of aborting on first failure
 - [x] Fix: `install deps` installs `gnupg`, required by `install mise`
+- [x] Fix: the "install mise?" prompt lists and offers to install every missing prerequisite (`curl`, `gnupg`) via apt in the same step, instead of failing after the user already opted in
 
 ---
 

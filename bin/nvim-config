@@ -634,14 +634,25 @@ run_install_gemini() {
   run_command npm install -g @google/gemini-cli
 }
 
+_mise_missing_deps() {
+  local -n _mise_missing_deps_out="$1"
+  _mise_missing_deps_out=()
+  command -v curl > /dev/null 2>&1 || _mise_missing_deps_out+=(curl)
+  command -v gpg > /dev/null 2>&1 || _mise_missing_deps_out+=(gnupg)
+}
+
 run_install_mise() {
   if command -v mise > /dev/null 2>&1; then
     log_message "INFO" "mise is already installed — skipping"
     return 0
   fi
 
-  command -v curl > /dev/null 2>&1 || { log_message "ERROR" "curl is required to install mise"; return 1; }
-  command -v gpg > /dev/null 2>&1 || { log_message "ERROR" "gpg is required to verify the mise installer"; return 1; }
+  local missing=()
+  _mise_missing_deps missing
+  if [ "${#missing[@]}" -gt 0 ]; then
+    log_message "ERROR" "mise install requires: ${missing[*]} — install with 'sudo apt install ${missing[*]}' first"
+    return 1
+  fi
 
   if [ "${DRY_RUN}" -eq 1 ]; then
     log_message "INFO" "gpg --keyserver hkps://keys.openpgp.org --recv-keys ${MISE_GPG_KEY_FINGERPRINT}"
@@ -707,7 +718,18 @@ _install_nvim_auto() {
     return 0
   fi
 
-  if _confirm "mise is not installed. Install it now via the GPG-verified installer? [y/N] "; then
+  local mise_missing=()
+  _mise_missing_deps mise_missing
+  local mise_prompt="mise is not installed. Install it now via the GPG-verified installer? [y/N] "
+  if [ "${#mise_missing[@]}" -gt 0 ]; then
+    mise_prompt="mise is not installed and requires: ${mise_missing[*]}. Install ${mise_missing[*]} + mise now? [y/N] "
+  fi
+
+  if _confirm "${mise_prompt}"; then
+    if [ "${#mise_missing[@]}" -gt 0 ]; then
+      run_command sudo apt update
+      run_command sudo apt install "${mise_missing[@]}"
+    fi
     if run_install_mise; then
       run_command mise use -g neovim@latest
       return 0
