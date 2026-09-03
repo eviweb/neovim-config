@@ -615,3 +615,108 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"dap-adapters"* ]]
 }
+
+# Phase 17 — mise integration
+
+@test "help documents install mise subcommand" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"mise"* ]]
+}
+
+@test "help documents --mise flag" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"--mise"* ]]
+}
+
+@test "install mise dry-run exits successfully" {
+  run ./bin/nvim-config --dry-run install mise
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise script checks for curl before downloading" {
+  run grep -n "curl is required to install mise" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise script checks for gpg before verifying" {
+  run grep -n "gpg is required to verify the mise installer" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise script imports the official mise release GPG key" {
+  run grep -n "24853EC9F655CE80B48E6C3A8B81C9D17413A06D" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "recv-keys" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise script downloads the GPG-signed installer from mise.jdx.dev" {
+  run grep -n "https://mise.jdx.dev/install.sh.sig" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise skips when mise is already installed" {
+  local fake_bin="$BATS_TEST_TMPDIR/fake_bin"
+  mkdir -p "$fake_bin"
+  cat > "$fake_bin/mise" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+  chmod +x "$fake_bin/mise"
+
+  PATH="$fake_bin:$PATH" run ./bin/nvim-config install mise
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already installed"* ]]
+}
+
+@test "install nvim resolves the package manager automatically (mise, then snap)" {
+  run grep -n "_resolve_nvim_pkg_manager" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "command -v mise" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim via mise requires mise to be installed" {
+  run grep -n "mise is required" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "update nvim prefers mise when nvim was installed via mise" {
+  run grep -n "mise which nvim" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install/update nvim via mise uses mise use -g neovim@latest" {
+  run grep -n "mise use -g neovim@latest" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim dry-run with --mise flag exits successfully" {
+  run ./bin/nvim-config --dry-run install nvim --mise
+  [ "$status" -eq 0 ]
+}
+
+@test "doctor lists mise as an optional tool" {
+  run ./bin/nvim-config doctor
+  [[ "$output" == *"mise"* ]]
+}
+
+@test "bash completion includes mise after install" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"mise"* ]]
+}
+
+@test "zsh completion includes mise after install" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"mise"* ]]
+}
+
+@test "fish completion includes mise after install" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"mise"* ]]
+}

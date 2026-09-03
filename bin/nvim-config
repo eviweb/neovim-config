@@ -26,7 +26,8 @@ else
 fi
 NO_LOG=0
 WITH_NODE=0
-NVIM_PKG_MANAGER="snap"
+NVIM_PKG_MANAGER="auto"
+MISE_GPG_KEY_FINGERPRINT="24853EC9F655CE80B48E6C3A8B81C9D17413A06D"
 COMMAND=""
 SUBCOMMAND=""
 COMPLETION_SHELL=""
@@ -57,12 +58,13 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all|tmux|nvim|claude|codex|gemini] [--with-node] [--snap|--apt]
+  install [deps|config|all|tmux|nvim|mise|claude|codex|gemini] [--with-node] [--snap|--apt|--mise]
                         Install system dependencies and/or config symlinks
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
                           tmux   — inject source-file entry into ~/.tmux.conf
-                          nvim   — install Neovim (snap by default)
+                          nvim   — install Neovim (prefers mise when present on PATH, snap otherwise)
+                          mise   — install the mise version manager (curl + GPG-verified installer)
                           claude — install Claude Code CLI (requires Node.js)
                           codex  — install OpenAI Codex CLI (requires Node.js)
                           gemini — install Gemini CLI (requires Node.js)
@@ -70,12 +72,13 @@ Commands:
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
                                Skipped if nvm is already present at ~/.nvm.
-                        --snap  Install Neovim via snap (default for install nvim)
-                        --apt   Install Neovim via apt instead of snap
+                        --snap  Force Neovim install via snap
+                        --apt   Force Neovim install via apt
+                        --mise  Force Neovim install via mise (errors if mise is not installed)
 
   update [nvim|plugins|dap-adapters|tree-sitter|all]
                         Update Neovim, plugins, or DAP adapters
-                          nvim         — refresh Neovim (snap or apt, auto-detected)
+                          nvim         — refresh Neovim (mise, snap, or apt — auto-detected)
                           plugins      — run Lazy! sync headlessly
                           dap-adapters — install/update Mason DAP packages for active profile
                           tree-sitter  — download latest tree-sitter CLI binary into vendor/
@@ -266,7 +269,7 @@ run_doctor() {
       _check_bin "${bin}" || all_ok=0
     done
     log_message "INFO" "=== Optional tools ==="
-    for bin in lazygit tmux claude codex gemini; do
+    for bin in lazygit tmux mise claude codex gemini; do
       _check_bin "${bin}" || true
     done
     log_message "INFO" "=== Build tools ==="
@@ -278,7 +281,7 @@ run_doctor() {
       _check_bin "${bin}" || all_ok=0
     done
     log_message "INFO" "=== Optional tools ==="
-    for bin in lazygit tmux claude codex gemini; do
+    for bin in lazygit tmux mise claude codex gemini; do
       _check_bin "${bin}" || true
     done
     log_message "INFO" "=== Python tools (optional) ==="
@@ -320,8 +323,8 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "bash zsh fish" -- "${current_word}") )
       return 0
       ;;
-    install|deps|config|all|tmux|nvim|claude|codex|gemini)
-      COMPREPLY=( $(compgen -W "deps config all tmux nvim claude codex gemini --with-node --snap --apt" -- "${current_word}") )
+    install|deps|config|all|tmux|nvim|mise|claude|codex|gemini)
+      COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise" -- "${current_word}") )
       return 0
       ;;
     update|plugins)
@@ -389,13 +392,15 @@ _nvim_config() {
     'config:Symlink ~/.config/nvim to this repository'
     'all:Install nvim, deps, then config'
     'tmux:Inject source-file entry into ~/.tmux.conf'
-    'nvim:Install Neovim (snap by default)'
+    'nvim:Install Neovim (prefers mise when present, snap otherwise)'
+    'mise:Install the mise version manager (curl + GPG-verified installer)'
     'claude:Install Claude Code CLI (requires Node.js)'
     'codex:Install OpenAI Codex CLI (requires Node.js)'
     'gemini:Install Gemini CLI (requires Node.js)'
     '--with-node[Also install nvm and Node.js LTS]'
-    '--snap[Install Neovim via snap (default)]'
-    '--apt[Install Neovim via apt]'
+    '--snap[Force Neovim install via snap]'
+    '--apt[Force Neovim install via apt]'
+    '--mise[Force Neovim install via mise]'
   )
 
   update_subcmds=(
@@ -510,13 +515,15 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -a deps    -d '
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a config  -d 'Symlink ~/.config/nvim to this repository'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, then config'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a tmux    -d 'Inject source-file entry into ~/.tmux.conf'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -a nvim    -d 'Install Neovim (snap by default)'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a nvim    -d 'Install Neovim (prefers mise when present, snap otherwise)'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a mise    -d 'Install the mise version manager (curl + GPG-verified installer)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a claude  -d 'Install Claude Code CLI (requires Node.js)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a codex   -d 'Install OpenAI Codex CLI (requires Node.js)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a gemini  -d 'Install Gemini CLI (requires Node.js)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l with-node -d 'Also install nvm and Node.js LTS'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d 'Install Neovim via snap (default)'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Install Neovim via apt'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d 'Force Neovim install via snap'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Force Neovim install via apt'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l mise    -d 'Force Neovim install via mise'
 
 # update subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim         -d 'Refresh Neovim'
@@ -625,13 +632,68 @@ run_install_gemini() {
   run_command npm install -g @google/gemini-cli
 }
 
+run_install_mise() {
+  if command -v mise > /dev/null 2>&1; then
+    log_message "INFO" "mise is already installed — skipping"
+    return 0
+  fi
+
+  command -v curl > /dev/null 2>&1 || { log_message "ERROR" "curl is required to install mise"; return 1; }
+  command -v gpg > /dev/null 2>&1 || { log_message "ERROR" "gpg is required to verify the mise installer"; return 1; }
+
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "gpg --keyserver hkps://keys.openpgp.org --recv-keys ${MISE_GPG_KEY_FINGERPRINT}"
+    log_message "INFO" "curl -sSfL https://mise.jdx.dev/install.sh.sig | gpg --decrypt > install.sh && sh install.sh"
+    return 0
+  fi
+
+  local tmp_dir
+  tmp_dir="$(mktemp -d)"
+  trap 'rm -rf "${tmp_dir}"' EXIT INT TERM
+
+  log_message "INFO" "Importing mise release GPG key (${MISE_GPG_KEY_FINGERPRINT})"
+  if ! gpg --keyserver hkps://keys.openpgp.org --recv-keys "${MISE_GPG_KEY_FINGERPRINT}"; then
+    log_message "ERROR" "Failed to import the mise release GPG key"
+    return 1
+  fi
+
+  log_message "INFO" "Downloading and verifying the mise installer"
+  if ! curl -sSfL https://mise.jdx.dev/install.sh.sig | gpg --decrypt > "${tmp_dir}/install.sh" 2>/dev/null; then
+    log_message "ERROR" "mise installer GPG signature verification failed"
+    return 1
+  fi
+  if [ ! -s "${tmp_dir}/install.sh" ]; then
+    log_message "ERROR" "mise installer verification produced an empty script"
+    return 1
+  fi
+
+  run_command sh "${tmp_dir}/install.sh"
+}
+
+_resolve_nvim_pkg_manager() {
+  if [ "${NVIM_PKG_MANAGER}" != "auto" ]; then
+    printf '%s' "${NVIM_PKG_MANAGER}"
+  elif command -v mise > /dev/null 2>&1; then
+    printf 'mise'
+  else
+    printf 'snap'
+  fi
+}
+
 run_install_nvim() {
   if command -v nvim > /dev/null 2>&1; then
     log_message "INFO" "nvim is already installed — skipping (use 'update nvim' to upgrade)"
     return 0
   fi
 
-  case "${NVIM_PKG_MANAGER}" in
+  local pkg_manager
+  pkg_manager="$(_resolve_nvim_pkg_manager)"
+
+  case "${pkg_manager}" in
+    mise)
+      command -v mise > /dev/null 2>&1 || { log_message "ERROR" "mise is required — run 'install mise' first"; return 1; }
+      run_command mise use -g neovim@latest
+      ;;
     snap)
       run_command sudo snap install nvim --classic
       ;;
@@ -648,7 +710,9 @@ run_update_nvim() {
     return 1
   fi
 
-  if snap list nvim > /dev/null 2>&1; then
+  if command -v mise > /dev/null 2>&1 && mise which nvim > /dev/null 2>&1; then
+    run_command mise use -g neovim@latest
+  elif snap list nvim > /dev/null 2>&1; then
     run_command sudo snap refresh nvim
   else
     run_command sudo apt install --only-upgrade neovim
@@ -1145,6 +1209,9 @@ run_install() {
     nvim)
       run_install_nvim
       ;;
+    mise)
+      run_install_mise
+      ;;
     claude)
       run_install_claude
       ;;
@@ -1211,6 +1278,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --apt)
       NVIM_PKG_MANAGER="apt"
+      shift
+      ;;
+    --mise)
+      NVIM_PKG_MANAGER="mise"
       shift
       ;;
     --log-dir)

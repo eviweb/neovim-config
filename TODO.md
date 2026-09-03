@@ -253,6 +253,14 @@
 
 ---
 
+## Phase 17 — Mise Integration
+
+- [x] `nvim-config install mise` — curl + GPG-signature-verified installer (official mise release key), idempotent
+- [x] `install nvim` / `update nvim` — prefer `mise` automatically when present on `PATH` (`mise use -g neovim@latest`); `--mise` flag to force it; snap/apt remain the fallback and explicit-override paths
+- [x] `nvim-config doctor` — `mise` added to the optional tools check
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

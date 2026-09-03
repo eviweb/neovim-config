@@ -84,8 +84,19 @@ Complete setup sequence for a new machine.
 
 ### 1. Install Neovim
 
-Snap is recommended — it always provides the latest stable release with classic
-confinement (full host access, no sandbox restrictions):
+The CLI prefers [mise](https://mise.jdx.dev) automatically when it is present on
+`PATH` — a single version manager for Neovim and other language runtimes.
+Install it once (curl download, GPG signature verified against the official
+mise release key) and `install nvim` / `update nvim` route through it
+transparently:
+
+```bash
+./bin/nvim-config install mise
+./bin/nvim-config install nvim
+```
+
+Without mise, snap is recommended — it always provides the latest stable
+release with classic confinement (full host access, no sandbox restrictions):
 
 ```bash
 sudo snap install nvim --classic
@@ -98,6 +109,9 @@ Alternatively, via apt (version depends on the Ubuntu release):
 ```bash
 sudo apt install neovim
 ```
+
+Force a specific install method with `--mise`, `--snap`, or `--apt`, e.g.
+`./bin/nvim-config install nvim --apt`.
 
 ### 2. Clone this repository
 
@@ -165,6 +179,9 @@ automatically. This may take a minute. Once complete:
 ### Neovim (manual)
 
 ```bash
+# mise (auto-detected if Neovim was installed via mise)
+mise use -g neovim@latest
+
 # Snap
 sudo snap refresh nvim
 
