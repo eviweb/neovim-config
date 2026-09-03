@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `install mise` CLI subcommand — installs the [mise](https://mise.jdx.dev) version manager via curl, verifying the official release GPG key (`24853EC9F655CE80B48E6C3A8B81C9D17413A06D`) before executing the installer; idempotent (skips if `mise` is already present)
-- `install nvim` and `update nvim` now prefer `mise` automatically when it is present on `PATH` (`mise use -g neovim@latest`), falling back to the existing snap/apt behaviour otherwise; new `--mise` flag forces the mise path explicitly
+- `install nvim` (no explicit flag) now cascades interactively: use `mise` if present → else prompt to install it → else use `snap` if present → else prompt to install `snapd` → else fall back to `apt`; prompts auto-decline outside a TTY, under `--quiet`, or under `--dry-run` (never blocks CI or scripted runs)
+- `update nvim` prefers `mise` automatically when Neovim was installed through it (`mise use -g neovim@latest`), falling back to the existing snap/apt auto-detection otherwise
+- `--mise`, `--snap`, `--apt` flags now bypass the interactive cascade entirely and fail fast with a clear error if the corresponding tool is missing, instead of silently attempting to run it
 - `nvim-config doctor` — `mise` added to the optional tools check
+
+### Fixed
+- `install nvim` / `install all` no longer crash with `sudo: snap: command not found` on systems without snap (e.g. WSL distros without snapd) — the missing case is now handled by the interactive cascade instead of being assumed available
 
 ## [0.6.1] - 2026-09-01
 

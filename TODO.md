@@ -256,8 +256,11 @@
 ## Phase 17 — Mise Integration
 
 - [x] `nvim-config install mise` — curl + GPG-signature-verified installer (official mise release key), idempotent
-- [x] `install nvim` / `update nvim` — prefer `mise` automatically when present on `PATH` (`mise use -g neovim@latest`); `--mise` flag to force it; snap/apt remain the fallback and explicit-override paths
+- [x] `install nvim` — interactive cascade: mise (if present, else prompt to install) → snap (if present, else prompt to install snapd) → apt fallback; prompts auto-decline outside a TTY, under `--quiet`, or under `--dry-run`
+- [x] `update nvim` — prefer `mise` automatically when Neovim was installed through it (`mise use -g neovim@latest`); snap/apt auto-detection unchanged otherwise
+- [x] `--mise`/`--snap`/`--apt` flags bypass the cascade and fail fast with a clear error if the corresponding tool is missing
 - [x] `nvim-config doctor` — `mise` added to the optional tools check
+- [x] Fix: `install nvim`/`install all` no longer crash with `sudo: snap: command not found` on systems without snap
 
 ---
 

@@ -670,14 +670,61 @@ run_install_mise() {
   run_command sh "${tmp_dir}/install.sh"
 }
 
-_resolve_nvim_pkg_manager() {
-  if [ "${NVIM_PKG_MANAGER}" != "auto" ]; then
-    printf '%s' "${NVIM_PKG_MANAGER}"
-  elif command -v mise > /dev/null 2>&1; then
-    printf 'mise'
-  else
-    printf 'snap'
+_confirm() {
+  local prompt="$1"
+  if [ "${DRY_RUN}" -eq 1 ] || [ "${QUIET}" -eq 1 ] || [ ! -t 0 ]; then
+    return 1
   fi
+  local reply
+  read -r -p "${prompt}" reply
+  [[ "${reply}" =~ ^[Yy]$ ]]
+}
+
+_install_nvim_via() {
+  local pkg_manager="$1"
+  case "${pkg_manager}" in
+    mise)
+      command -v mise > /dev/null 2>&1 || { log_message "ERROR" "mise is required — run 'install mise' first"; return 1; }
+      run_command mise use -g neovim@latest
+      ;;
+    snap)
+      command -v snap > /dev/null 2>&1 || { log_message "ERROR" "snap is required — install snapd first (e.g. 'sudo apt install snapd')"; return 1; }
+      run_command sudo snap install nvim --classic
+      ;;
+    apt)
+      command -v apt > /dev/null 2>&1 || { log_message "ERROR" "apt is required but was not found on this system"; return 1; }
+      run_command sudo apt update
+      run_command sudo apt install neovim
+      ;;
+  esac
+}
+
+_install_nvim_auto() {
+  if command -v mise > /dev/null 2>&1; then
+    run_command mise use -g neovim@latest
+    return 0
+  fi
+
+  if _confirm "mise is not installed. Install it now via the GPG-verified installer? [y/N] "; then
+    run_install_mise || return 1
+    run_command mise use -g neovim@latest
+    return 0
+  fi
+
+  if command -v snap > /dev/null 2>&1; then
+    run_command sudo snap install nvim --classic
+    return 0
+  fi
+
+  if _confirm "snap is not installed. Install snapd now (sudo apt install snapd)? [y/N] "; then
+    run_command sudo apt update
+    run_command sudo apt install snapd
+    run_command sudo snap install nvim --classic
+    return 0
+  fi
+
+  run_command sudo apt update
+  run_command sudo apt install neovim
 }
 
 run_install_nvim() {
@@ -686,22 +733,12 @@ run_install_nvim() {
     return 0
   fi
 
-  local pkg_manager
-  pkg_manager="$(_resolve_nvim_pkg_manager)"
+  if [ "${NVIM_PKG_MANAGER}" != "auto" ]; then
+    _install_nvim_via "${NVIM_PKG_MANAGER}"
+    return
+  fi
 
-  case "${pkg_manager}" in
-    mise)
-      command -v mise > /dev/null 2>&1 || { log_message "ERROR" "mise is required — run 'install mise' first"; return 1; }
-      run_command mise use -g neovim@latest
-      ;;
-    snap)
-      run_command sudo snap install nvim --classic
-      ;;
-    apt)
-      run_command sudo apt update
-      run_command sudo apt install neovim
-      ;;
-  esac
+  _install_nvim_auto
 }
 
 run_update_nvim() {

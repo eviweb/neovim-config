@@ -671,10 +671,48 @@ EOF
   [[ "$output" == *"already installed"* ]]
 }
 
-@test "install nvim resolves the package manager automatically (mise, then snap)" {
-  run grep -n "_resolve_nvim_pkg_manager" bin/nvim-config
-  [ "$status" -eq 0 ]
+@test "install nvim auto mode checks for mise before falling back" {
   run grep -n "command -v mise" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim auto mode prompts to install mise when absent" {
+  run grep -n "_confirm" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim auto mode prompts to install snapd when snap is absent" {
+  run grep -n "Install snapd now" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "confirm prompt declines automatically outside a TTY (never hangs in CI)" {
+  run grep -n -- '-t 0' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "confirm prompt declines automatically under --dry-run" {
+  run grep -n 'DRY_RUN.*-eq 1.*QUIET\|_confirm()' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim explicit --snap flag requires the snap command" {
+  run grep -n "snap is required" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim explicit --apt flag requires the apt command" {
+  run grep -n "apt is required" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim dry-run with --snap flag exits successfully" {
+  run ./bin/nvim-config --dry-run install nvim --snap
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim dry-run with --apt flag exits successfully" {
+  run ./bin/nvim-config --dry-run install nvim --apt
   [ "$status" -eq 0 ]
 }
 
