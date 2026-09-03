@@ -23,6 +23,7 @@ Installed automatically by `install deps`:
 | `fd-find` | Telescope file finder |
 | `xsel` / `xclip` | System clipboard integration |
 | `lolcat` | Colored CLI output |
+| `gnupg` | Verifies the `mise` installer signature (`install mise`) |
 
 `git` is also required and assumed to be present before running the install script.
 

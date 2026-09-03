@@ -261,6 +261,10 @@
 - [x] `--mise`/`--snap`/`--apt` flags bypass the cascade and fail fast with a clear error if the corresponding tool is missing
 - [x] `nvim-config doctor` — `mise` added to the optional tools check
 - [x] Fix: `install nvim`/`install all` no longer crash with `sudo: snap: command not found` on systems without snap
+- [x] Fix: `log_message` no longer double-prints ERROR lines (stdout + stderr) — ERROR now goes to stderr only
+- [x] Fix: cascade no longer aborts on a failed optional step (mise/snapd) — falls through to the next fallback instead
+- [x] Fix: `install all` runs deps/config independently of the nvim step's outcome instead of aborting on first failure
+- [x] Fix: `install deps` installs `gnupg`, required by `install mise`
 
 ---
 

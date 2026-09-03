@@ -158,7 +158,13 @@ log_message() {
   timestamp="$(date '+%Y-%m-%d %H:%M:%S')"
   local plain_line="[${timestamp}] [${level}] ${message}"
 
-  if [ "${QUIET}" -eq 0 ]; then
+  if [ "${level}" = "ERROR" ]; then
+    if [ "${NO_COLOR}" -eq 0 ] && [ -t 2 ]; then
+      printf '%s%s\033[0m\n' "$(_color_for_level "${level}")" "${plain_line}" >&2
+    else
+      printf '%s\n' "${plain_line}" >&2
+    fi
+  elif [ "${QUIET}" -eq 0 ]; then
     if [ "${level}" = "DEBUG" ] && [ "${VERBOSE}" -eq 0 ]; then
       :
     elif [ "${NO_COLOR}" -eq 0 ] && [ -t 1 ]; then
@@ -166,10 +172,6 @@ log_message() {
     else
       printf '%s\n' "${plain_line}"
     fi
-  fi
-
-  if [ "${level}" = "ERROR" ]; then
-    printf '%s\n' "${plain_line}" >&2
   fi
 
   if [ -n "${LOG_FILE}" ]; then
@@ -706,9 +708,11 @@ _install_nvim_auto() {
   fi
 
   if _confirm "mise is not installed. Install it now via the GPG-verified installer? [y/N] "; then
-    run_install_mise || return 1
-    run_command mise use -g neovim@latest
-    return 0
+    if run_install_mise; then
+      run_command mise use -g neovim@latest
+      return 0
+    fi
+    log_message "WARN" "mise installation failed — falling back to snap/apt"
   fi
 
   if command -v snap > /dev/null 2>&1; then
@@ -717,12 +721,14 @@ _install_nvim_auto() {
   fi
 
   if _confirm "snap is not installed. Install snapd now (sudo apt install snapd)? [y/N] "; then
-    run_command sudo apt update
-    run_command sudo apt install snapd
-    run_command sudo snap install nvim --classic
-    return 0
+    if run_command sudo apt update && run_command sudo apt install snapd \
+      && run_command sudo snap install nvim --classic; then
+      return 0
+    fi
+    log_message "WARN" "snapd installation failed — falling back to apt"
   fi
 
+  command -v apt > /dev/null 2>&1 || { log_message "ERROR" "apt is required but was not found on this system"; return 1; }
   run_command sudo apt update
   run_command sudo apt install neovim
 }
@@ -1200,7 +1206,7 @@ run_install_deps() {
     run_command pkg install curl ripgrep fd git make nodejs npm
   else
     run_command sudo apt update
-    run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat
+    run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat gnupg
     if [ "${WITH_NODE}" -eq 1 ]; then
       run_install_node
     fi
@@ -1259,9 +1265,11 @@ run_install() {
       run_install_gemini
       ;;
     all)
-      run_install_nvim
-      run_install_deps
-      run_install_config
+      local had_error=0
+      run_install_nvim || { log_message "WARN" "nvim install failed — continuing with deps and config"; had_error=1; }
+      run_install_deps || had_error=1
+      run_install_config || had_error=1
+      return "${had_error}"
       ;;
     *)
       printf 'Unknown install subcommand: %s\n' "${subcommand}" >&2

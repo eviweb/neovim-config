@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - `install nvim` / `install all` no longer crash with `sudo: snap: command not found` on systems without snap (e.g. WSL distros without snapd) — the missing case is now handled by the interactive cascade instead of being assumed available
+- `log_message`: `ERROR`-level messages were printed twice — once colored on stdout, once plain on stderr. Now printed exactly once, on stderr only, per the project's error-handling convention
+- `install nvim` auto mode no longer aborts the whole cascade when the optional `mise` (or `snapd`) install step fails (e.g. `gpg` missing) — it now logs a warning and falls through to the next fallback (snap, then apt) instead of failing outright, matching `mise`'s "optional" status
+- `install all` no longer silently skips `install deps` / `install config` when the `nvim` step fails — each step now runs independently and the command reports overall failure via its exit code instead of aborting on the first error (a side effect of `set -e` combined with the unguarded `run_install_nvim` call)
+- `install deps` now installs `gnupg`, required to verify the `mise` installer signature (previously `install mise` could fail on a fresh machine with `gpg is required` even after running `install deps`)
 
 ## [0.6.1] - 2026-09-01
 

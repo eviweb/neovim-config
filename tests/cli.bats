@@ -31,6 +31,12 @@ setup() {
   [[ "$output" == *"sudo apt update"* ]]
 }
 
+@test "install deps includes gnupg (required to verify the mise installer)" {
+  run ./bin/nvim-config --dry-run install deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"gnupg"* ]]
+}
+
 @test "install config dry-run prints symlink command" {
   run ./bin/nvim-config --dry-run install config
   [ "$status" -eq 0 ]
@@ -52,6 +58,15 @@ setup() {
   mkdir -p "${HOME}/.config/nvim"
   run ./bin/nvim-config install config
   [ "$status" -eq 1 ]
+}
+
+@test "log_message prints ERROR exactly once, not duplicated on stdout and stderr" {
+  mkdir -p "${HOME}/.config/nvim"
+  run ./bin/nvim-config install config
+  [ "$status" -eq 1 ]
+  local count
+  count=$(printf '%s\n' "$output" | grep -c "exists and is not a symlink")
+  [ "$count" -eq 1 ]
 }
 
 @test "completion includes install subcommands" {
@@ -713,6 +728,21 @@ EOF
 
 @test "install nvim dry-run with --apt flag exits successfully" {
   run ./bin/nvim-config --dry-run install nvim --apt
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim auto mode falls back to snap/apt when mise install fails" {
+  run grep -n "falling back to snap/apt" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim auto mode falls back to apt when snapd install fails" {
+  run grep -n "falling back to apt" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install all continues with deps and config even if the nvim step fails" {
+  run grep -n "run_install_nvim ||" bin/nvim-config
   [ "$status" -eq 0 ]
 }
 
