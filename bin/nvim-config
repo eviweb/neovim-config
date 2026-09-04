@@ -660,27 +660,37 @@ run_install_mise() {
     return 0
   fi
 
-  local tmp_dir
+  local tmp_dir status=0
   tmp_dir="$(mktemp -d)"
   trap 'rm -rf "${tmp_dir}"' EXIT INT TERM
 
   log_message "INFO" "Importing mise release GPG key (${MISE_GPG_KEY_FINGERPRINT})"
   if ! gpg --keyserver hkps://keys.openpgp.org --recv-keys "${MISE_GPG_KEY_FINGERPRINT}"; then
     log_message "ERROR" "Failed to import the mise release GPG key"
-    return 1
+    status=1
   fi
 
-  log_message "INFO" "Downloading and verifying the mise installer"
-  if ! curl -sSfL https://mise.jdx.dev/install.sh.sig | gpg --decrypt > "${tmp_dir}/install.sh" 2>/dev/null; then
-    log_message "ERROR" "mise installer GPG signature verification failed"
-    return 1
-  fi
-  if [ ! -s "${tmp_dir}/install.sh" ]; then
-    log_message "ERROR" "mise installer verification produced an empty script"
-    return 1
+  if [ "${status}" -eq 0 ]; then
+    log_message "INFO" "Downloading and verifying the mise installer"
+    if ! curl -sSfL https://mise.jdx.dev/install.sh.sig | gpg --decrypt > "${tmp_dir}/install.sh" 2>/dev/null; then
+      log_message "ERROR" "mise installer GPG signature verification failed"
+      status=1
+    elif [ ! -s "${tmp_dir}/install.sh" ]; then
+      log_message "ERROR" "mise installer verification produced an empty script"
+      status=1
+    fi
   fi
 
-  run_command sh "${tmp_dir}/install.sh"
+  if [ "${status}" -eq 0 ]; then
+    run_command sh "${tmp_dir}/install.sh" || status=$?
+  fi
+
+  # Local vars like tmp_dir go out of scope on return, but EXIT/INT/TERM traps
+  # are process-global and would otherwise keep referencing it after this
+  # function returns, crashing later (with set -u) when the trap finally fires.
+  rm -rf "${tmp_dir}"
+  trap - EXIT INT TERM
+  return "${status}"
 }
 
 _confirm() {
@@ -707,7 +717,7 @@ _install_nvim_via() {
     apt)
       command -v apt > /dev/null 2>&1 || { log_message "ERROR" "apt is required but was not found on this system"; return 1; }
       run_command sudo apt update
-      run_command sudo apt install neovim
+      run_command sudo apt install -y neovim
       ;;
   esac
 }
@@ -728,7 +738,7 @@ _install_nvim_auto() {
   if _confirm "${mise_prompt}"; then
     if [ "${#mise_missing[@]}" -gt 0 ]; then
       run_command sudo apt update
-      run_command sudo apt install "${mise_missing[@]}"
+      run_command sudo apt install -y "${mise_missing[@]}"
     fi
     if run_install_mise; then
       run_command mise use -g neovim@latest
@@ -743,7 +753,7 @@ _install_nvim_auto() {
   fi
 
   if _confirm "snap is not installed. Install snapd now (sudo apt install snapd)? [y/N] "; then
-    if run_command sudo apt update && run_command sudo apt install snapd \
+    if run_command sudo apt update && run_command sudo apt install -y snapd \
       && run_command sudo snap install nvim --classic; then
       return 0
     fi
@@ -752,7 +762,7 @@ _install_nvim_auto() {
 
   command -v apt > /dev/null 2>&1 || { log_message "ERROR" "apt is required but was not found on this system"; return 1; }
   run_command sudo apt update
-  run_command sudo apt install neovim
+  run_command sudo apt install -y neovim
 }
 
 run_install_nvim() {
@@ -780,7 +790,7 @@ run_update_nvim() {
   elif snap list nvim > /dev/null 2>&1; then
     run_command sudo snap refresh nvim
   else
-    run_command sudo apt install --only-upgrade neovim
+    run_command sudo apt install -y --only-upgrade neovim
   fi
 }
 
@@ -1228,7 +1238,7 @@ run_install_deps() {
     run_command pkg install curl ripgrep fd git make nodejs npm
   else
     run_command sudo apt update
-    run_command sudo apt install curl ripgrep fd-find xsel xclip lolcat gnupg
+    run_command sudo apt install -y curl ripgrep fd-find xsel xclip lolcat gnupg
     if [ "${WITH_NODE}" -eq 1 ]; then
       run_install_node
     fi

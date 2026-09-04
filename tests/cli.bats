@@ -22,7 +22,7 @@ setup() {
   run ./bin/nvim-config --dry-run install
   [ "$status" -eq 0 ]
   [[ "$output" == *"sudo apt update"* ]]
-  [[ "$output" == *"sudo apt install curl ripgrep fd-find xsel xclip lolcat"* ]]
+  [[ "$output" == *"sudo apt install -y curl ripgrep fd-find xsel xclip lolcat"* ]]
 }
 
 @test "install deps dry-run installs apt packages" {
@@ -103,7 +103,18 @@ setup() {
 }
 
 @test "install nvim script supports --apt flag with apt install neovim" {
-  run grep -n "apt install neovim" bin/nvim-config
+  run grep -n "apt install -y neovim" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "apt install commands run non-interactively (-y) since the user already confirmed" {
+  run grep -c -- "apt install -y" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 4 ]
+}
+
+@test "run_install_mise resets its EXIT/INT/TERM trap before returning (no stale tmp_dir reference)" {
+  run grep -n "trap - EXIT INT TERM" bin/nvim-config
   [ "$status" -eq 0 ]
 }
 

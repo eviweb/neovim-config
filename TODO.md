@@ -266,6 +266,8 @@
 - [x] Fix: `install all` runs deps/config independently of the nvim step's outcome instead of aborting on first failure
 - [x] Fix: `install deps` installs `gnupg`, required by `install mise`
 - [x] Fix: the "install mise?" prompt lists and offers to install every missing prerequisite (`curl`, `gnupg`) via apt in the same step, instead of failing after the user already opted in
+- [x] Fix: `tmp_dir: unbound variable` crash at script exit — `run_install_mise`'s cleanup trap is now explicitly cleared before returning instead of lingering process-wide
+- [x] All `apt install` calls now pass `-y` — the user already confirmed via the CLI invocation or an interactive prompt, apt shouldn't ask again
 
 ---
 
