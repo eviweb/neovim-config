@@ -22,7 +22,7 @@ setup() {
   run ./bin/nvim-config --dry-run install
   [ "$status" -eq 0 ]
   [[ "$output" == *"sudo apt update"* ]]
-  [[ "$output" == *"sudo apt install -y curl ripgrep fd-find xsel xclip lolcat"* ]]
+  [[ "$output" == *"sudo apt install -y git curl ripgrep fd-find xsel xclip lolcat"* ]]
 }
 
 @test "install deps dry-run installs apt packages" {
@@ -35,6 +35,12 @@ setup() {
   run ./bin/nvim-config --dry-run install deps
   [ "$status" -eq 0 ]
   [[ "$output" == *"gnupg"* ]]
+}
+
+@test "install deps includes git (mandatory prerequisite for lazy.nvim bootstrap)" {
+  run ./bin/nvim-config --dry-run install deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"git"* ]]
 }
 
 @test "install config dry-run prints symlink command" {

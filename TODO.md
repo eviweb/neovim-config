@@ -276,6 +276,7 @@
 - [x] The mise activation "reload your shell" reminder is now repeated once more at the very end of `install nvim`/`install mise`/`install all`, so it isn't buried under later apt output
 - [x] Fix: the activation line used bare `mise activate bash`, which needs `mise` on PATH just to run — chicken-and-egg, still broken after `source ~/.bashrc`. Now uses the absolute mise binary path (matching mise's own installer recommendation), plus an explicit `~/.local/bin` PATH guard line as defense in depth
 - [x] Fix: that PATH guard line is now idempotent at shell-startup time (bash/zsh: `case ":$PATH:" in ...` check; fish: built-in `fish_add_path`), not just at file-write time — re-sourcing the rc file no longer accumulates duplicate PATH entries
+- [x] Fix: `git` is a mandatory prerequisite (lazy.nvim bootstrap) but was only documented as "assumed present", never actually installed — `install deps` now installs it. `lua/plugins.lua` also checks `vim.fn.executable('git')` before bootstrapping and prints one clear actionable message instead of letting Neovim crash with a raw `E475: Invalid value for argument cmd: 'git' is not executable`
 
 ---
 

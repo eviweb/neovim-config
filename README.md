@@ -18,6 +18,7 @@ Installed automatically by `install deps`:
 
 | Package | Purpose |
 |---------|---------|
+| `git` | Mandatory — clones plugins via lazy.nvim; Neovim refuses to load plugins without it |
 | `curl` | Plugin download, nvm install |
 | `ripgrep` | Telescope live grep |
 | `fd-find` | Telescope file finder |
@@ -25,7 +26,9 @@ Installed automatically by `install deps`:
 | `lolcat` | Colored CLI output |
 | `gnupg` | Verifies the `mise` installer signature (`install mise`) |
 
-`git` is also required and assumed to be present before running the install script.
+If the config was obtained without `git` already present (e.g. copied or
+mounted rather than cloned), Neovim will refuse to load plugins and print a
+clear error on startup until `install deps` (or `sudo apt install git`) is run.
 
 ### Node.js
 

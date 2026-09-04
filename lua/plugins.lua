@@ -1,5 +1,14 @@
 -- lua/plugins.lua
 
+if vim.fn.executable('git') ~= 1 then
+    vim.api.nvim_err_writeln(
+        'nvim-config: git is required to bootstrap and manage plugins (lazy.nvim) '
+            .. 'but was not found on PATH. Install it — `nvim-config install deps` '
+            .. 'or `sudo apt install git` — then restart Neovim.'
+    )
+    return
+end
+
 local lazypath = vim.fn.stdpath('data') .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
     vim.fn.system({

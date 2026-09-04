@@ -33,6 +33,11 @@ _is_snap_nvim_restricted() {
   [ -z "$missing" ]
 }
 
+@test "plugins.lua checks git is executable before bootstrapping lazy.nvim, instead of crashing with a raw E475" {
+  run grep -n "vim.fn.executable('git')" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "every plugins.X required in plugins.lua has a matching lua file" {
   missing=""
   while IFS= read -r mod; do
