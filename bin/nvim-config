@@ -721,7 +721,7 @@ run_install_mise() {
   trap - EXIT INT TERM
 
   if [ "${status}" -eq 0 ]; then
-    _offer_mise_activation
+    _offer_mise_activation "$(command -v mise)"
   fi
 
   return "${status}"
@@ -735,12 +735,31 @@ _mise_shell_rc_file() {
   esac
 }
 
-# shellcheck disable=SC2016  # single-quoted on purpose: written verbatim into the user's rc file
+# Uses the absolute path to the mise binary (matching what mise's own
+# installer recommends), not bare `mise` — a shell rc line that calls plain
+# `mise activate bash` needs `mise` to already be resolvable via PATH just
+# to run that command, but PATH is exactly what activation is supposed to
+# fix. The absolute path sidesteps that chicken-and-egg problem.
+# shellcheck disable=SC2016  # %s substitutes now; $(...) stays literal for the shell to expand later
 _mise_activate_line() {
+  local mise_bin="$1"
   case "$(basename "${SHELL:-bash}")" in
-    zsh)  printf '%s' 'eval "$(mise activate zsh)"' ;;
-    fish) printf '%s' 'mise activate fish | source' ;;
-    *)    printf '%s' 'eval "$(mise activate bash)"' ;;
+    zsh)  printf 'eval "$(%s activate zsh)"' "${mise_bin}" ;;
+    fish) printf '%s activate fish | source' "${mise_bin}" ;;
+    *)    printf 'eval "$(%s activate bash)"' "${mise_bin}" ;;
+  esac
+}
+
+# Defense in depth alongside the absolute-path activate line: guarantee
+# ~/.local/bin is on PATH too, independent of whatever mise's own activate
+# script does or doesn't add. Written so it's safe to source every time the
+# shell starts, not just once — checks PATH at runtime before adding, so
+# re-sourcing the rc file repeatedly never accumulates duplicate entries.
+# shellcheck disable=SC2016  # $PATH stays literal for the shell to expand later
+_mise_path_guard_line() {
+  case "$(basename "${SHELL:-bash}")" in
+    fish) printf 'fish_add_path %s/.local/bin' "${HOME}" ;;  # built-in, dedupes automatically
+    *)    printf 'case ":$PATH:" in *":%s/.local/bin:"*) ;; *) export PATH="%s/.local/bin:$PATH" ;; esac' "${HOME}" "${HOME}" ;;
   esac
 }
 
@@ -748,9 +767,11 @@ _mise_activate_line() {
 # globally-set tool (e.g. `mise use -g neovim@latest`) to be found on
 # PATH — see https://mise.jdx.dev/installing-mise.html#shell-specific-installation-activation
 _offer_mise_activation() {
-  local rc_file activate_line
+  local mise_bin="$1"
+  local rc_file activate_line path_guard_line
   rc_file="$(_mise_shell_rc_file)"
-  activate_line="$(_mise_activate_line)"
+  activate_line="$(_mise_activate_line "${mise_bin}")"
+  path_guard_line="$(_mise_path_guard_line)"
 
   if [ -f "${rc_file}" ] && grep -qF "mise activate" "${rc_file}" 2>/dev/null; then
     return 0
@@ -759,7 +780,7 @@ _offer_mise_activation() {
   local do_add=0
   case "${ACTIVATE_MODE}" in
     no)
-      log_message "INFO" "mise not activated (--no-activate) — add manually: echo '${activate_line}' >> ${rc_file}, then reload your shell"
+      log_message "INFO" "mise not activated (--no-activate) — add manually: echo '${path_guard_line}' >> ${rc_file} && echo '${activate_line}' >> ${rc_file}, then reload your shell"
       return 0
       ;;
     yes)
@@ -773,16 +794,22 @@ _offer_mise_activation() {
   esac
 
   if [ "${do_add}" -eq 0 ]; then
-    log_message "WARN" "mise not activated — add manually: echo '${activate_line}' >> ${rc_file}, then reload your shell"
+    log_message "WARN" "mise not activated — add manually: echo '${path_guard_line}' >> ${rc_file} && echo '${activate_line}' >> ${rc_file}, then reload your shell"
     return 0
   fi
 
   if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "echo '${path_guard_line}' >> ${rc_file}"
     log_message "INFO" "echo '${activate_line}' >> ${rc_file}"
     return 0
   fi
 
-  printf '\n# Added by nvim-config install mise\n%s\n' "${activate_line}" >> "${rc_file}"
+  {
+    printf '\n# Added by nvim-config install mise\n'
+    printf '%s\n' "${path_guard_line}"
+    printf '%s\n' "${activate_line}"
+  } >> "${rc_file}"
+
   MISE_ACTIVATION_PENDING=1
   log_message "INFO" "Added mise activation to ${rc_file} — reload your shell to use it: 'source ${rc_file}' (or open a new terminal)"
 }

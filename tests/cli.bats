@@ -778,11 +778,35 @@ EOF
 }
 
 @test "mise activation covers bash, zsh, and fish" {
-  run grep -n "mise activate bash" bin/nvim-config
+  run grep -n "activate bash" bin/nvim-config
   [ "$status" -eq 0 ]
-  run grep -n "mise activate zsh" bin/nvim-config
+  run grep -n "activate zsh" bin/nvim-config
   [ "$status" -eq 0 ]
-  run grep -n "mise activate fish" bin/nvim-config
+  run grep -n "activate fish" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "mise activation line uses the absolute mise binary path, not bare 'mise' (avoids the chicken-and-egg PATH problem: bash needs to find mise to run 'mise activate', but mise isn't on PATH until activation runs)" {
+  run grep -n "_mise_activate_line" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n 'mise_bin' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "mise activation also ensures ~/.local/bin is exported to PATH in the rc file, not just the activate eval" {
+  run grep -n 'export PATH=.*\.local/bin' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "the PATH guard line written to the rc file is itself idempotent (checks PATH before exporting, so re-sourcing the rc file never duplicates it)" {
+  run grep -n '_mise_path_guard_line' bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n 'case ":\$PATH:" in' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "the PATH guard for fish uses fish_add_path (built-in, deduplicates automatically)" {
+  run grep -n "fish_add_path" bin/nvim-config
   [ "$status" -eq 0 ]
 }
 
