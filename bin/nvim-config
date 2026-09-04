@@ -26,6 +26,7 @@ else
 fi
 NO_LOG=0
 WITH_NODE=0
+NO_ACTIVATE=0
 NVIM_PKG_MANAGER="auto"
 MISE_GPG_KEY_FINGERPRINT="24853EC9F655CE80B48E6C3A8B81C9D17413A06D"
 COMMAND=""
@@ -58,7 +59,7 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all|tmux|nvim|mise|claude|codex|gemini] [--with-node] [--snap|--apt|--mise]
+  install [deps|config|all|tmux|nvim|mise|claude|codex|gemini] [--with-node] [--snap|--apt|--mise] [--no-activate]
                         Install system dependencies and/or config symlinks
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
@@ -72,9 +73,12 @@ Commands:
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
                                Skipped if nvm is already present at ~/.nvm.
-                        --snap  Force Neovim install via snap
+                        --snap  Force Neovim install via snap (installs snapd first if missing)
                         --apt   Force Neovim install via apt
-                        --mise  Force Neovim install via mise (errors if mise is not installed)
+                        --mise  Force Neovim install via mise (installs mise first if missing)
+                        --no-activate
+                               Skip the prompt offering to add mise's shell activation
+                               line to your shell rc file after installing mise.
 
   update [nvim|plugins|dap-adapters|tree-sitter|all]
                         Update Neovim, plugins, or DAP adapters
@@ -326,7 +330,7 @@ _nvim_config_completions() {
       return 0
       ;;
     install|deps|config|all|tmux|nvim|mise|claude|codex|gemini)
-      COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise --no-activate" -- "${current_word}") )
       return 0
       ;;
     update|plugins)
@@ -402,7 +406,8 @@ _nvim_config() {
     '--with-node[Also install nvm and Node.js LTS]'
     '--snap[Force Neovim install via snap]'
     '--apt[Force Neovim install via apt]'
-    '--mise[Force Neovim install via mise]'
+    '--mise[Force Neovim install via mise (installs mise first if missing)]'
+    '--no-activate[Skip the mise shell-activation prompt]'
   )
 
   update_subcmds=(
@@ -526,6 +531,7 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -l with-node -d
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d 'Force Neovim install via snap'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Force Neovim install via apt'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l mise    -d 'Force Neovim install via mise'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l no-activate -d 'Skip the mise shell-activation prompt'
 
 # update subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim         -d 'Refresh Neovim'
@@ -690,7 +696,53 @@ run_install_mise() {
   # function returns, crashing later (with set -u) when the trap finally fires.
   rm -rf "${tmp_dir}"
   trap - EXIT INT TERM
+
+  if [ "${status}" -eq 0 ]; then
+    _offer_mise_activation
+  fi
+
   return "${status}"
+}
+
+_mise_shell_rc_file() {
+  case "$(basename "${SHELL:-bash}")" in
+    zsh)  printf '%s' "${ZDOTDIR:-$HOME}/.zshrc" ;;
+    fish) printf '%s' "${HOME}/.config/fish/config.fish" ;;
+    *)    printf '%s' "${HOME}/.bashrc" ;;
+  esac
+}
+
+# shellcheck disable=SC2016  # single-quoted on purpose: written verbatim into the user's rc file
+_mise_activate_line() {
+  case "$(basename "${SHELL:-bash}")" in
+    zsh)  printf '%s' 'eval "$(mise activate zsh)"' ;;
+    fish) printf '%s' 'mise activate fish | source' ;;
+    *)    printf '%s' 'eval "$(mise activate bash)"' ;;
+  esac
+}
+
+# mise needs to be activated in the shell rc for itself and any
+# globally-set tool (e.g. `mise use -g neovim@latest`) to be found on
+# PATH — see https://mise.jdx.dev/installing-mise.html#shell-specific-installation-activation
+_offer_mise_activation() {
+  if [ "${NO_ACTIVATE}" -eq 1 ]; then
+    return 0
+  fi
+
+  local rc_file activate_line
+  rc_file="$(_mise_shell_rc_file)"
+  activate_line="$(_mise_activate_line)"
+
+  if [ -f "${rc_file}" ] && grep -qF "mise activate" "${rc_file}" 2>/dev/null; then
+    return 0
+  fi
+
+  if _confirm "mise needs to be activated in ${rc_file} for mise-managed tools (like nvim) to be found on PATH. Add it now? [y/N] "; then
+    printf '\n# Added by nvim-config install mise\n%s\n' "${activate_line}" >> "${rc_file}"
+    log_message "INFO" "Added mise activation to ${rc_file} — reload your shell to use it: 'source ${rc_file}' (or open a new terminal)"
+  else
+    log_message "WARN" "mise not activated — add manually: echo '${activate_line}' >> ${rc_file}, then reload your shell"
+  fi
 }
 
 _confirm() {
@@ -707,11 +759,18 @@ _install_nvim_via() {
   local pkg_manager="$1"
   case "${pkg_manager}" in
     mise)
-      command -v mise > /dev/null 2>&1 || { log_message "ERROR" "mise is required — run 'install mise' first"; return 1; }
+      if ! command -v mise > /dev/null 2>&1; then
+        log_message "INFO" "mise is not installed — installing it now (--mise was explicitly requested)"
+        run_install_mise
+      fi
       run_command mise use -g neovim@latest
       ;;
     snap)
-      command -v snap > /dev/null 2>&1 || { log_message "ERROR" "snap is required — install snapd first (e.g. 'sudo apt install snapd')"; return 1; }
+      if ! command -v snap > /dev/null 2>&1; then
+        log_message "INFO" "snap is not installed — installing snapd now (--snap was explicitly requested)"
+        run_command sudo apt update
+        run_command sudo apt install -y snapd
+      fi
       run_command sudo snap install nvim --classic
       ;;
     apt)
@@ -1347,6 +1406,10 @@ while [ "$#" -gt 0 ]; do
       ;;
     --with-node)
       WITH_NODE=1
+      shift
+      ;;
+    --no-activate)
+      NO_ACTIVATE=1
       shift
       ;;
     --snap)

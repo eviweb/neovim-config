@@ -719,11 +719,6 @@ EOF
   [ "$status" -eq 0 ]
 }
 
-@test "install nvim explicit --snap flag requires the snap command" {
-  run grep -n "snap is required" bin/nvim-config
-  [ "$status" -eq 0 ]
-}
-
 @test "install nvim explicit --apt flag requires the apt command" {
   run grep -n "apt is required" bin/nvim-config
   [ "$status" -eq 0 ]
@@ -765,8 +760,54 @@ EOF
   [ "$output" -ge 3 ]
 }
 
-@test "install nvim via mise requires mise to be installed" {
-  run grep -n "mise is required" bin/nvim-config
+@test "install nvim --mise auto-installs mise instead of erroring when absent" {
+  run grep -n "installing it now (--mise was explicitly requested)" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "run_install_mise" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim --snap auto-installs snapd instead of erroring when absent" {
+  run grep -n "installing snapd now (--snap was explicitly requested)" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise offers to add shell activation after a successful install" {
+  run grep -n "_offer_mise_activation" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "mise activation covers bash, zsh, and fish" {
+  run grep -n "mise activate bash" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "mise activate zsh" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "mise activate fish" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "mise activation check is idempotent (skips if already present in rc file)" {
+  run grep -n "mise activate" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n -- "grep -qF" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "help documents --no-activate flag" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"--no-activate"* ]]
+}
+
+@test "--no-activate flag is parsed" {
+  run grep -n -- "--no-activate" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "NO_ACTIVATE" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install mise dry-run with --no-activate exits successfully" {
+  run ./bin/nvim-config --dry-run --no-activate install mise
   [ "$status" -eq 0 ]
 }
 

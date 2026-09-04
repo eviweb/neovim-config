@@ -98,14 +98,28 @@ snap if present → otherwise prompts to install `snapd` → declined, falls
 back to apt. Prompts auto-decline (no blocking, Ctrl+C always aborts)
 outside an interactive terminal, under `--quiet`, or under `--dry-run`.
 
-Force a specific method — skips the cascade and errors immediately if the
-tool isn't installed:
+Force a specific method — skips the interactive cascade entirely:
 
 ```bash
-./bin/nvim-config install nvim --mise   # requires mise
-./bin/nvim-config install nvim --snap   # requires snapd
-./bin/nvim-config install nvim --apt    # requires apt
+./bin/nvim-config install nvim --mise   # installs mise first if missing
+./bin/nvim-config install nvim --snap   # installs snapd first if missing
+./bin/nvim-config install nvim --apt    # requires apt (never bootstrapped)
 ```
+
+`--mise`/`--snap` bootstrap their own package manager if it's missing —
+passing the flag is already an explicit choice, so no further prompt is
+needed. `--apt` still errors if `apt` itself isn't present (that signals
+the wrong OS entirely, nothing to install). Add `--no-activate` to skip
+the mise shell-activation prompt described below (useful for scripted or
+non-interactive runs).
+
+After a fresh mise install, `mise` needs to be activated in your shell rc
+for itself and any mise-managed tool (like `nvim`) to be found on `PATH` —
+see [mise's shell-specific activation
+docs](https://mise.jdx.dev/installing-mise.html#shell-specific-installation-activation).
+The CLI detects whether the activation line is already present and, if
+not, offers to add it to `~/.bashrc` / `~/.zshrc` / `~/.config/fish/config.fish`
+(based on `$SHELL`) and tells you to reload your shell afterwards.
 
 Snap is recommended when not using mise — it always provides the latest
 stable release with classic confinement (full host access, no sandbox

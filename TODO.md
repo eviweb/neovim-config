@@ -268,6 +268,8 @@
 - [x] Fix: the "install mise?" prompt lists and offers to install every missing prerequisite (`curl`, `gnupg`) via apt in the same step, instead of failing after the user already opted in
 - [x] Fix: `tmp_dir: unbound variable` crash at script exit — `run_install_mise`'s cleanup trap is now explicitly cleared before returning instead of lingering process-wide
 - [x] All `apt install` calls now pass `-y` — the user already confirmed via the CLI invocation or an interactive prompt, apt shouldn't ask again
+- [x] `install nvim --mise` / `--snap` now bootstrap mise/snapd on the spot instead of erroring and leaving nothing installed (explicit flag = consent, no need for a separate `install mise` run first)
+- [x] mise shell activation: prompt to add the activation line to the user's shell rc (bash/zsh/fish) after a fresh `install mise`, idempotent (skips if already present), with a reload reminder; `--no-activate` flag to bypass
 
 ---
 
