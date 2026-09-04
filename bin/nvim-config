@@ -26,7 +26,7 @@ else
 fi
 NO_LOG=0
 WITH_NODE=0
-NO_ACTIVATE=0
+ACTIVATE_MODE="prompt"
 NVIM_PKG_MANAGER="auto"
 MISE_GPG_KEY_FINGERPRINT="24853EC9F655CE80B48E6C3A8B81C9D17413A06D"
 COMMAND=""
@@ -59,7 +59,7 @@ Usage:
   nvim-config [global-options] --install-completion bash
 
 Commands:
-  install [deps|config|all|tmux|nvim|mise|claude|codex|gemini] [--with-node] [--snap|--apt|--mise] [--no-activate]
+  install [deps|config|all|tmux|nvim|mise|claude|codex|gemini] [--with-node] [--snap|--apt|--mise] [--activate|--no-activate]
                         Install system dependencies and/or config symlinks
                           deps   — install apt packages only
                           config — symlink ~/.config/nvim to this repository
@@ -75,10 +75,14 @@ Commands:
                                Skipped if nvm is already present at ~/.nvm.
                         --snap  Force Neovim install via snap (installs snapd first if missing)
                         --apt   Force Neovim install via apt
-                        --mise  Force Neovim install via mise (installs mise first if missing)
+                        --mise  Force Neovim install via mise (installs mise + missing
+                               prerequisites first if needed, no extra prompt)
+                        --activate
+                               Add mise's shell activation line unattended, no prompt
+                               (for automated/non-interactive installs).
                         --no-activate
-                               Skip the prompt offering to add mise's shell activation
-                               line to your shell rc file after installing mise.
+                               Skip the mise shell-activation step entirely, no prompt
+                               (for automated/non-interactive installs).
 
   update [nvim|plugins|dap-adapters|tree-sitter|all]
                         Update Neovim, plugins, or DAP adapters
@@ -330,7 +334,7 @@ _nvim_config_completions() {
       return 0
       ;;
     install|deps|config|all|tmux|nvim|mise|claude|codex|gemini)
-      COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise --no-activate" -- "${current_word}") )
+      COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise --activate --no-activate" -- "${current_word}") )
       return 0
       ;;
     update|plugins)
@@ -407,7 +411,8 @@ _nvim_config() {
     '--snap[Force Neovim install via snap]'
     '--apt[Force Neovim install via apt]'
     '--mise[Force Neovim install via mise (installs mise first if missing)]'
-    '--no-activate[Skip the mise shell-activation prompt]'
+    '--activate[Add mise shell activation unattended, no prompt]'
+    '--no-activate[Skip the mise shell-activation step, no prompt]'
   )
 
   update_subcmds=(
@@ -531,7 +536,8 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -l with-node -d
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l snap    -d 'Force Neovim install via snap'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d 'Force Neovim install via apt'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l mise    -d 'Force Neovim install via mise'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -l no-activate -d 'Skip the mise shell-activation prompt'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l activate -d 'Add mise shell activation unattended, no prompt'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -l no-activate -d 'Skip the mise shell-activation step, no prompt'
 
 # update subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim         -d 'Refresh Neovim'
@@ -725,10 +731,6 @@ _mise_activate_line() {
 # globally-set tool (e.g. `mise use -g neovim@latest`) to be found on
 # PATH — see https://mise.jdx.dev/installing-mise.html#shell-specific-installation-activation
 _offer_mise_activation() {
-  if [ "${NO_ACTIVATE}" -eq 1 ]; then
-    return 0
-  fi
-
   local rc_file activate_line
   rc_file="$(_mise_shell_rc_file)"
   activate_line="$(_mise_activate_line)"
@@ -737,12 +739,34 @@ _offer_mise_activation() {
     return 0
   fi
 
-  if _confirm "mise needs to be activated in ${rc_file} for mise-managed tools (like nvim) to be found on PATH. Add it now? [y/N] "; then
-    printf '\n# Added by nvim-config install mise\n%s\n' "${activate_line}" >> "${rc_file}"
-    log_message "INFO" "Added mise activation to ${rc_file} — reload your shell to use it: 'source ${rc_file}' (or open a new terminal)"
-  else
+  local do_add=0
+  case "${ACTIVATE_MODE}" in
+    no)
+      log_message "INFO" "mise not activated (--no-activate) — add manually: echo '${activate_line}' >> ${rc_file}, then reload your shell"
+      return 0
+      ;;
+    yes)
+      do_add=1
+      ;;
+    *)
+      if _confirm "mise needs to be activated in ${rc_file} for mise-managed tools (like nvim) to be found on PATH. Add it now? [y/N] "; then
+        do_add=1
+      fi
+      ;;
+  esac
+
+  if [ "${do_add}" -eq 0 ]; then
     log_message "WARN" "mise not activated — add manually: echo '${activate_line}' >> ${rc_file}, then reload your shell"
+    return 0
   fi
+
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "echo '${activate_line}' >> ${rc_file}"
+    return 0
+  fi
+
+  printf '\n# Added by nvim-config install mise\n%s\n' "${activate_line}" >> "${rc_file}"
+  log_message "INFO" "Added mise activation to ${rc_file} — reload your shell to use it: 'source ${rc_file}' (or open a new terminal)"
 }
 
 _confirm() {
@@ -759,23 +783,35 @@ _install_nvim_via() {
   local pkg_manager="$1"
   case "${pkg_manager}" in
     mise)
+      # NOTE: this whole function tree runs with `set -e` suppressed — it is
+      # always called as `run_install_nvim || ...` from `install all`, and in
+      # bash that disables errexit for the entire call subtree, not just the
+      # top-level exit code. Every fallible step below MUST be explicitly
+      # guarded (`||`/`&&`); a bare failing statement will NOT abort here.
       if ! command -v mise > /dev/null 2>&1; then
         log_message "INFO" "mise is not installed — installing it now (--mise was explicitly requested)"
-        run_install_mise
+        local mise_missing=()
+        _mise_missing_deps mise_missing
+        if [ "${#mise_missing[@]}" -gt 0 ]; then
+          log_message "INFO" "installing missing mise prerequisites: ${mise_missing[*]}"
+          run_command sudo apt update || return 1
+          run_command sudo apt install -y "${mise_missing[@]}" || return 1
+        fi
+        run_install_mise || return 1
       fi
       run_command mise use -g neovim@latest
       ;;
     snap)
       if ! command -v snap > /dev/null 2>&1; then
         log_message "INFO" "snap is not installed — installing snapd now (--snap was explicitly requested)"
-        run_command sudo apt update
-        run_command sudo apt install -y snapd
+        run_command sudo apt update || return 1
+        run_command sudo apt install -y snapd || return 1
       fi
       run_command sudo snap install nvim --classic
       ;;
     apt)
       command -v apt > /dev/null 2>&1 || { log_message "ERROR" "apt is required but was not found on this system"; return 1; }
-      run_command sudo apt update
+      run_command sudo apt update || return 1
       run_command sudo apt install -y neovim
       ;;
   esac
@@ -795,11 +831,13 @@ _install_nvim_auto() {
   fi
 
   if _confirm "${mise_prompt}"; then
+    local prereqs_ok=1
     if [ "${#mise_missing[@]}" -gt 0 ]; then
-      run_command sudo apt update
-      run_command sudo apt install -y "${mise_missing[@]}"
+      if ! { run_command sudo apt update && run_command sudo apt install -y "${mise_missing[@]}"; }; then
+        prereqs_ok=0
+      fi
     fi
-    if run_install_mise; then
+    if [ "${prereqs_ok}" -eq 1 ] && run_install_mise; then
       run_command mise use -g neovim@latest
       return 0
     fi
@@ -820,7 +858,7 @@ _install_nvim_auto() {
   fi
 
   command -v apt > /dev/null 2>&1 || { log_message "ERROR" "apt is required but was not found on this system"; return 1; }
-  run_command sudo apt update
+  run_command sudo apt update || return 1
   run_command sudo apt install -y neovim
 }
 
@@ -1293,10 +1331,10 @@ run_install_node() {
 
 run_install_deps() {
   if [ -n "${TERMUX_VERSION:-}" ]; then
-    run_command pkg update
+    run_command pkg update || return 1
     run_command pkg install curl ripgrep fd git make nodejs npm
   else
-    run_command sudo apt update
+    run_command sudo apt update || return 1
     run_command sudo apt install -y curl ripgrep fd-find xsel xclip lolcat gnupg
     if [ "${WITH_NODE}" -eq 1 ]; then
       run_install_node
@@ -1408,8 +1446,12 @@ while [ "$#" -gt 0 ]; do
       WITH_NODE=1
       shift
       ;;
+    --activate)
+      ACTIVATE_MODE="yes"
+      shift
+      ;;
     --no-activate)
-      NO_ACTIVATE=1
+      ACTIVATE_MODE="no"
       shift
       ;;
     --snap)

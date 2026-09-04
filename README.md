@@ -106,12 +106,11 @@ Force a specific method — skips the interactive cascade entirely:
 ./bin/nvim-config install nvim --apt    # requires apt (never bootstrapped)
 ```
 
-`--mise`/`--snap` bootstrap their own package manager if it's missing —
-passing the flag is already an explicit choice, so no further prompt is
-needed. `--apt` still errors if `apt` itself isn't present (that signals
-the wrong OS entirely, nothing to install). Add `--no-activate` to skip
-the mise shell-activation prompt described below (useful for scripted or
-non-interactive runs).
+`--mise`/`--snap` bootstrap their own package manager (and, for mise, any
+missing prerequisite like `gnupg`) if it's missing — passing the flag is
+already an explicit choice, so no further prompt is needed. `--apt` still
+errors if `apt` itself isn't present (that signals the wrong OS entirely,
+nothing to install).
 
 After a fresh mise install, `mise` needs to be activated in your shell rc
 for itself and any mise-managed tool (like `nvim`) to be found on `PATH` —
@@ -119,7 +118,15 @@ see [mise's shell-specific activation
 docs](https://mise.jdx.dev/installing-mise.html#shell-specific-installation-activation).
 The CLI detects whether the activation line is already present and, if
 not, offers to add it to `~/.bashrc` / `~/.zshrc` / `~/.config/fish/config.fish`
-(based on `$SHELL`) and tells you to reload your shell afterwards.
+(based on `$SHELL`) and tells you to reload your shell afterwards. Two
+flags bypass this prompt for automated/non-interactive installs, where
+the default prompt already silently declines (no TTY) but an automation
+author may still want a definite outcome either way:
+
+```bash
+./bin/nvim-config install mise --activate      # add the line unattended
+./bin/nvim-config install mise --no-activate   # skip it, log the manual command
+```
 
 Snap is recommended when not using mise — it always provides the latest
 stable release with classic confinement (full host access, no sandbox

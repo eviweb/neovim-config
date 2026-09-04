@@ -793,22 +793,51 @@ EOF
   [ "$status" -eq 0 ]
 }
 
-@test "help documents --no-activate flag" {
+@test "help documents --activate and --no-activate flags" {
   run ./bin/nvim-config --help
   [ "$status" -eq 0 ]
+  [[ "$output" == *"--activate"* ]]
   [[ "$output" == *"--no-activate"* ]]
 }
 
-@test "--no-activate flag is parsed" {
-  run grep -n -- "--no-activate" bin/nvim-config
+@test "--activate and --no-activate flags are parsed into a tri-state mode" {
+  run grep -n -- "--activate)" bin/nvim-config
   [ "$status" -eq 0 ]
-  run grep -n "NO_ACTIVATE" bin/nvim-config
+  run grep -n -- "--no-activate)" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "ACTIVATE_MODE" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "--activate skips the confirm prompt and adds the line unattended" {
+  run grep -n 'ACTIVATE_MODE.*=.*yes\|"yes")' bin/nvim-config
   [ "$status" -eq 0 ]
 }
 
 @test "install mise dry-run with --no-activate exits successfully" {
   run ./bin/nvim-config --dry-run --no-activate install mise
   [ "$status" -eq 0 ]
+}
+
+@test "install mise dry-run with --activate exits successfully" {
+  run ./bin/nvim-config --dry-run --activate install mise
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim --mise stops immediately if the mise install fails (errexit is suppressed inside install all's || guard, so this must be explicit)" {
+  run grep -n "run_install_mise || return 1" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim --snap stops immediately if snapd install fails" {
+  run grep -n "apt install -y snapd || return 1" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install nvim --mise auto-installs missing prerequisites (curl/gnupg) without an extra prompt" {
+  run grep -c "_mise_missing_deps" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 4 ]
 }
 
 @test "update nvim prefers mise when nvim was installed via mise" {

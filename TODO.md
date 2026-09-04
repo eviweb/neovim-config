@@ -269,7 +269,9 @@
 - [x] Fix: `tmp_dir: unbound variable` crash at script exit — `run_install_mise`'s cleanup trap is now explicitly cleared before returning instead of lingering process-wide
 - [x] All `apt install` calls now pass `-y` — the user already confirmed via the CLI invocation or an interactive prompt, apt shouldn't ask again
 - [x] `install nvim --mise` / `--snap` now bootstrap mise/snapd on the spot instead of erroring and leaving nothing installed (explicit flag = consent, no need for a separate `install mise` run first)
-- [x] mise shell activation: prompt to add the activation line to the user's shell rc (bash/zsh/fish) after a fresh `install mise`, idempotent (skips if already present), with a reload reminder; `--no-activate` flag to bypass
+- [x] mise shell activation: prompt to add the activation line to the user's shell rc (bash/zsh/fish) after a fresh `install mise`, idempotent (skips if already present), with a reload reminder; `--activate`/`--no-activate` flags to force either outcome unattended (for automated installs)
+- [x] `install nvim --mise`: auto-installs missing prerequisites (curl/gnupg) via apt with no extra prompt, since `--mise` is already explicit consent
+- [x] Fix: `set -e` is silently suppressed for the whole call subtree when a function is used as the left side of `||` (as `run_install_nvim` always is, from `install all`) — every fallible step in `_install_nvim_via`, `_install_nvim_auto`, and `run_install_deps` is now explicitly guarded instead of relying on implicit propagation
 
 ---
 
