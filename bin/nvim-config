@@ -27,6 +27,7 @@ fi
 NO_LOG=0
 WITH_NODE=0
 ACTIVATE_MODE="prompt"
+MISE_ACTIVATION_PENDING=0
 NVIM_PKG_MANAGER="auto"
 MISE_GPG_KEY_FINGERPRINT="24853EC9F655CE80B48E6C3A8B81C9D17413A06D"
 COMMAND=""
@@ -697,6 +698,22 @@ run_install_mise() {
     run_command sh "${tmp_dir}/install.sh" || status=$?
   fi
 
+  # The installer just placed the binary at ~/.local/bin/mise, but that
+  # directory is not necessarily on this process's PATH yet (it usually
+  # only gets added by a login shell's rc file) — without this, the very
+  # next `mise use -g ...` call in the same run fails with "not found",
+  # even though the install itself succeeded.
+  if [ "${status}" -eq 0 ] && ! command -v mise > /dev/null 2>&1; then
+    case ":${PATH}:" in
+      *":${HOME}/.local/bin:"*) ;;
+      *) export PATH="${HOME}/.local/bin:${PATH}" ;;
+    esac
+    if ! command -v mise > /dev/null 2>&1; then
+      log_message "ERROR" "mise was installed but is not on PATH (expected ${HOME}/.local/bin/mise) — reload your shell and retry"
+      status=1
+    fi
+  fi
+
   # Local vars like tmp_dir go out of scope on return, but EXIT/INT/TERM traps
   # are process-global and would otherwise keep referencing it after this
   # function returns, crashing later (with set -u) when the trap finally fires.
@@ -766,7 +783,17 @@ _offer_mise_activation() {
   fi
 
   printf '\n# Added by nvim-config install mise\n%s\n' "${activate_line}" >> "${rc_file}"
+  MISE_ACTIVATION_PENDING=1
   log_message "INFO" "Added mise activation to ${rc_file} — reload your shell to use it: 'source ${rc_file}' (or open a new terminal)"
+}
+
+# Called at the end of any `install` subcommand that may have triggered
+# _offer_mise_activation, so the reminder survives past a wall of
+# `install deps`/apt output instead of getting buried mid-run.
+_maybe_remind_mise_activation() {
+  if [ "${MISE_ACTIVATION_PENDING}" -eq 1 ]; then
+    log_message "INFO" "Reminder: reload your shell to finish setting up mise — 'source $(_mise_shell_rc_file)' (or open a new terminal)"
+  fi
 }
 
 _confirm() {
@@ -1380,9 +1407,11 @@ run_install() {
       ;;
     nvim)
       run_install_nvim
+      _maybe_remind_mise_activation
       ;;
     mise)
       run_install_mise
+      _maybe_remind_mise_activation
       ;;
     claude)
       run_install_claude
@@ -1398,6 +1427,7 @@ run_install() {
       run_install_nvim || { log_message "WARN" "nvim install failed — continuing with deps and config"; had_error=1; }
       run_install_deps || had_error=1
       run_install_config || had_error=1
+      _maybe_remind_mise_activation
       return "${had_error}"
       ;;
     *)

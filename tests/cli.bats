@@ -877,3 +877,22 @@ EOF
   [ "$status" -eq 0 ]
   [[ "$output" == *"mise"* ]]
 }
+
+@test "run_install_mise adds ~/.local/bin to PATH after a fresh install so mise is usable immediately" {
+  run grep -n -- '\.local/bin' bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "export PATH=" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "run_install_mise errors clearly if mise still isn't reachable right after installing it" {
+  run grep -n "mise was installed but is not on PATH" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install all reminds to reload the shell at the end if mise activation was just added" {
+  run grep -n "MISE_ACTIVATION_PENDING" bin/nvim-config
+  [ "$status" -eq 0 ]
+  run grep -n "Reminder: reload your shell" bin/nvim-config
+  [ "$status" -eq 0 ]
+}

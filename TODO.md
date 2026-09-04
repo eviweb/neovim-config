@@ -272,6 +272,8 @@
 - [x] mise shell activation: prompt to add the activation line to the user's shell rc (bash/zsh/fish) after a fresh `install mise`, idempotent (skips if already present), with a reload reminder; `--activate`/`--no-activate` flags to force either outcome unattended (for automated installs)
 - [x] `install nvim --mise`: auto-installs missing prerequisites (curl/gnupg) via apt with no extra prompt, since `--mise` is already explicit consent
 - [x] Fix: `set -e` is silently suppressed for the whole call subtree when a function is used as the left side of `||` (as `run_install_nvim` always is, from `install all`) — every fallible step in `_install_nvim_via`, `_install_nvim_auto`, and `run_install_deps` is now explicitly guarded instead of relying on implicit propagation
+- [x] Fix: `run_install_mise` now adds `~/.local/bin` to its own PATH right after a successful install so `mise use -g neovim@latest` works immediately in the same run, without waiting for a shell reload
+- [x] The mise activation "reload your shell" reminder is now repeated once more at the very end of `install nvim`/`install mise`/`install all`, so it isn't buried under later apt output
 
 ---
 
