@@ -43,6 +43,14 @@ require('noice').setup({
         { filter = { event = 'msg_show', find = 'written' }, opts = { skip = true } },
         -- Suppress search wrap messages
         { filter = { event = 'msg_show', find = 'search hit' }, opts = { skip = true } },
+        -- List-style command output (:scriptnames, :marks, :registers, :highlight,
+        -- :map, :autocmd, :command, :buffers, ...) defaults to the same "notify"
+        -- view as echo/echomsg, with opts.replace = true. nvim-notify auto-dismisses
+        -- after its configured timeout (see plugins/noice.lua); once dismissed, a
+        -- later call tries to replace an already-closed notification and silently
+        -- shows nothing. A split has no such lifecycle and is a better fit for
+        -- long, browsable list output anyway.
+        { filter = { event = 'msg_show', kind = 'list_cmd' }, view = 'split' },
     },
     views = {
         cmdline_popup = {

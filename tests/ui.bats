@@ -1044,3 +1044,9 @@ setup() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"Gemini"* ]]
 }
+
+@test "noice routes list_cmd messages (e.g. :scriptnames, :marks) to a split, not the default notify view" {
+  run grep -n "list_cmd" lua/config/noice.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"split"* ]]
+}

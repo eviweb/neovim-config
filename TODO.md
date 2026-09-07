@@ -280,6 +280,12 @@
 
 ---
 
+## Phase 18 — UI Fixes
+
+- [x] Fix: noice.nvim routed list-style command output (`:scriptnames`, `:marks`, `:registers`, `:highlight`, `:map`, `:autocmd`, `:command`, `:buffers`, ...) through the same `notify` view as `:echo`/`:echomsg`, with `opts.replace = true`; once the prior nvim-notify toast auto-dismissed, replaying the same or another list-style command tried to replace an expired notification and silently showed nothing. `list_cmd`-kind messages now route to a `split` view instead
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
