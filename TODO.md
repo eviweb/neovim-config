@@ -286,6 +286,12 @@
 
 ---
 
+## Phase 19 — Dependency Fixes
+
+- [x] Fix: `make` is checked by `nvim-config doctor` under "Required binaries" but was never installed by `install deps`, silently breaking `telescope-fzf-native.nvim`'s native build on a fresh machine — same class of oversight as the `git` fix (Phase 17)
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
