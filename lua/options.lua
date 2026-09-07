@@ -46,7 +46,11 @@ vim.opt.tabstop = 4 -- sets the numbers of spaces for tabs
     Behaviour
 --]]
 -- Global
-vim.opt.clipboard = 'unnamedplus' -- enables the clipboard between neovim and others
+-- No automatic system-clipboard sync here on purpose: with clipboard=unnamedplus,
+-- every single yank/delete/put (x, dd, p, ...) shells out to the system clipboard
+-- tool (xclip/xsel/wl-copy), which can lag or drop key repeats entirely on slower
+-- setups (e.g. containers). YY/XX/PP (lua/keymaps.lua) already give explicit,
+-- on-demand access to the "+ register for interop with other applications.
 vim.opt.completeopt = { 'menu', 'menuone', 'noselect', 'noinsert' } -- customizes the auto-completion
 vim.opt.hidden = true -- allows multiple buffers
 vim.opt.mouse = 'a' -- allows the use of the mouse in all modes

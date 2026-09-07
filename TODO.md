@@ -294,6 +294,12 @@
 
 ---
 
+## Phase 20 — Editing Performance
+
+- [x] Fix: `vim.opt.clipboard = 'unnamedplus'` made every yank/delete/put shell out to the system clipboard tool, laggy enough on slower setups (containers) that holding `x`/`p` down only registered the first press. Removed — `YY`/`XX`/`PP` already give explicit, on-demand clipboard access, making automatic sync both redundant and the source of the lag
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

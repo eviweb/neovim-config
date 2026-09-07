@@ -215,6 +215,20 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "options does not force clipboard=unnamedplus (every yank/delete/put would shell out to the system clipboard tool, causing input lag / dropped key repeats — YY/XX/PP already provide explicit access)" {
+  run grep -n "^vim.opt.clipboard" lua/options.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "keymaps provide explicit system-clipboard yank/cut/paste via YY/XX/PP" {
+  run grep -n 'noremap YY "+y' lua/keymaps.lua
+  [ "$status" -eq 0 ]
+  run grep -n 'noremap XX "+x' lua/keymaps.lua
+  [ "$status" -eq 0 ]
+  run grep -n 'noremap PP "+p' lua/keymaps.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "keymaps remap 0 to first non-blank character" {
   run grep -n "'0', '\\^'" lua/keymaps.lua
   [ "$status" -eq 0 ]
