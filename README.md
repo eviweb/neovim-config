@@ -20,6 +20,7 @@ Installed automatically by `install deps`:
 |---------|---------|
 | `git` | Mandatory — clones plugins via lazy.nvim; Neovim refuses to load plugins without it |
 | `make` | Builds the native `telescope-fzf-native.nvim` sorter |
+| `gcc` | C compiler — `make` alone is not enough, the sorter's Makefile calls `cc` |
 | `curl` | Plugin download, nvm install |
 | `ripgrep` | Telescope live grep |
 | `fd-find` | Telescope file finder |

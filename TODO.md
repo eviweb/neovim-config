@@ -289,6 +289,7 @@
 ## Phase 19 — Dependency Fixes
 
 - [x] Fix: `make` is checked by `nvim-config doctor` under "Required binaries" but was never installed by `install deps`, silently breaking `telescope-fzf-native.nvim`'s native build on a fresh machine — same class of oversight as the `git` fix (Phase 17)
+- [x] Fix: `make` alone isn't enough for `telescope-fzf-native.nvim` — its Makefile also needs `cc`. `install deps` now installs `gcc`, and `doctor` moves it from optional "Build tools" to "Required binaries" (`cargo` stays optional)
 
 ---
 

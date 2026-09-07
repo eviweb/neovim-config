@@ -288,7 +288,7 @@ run_doctor() {
     _check_bin "make"  || true
   else
     log_message "INFO" "=== Required binaries ==="
-    for bin in git make rg fdfind node npm; do
+    for bin in git make gcc rg fdfind node npm; do
       _check_bin "${bin}" || all_ok=0
     done
     log_message "INFO" "=== Optional tools ==="
@@ -299,10 +299,8 @@ run_doctor() {
     for bin in python3 pyright ruff black mypy; do
       _check_bin "${bin}" || true
     done
-    log_message "INFO" "=== Build tools ==="
-    for bin in cargo gcc; do
-      _check_bin "${bin}" || true
-    done
+    log_message "INFO" "=== Build tools (optional) ==="
+    _check_bin "cargo" || true
   fi
 
   if [ "${all_ok}" -eq 1 ]; then
@@ -1389,7 +1387,7 @@ run_install_deps() {
     run_command pkg install curl ripgrep fd git make nodejs npm
   else
     run_command sudo apt update || return 1
-    run_command sudo apt install -y git make curl ripgrep fd-find xsel xclip lolcat gnupg
+    run_command sudo apt install -y git make gcc curl ripgrep fd-find xsel xclip lolcat gnupg
     if [ "${WITH_NODE}" -eq 1 ]; then
       run_install_node
     fi

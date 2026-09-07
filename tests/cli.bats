@@ -22,7 +22,7 @@ setup() {
   run ./bin/nvim-config --dry-run install
   [ "$status" -eq 0 ]
   [[ "$output" == *"sudo apt update"* ]]
-  [[ "$output" == *"sudo apt install -y git make curl ripgrep fd-find xsel xclip lolcat"* ]]
+  [[ "$output" == *"sudo apt install -y git make gcc curl ripgrep fd-find xsel xclip lolcat"* ]]
 }
 
 @test "install deps dry-run installs apt packages" {
@@ -47,6 +47,17 @@ setup() {
   run ./bin/nvim-config --dry-run install deps
   [ "$status" -eq 0 ]
   [[ "$output" == *"make"* ]]
+}
+
+@test "install deps includes gcc (make alone is not enough — telescope-fzf-native.nvim's Makefile calls cc)" {
+  run ./bin/nvim-config --dry-run install deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"gcc"* ]]
+}
+
+@test "doctor lists gcc as a required binary, not merely optional (telescope-fzf-native.nvim needs it by default)" {
+  run grep -n "for bin in git make gcc rg fdfind node npm" bin/nvim-config
+  [ "$status" -eq 0 ]
 }
 
 @test "install config dry-run prints symlink command" {
