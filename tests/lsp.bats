@@ -61,6 +61,11 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "jsonls auto-install is gated on npm being executable (json-lsp is an npm package; Node.js is opt-in via install deps --with-node)" {
+  run grep -n "vim.fn.executable('npm')" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "null-ls plugin uses the maintained none-ls repository" {
   run grep -n "nvimtools/none-ls.nvim" lua/plugins/null-ls.lua
   [ "$status" -eq 0 ]

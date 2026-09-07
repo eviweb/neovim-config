@@ -210,7 +210,10 @@ needs it on `PATH` to build parsers; without it, parser installs fail with
 
 - Run `:Lazy` to review plugin status
 - Run `:Mason` to open the LSP server manager and install servers for your
-  languages (e.g. `lua_ls`, `jsonls` are pre-configured and installed automatically)
+  languages — `lua_ls` (Lua, standalone binary) is pre-configured and
+  installed automatically; `jsonls` (JSON) is too, but only if `npm` is
+  present, since `json-lsp` is an npm package (see [Node.js](#nodejs) —
+  Node.js is opt-in, run `install deps --with-node` first if you need it)
 - Restart Neovim after Mason finishes
 
 ## Updating

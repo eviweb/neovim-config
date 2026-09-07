@@ -97,8 +97,17 @@ require('mason').setup()
 -- On Termux, Mason binaries are often unavailable for ARM; skip auto-install
 -- and rely on manually installed servers only.
 if not profiles.is_active('termux') then
+    -- lua_ls is a standalone binary and always auto-installs. jsonls (json-lsp)
+    -- is an npm package — Mason installs it via `npm install`, which fails with
+    -- a Mason error on every startup if Node.js isn't present. Node.js is
+    -- opt-in in this config (`install deps --with-node`), so skip jsonls
+    -- entirely when npm is missing rather than retrying a known failure.
+    local base_lsp_servers = { 'lua_ls' }
+    if vim.fn.executable('npm') == 1 then
+        table.insert(base_lsp_servers, 'jsonls')
+    end
     require('mason-lspconfig').setup({
-        ensure_installed = vim.list_extend({ 'jsonls', 'lua_ls' }, profiles.get_lsp_servers()),
+        ensure_installed = vim.list_extend(base_lsp_servers, profiles.get_lsp_servers()),
     })
 else
     require('mason-lspconfig').setup({})

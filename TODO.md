@@ -300,7 +300,13 @@
 
 ---
 
-## Phase 21 — Treesitter Fixes
+## Phase 21 — LSP Fixes
+
+- [x] Fix: `jsonls` auto-install failed on every startup with a Mason error (`Could not find executable "npm" in PATH`) on machines without Node.js, since `json-lsp` is an npm package and Node.js is intentionally opt-in (`install deps --with-node`). Now gated on `vim.fn.executable('npm')`, skipped silently instead of retrying a known failure; `lua_ls` (standalone binary) is unaffected
+
+---
+
+## Phase 22 — Treesitter Fixes
 
 - [x] Fix: `nvim-treesitter` failed to build parsers on first launch (`ENOENT ... 'tree-sitter'`) — the vendored CLI (`nvim-config update tree-sitter` → `vendor/tree-sitter/`) was never added to Neovim's `PATH`, and the command was undocumented. `lua/config/treesitter.lua` now prepends the vendor dir to `PATH` when present; `install all` now also runs `update tree-sitter` automatically (idempotent) so it works out of the box on a fresh install
 
