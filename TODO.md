@@ -335,6 +335,13 @@
 - [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to
   current manual registry approach); evaluate if the current approach proves insufficient
 
+### CLI
+
+- [ ] `nvim-config uninstall [nvim|mise|config|deps|all]` — reverse the corresponding `install`
+  subcommand(s): remove the `~/.config/nvim` symlink, uninstall mise/nvim depending on how they
+  were installed, optionally remove apt-installed deps; needs a clear policy on what "all" should
+  and shouldn't touch (e.g. never remove packages another tool might also depend on)
+
 ### Config distribution selector
 
 - [ ] `nvim-config install config --preset <name|url>` — extend `install config` to support
