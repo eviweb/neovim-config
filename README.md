@@ -24,9 +24,16 @@ Installed automatically by `install deps`:
 | `curl` | Plugin download, nvm install |
 | `ripgrep` | Telescope live grep |
 | `fd-find` | Telescope file finder |
-| `xsel` / `xclip` | System clipboard integration |
+| `xsel` / `xclip` | System clipboard integration (X11) |
+| `wl-clipboard` | System clipboard integration (Wayland) |
 | `lolcat` | Colored CLI output |
 | `gnupg` | Verifies the `mise` installer signature (`install mise`) |
+
+Both X11 and Wayland clipboard tools are always installed, regardless of the
+current session type — `install deps` may run over SSH or before any
+graphical session starts, so there's no reliable way to detect which one
+will actually be used later. Neovim's own clipboard provider picks the
+right tool at runtime based on the active session.
 
 If the config was obtained without `git` already present (e.g. copied or
 mounted rather than cloned), Neovim will refuse to load plugins and print a

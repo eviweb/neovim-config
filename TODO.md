@@ -290,6 +290,7 @@
 
 - [x] Fix: `make` is checked by `nvim-config doctor` under "Required binaries" but was never installed by `install deps`, silently breaking `telescope-fzf-native.nvim`'s native build on a fresh machine — same class of oversight as the `git` fix (Phase 17)
 - [x] Fix: `make` alone isn't enough for `telescope-fzf-native.nvim` — its Makefile also needs `cc`. `install deps` now installs `gcc`, and `doctor` moves it from optional "Build tools" to "Required binaries" (`cargo` stays optional)
+- [x] `install deps` installs `wl-clipboard` alongside `xsel`/`xclip` — no Wayland clipboard support previously. Installed unconditionally (not auto-detected) since session-type detection is unreliable when `install deps` runs over SSH or before any graphical session starts; Neovim's clipboard provider already picks the right tool at runtime
 
 ---
 

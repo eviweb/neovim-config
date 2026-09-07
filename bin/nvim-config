@@ -1387,7 +1387,7 @@ run_install_deps() {
     run_command pkg install curl ripgrep fd git make nodejs npm
   else
     run_command sudo apt update || return 1
-    run_command sudo apt install -y git make gcc curl ripgrep fd-find xsel xclip lolcat gnupg
+    run_command sudo apt install -y git make gcc curl ripgrep fd-find xsel xclip wl-clipboard lolcat gnupg
     if [ "${WITH_NODE}" -eq 1 ]; then
       run_install_node
     fi

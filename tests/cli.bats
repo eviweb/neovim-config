@@ -22,7 +22,7 @@ setup() {
   run ./bin/nvim-config --dry-run install
   [ "$status" -eq 0 ]
   [[ "$output" == *"sudo apt update"* ]]
-  [[ "$output" == *"sudo apt install -y git make gcc curl ripgrep fd-find xsel xclip lolcat"* ]]
+  [[ "$output" == *"sudo apt install -y git make gcc curl ripgrep fd-find xsel xclip wl-clipboard lolcat"* ]]
 }
 
 @test "install deps dry-run installs apt packages" {
@@ -53,6 +53,14 @@ setup() {
   run ./bin/nvim-config --dry-run install deps
   [ "$status" -eq 0 ]
   [[ "$output" == *"gcc"* ]]
+}
+
+@test "install deps includes wl-clipboard (Wayland) alongside xsel/xclip (X11) — Neovim picks the right one at runtime" {
+  run ./bin/nvim-config --dry-run install deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"wl-clipboard"* ]]
+  [[ "$output" == *"xsel"* ]]
+  [[ "$output" == *"xclip"* ]]
 }
 
 @test "doctor lists gcc as a required binary, not merely optional (telescope-fzf-native.nvim needs it by default)" {
