@@ -36,6 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `install deps` now installs `make` — it was checked by `nvim-config doctor` under "Required binaries" but never actually installed, so `telescope-fzf-native.nvim`'s native build silently failed on a fresh machine (`/bin/bash: line 1: make: command not found`), same class of oversight as the `git` fix above
 - `make` alone isn't enough to build `telescope-fzf-native.nvim`: its Makefile also calls `cc` (`make: cc: No such file or directory`). `install deps` now installs `gcc` too, and `nvim-config doctor` moves `gcc` from the optional "Build tools" section to "Required binaries" (`cargo` stays optional — only needed for Rust-profile DAP tooling) since `telescope-fzf-native.nvim` is a baseline plugin (loaded by the default "classic" UI variant, not profile-gated)
 
+### Changed
+- Update pinned plugin commits in `lazy-lock.json` (routine `:Lazy sync`) — 30 plugins bumped to their latest tracked commit, no plugin added or removed
+
 ## [0.6.1] - 2026-09-01
 
 ### Security
