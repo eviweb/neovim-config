@@ -517,3 +517,8 @@ The `Notes` column shows `classic` for classic confinement; empty means strict.
 
 Bootstrap and plugin wiring are covered by static regression tests regardless of
 confinement mode, and by headless smoke tests where the environment permits.
+
+## Contributing
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Found a security issue? See
+[`SECURITY.md`](SECURITY.md) instead of opening a public issue.
