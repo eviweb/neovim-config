@@ -1452,6 +1452,10 @@ run_install() {
       run_install_nvim || { log_message "WARN" "nvim install failed — continuing with deps and config"; had_error=1; }
       run_install_deps || had_error=1
       run_install_config || had_error=1
+      # After deps (curl is guaranteed present by then) — nvim-treesitter shells
+      # out to a bare `tree-sitter` command with no configurable path, so the
+      # CLI needs to exist before the first parser install attempt at VimEnter.
+      run_update_tree_sitter || had_error=1
       _maybe_remind_mise_activation
       return "${had_error}"
       ;;

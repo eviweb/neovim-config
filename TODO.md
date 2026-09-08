@@ -300,6 +300,12 @@
 
 ---
 
+## Phase 21 — Treesitter Fixes
+
+- [x] Fix: `nvim-treesitter` failed to build parsers on first launch (`ENOENT ... 'tree-sitter'`) — the vendored CLI (`nvim-config update tree-sitter` → `vendor/tree-sitter/`) was never added to Neovim's `PATH`, and the command was undocumented. `lua/config/treesitter.lua` now prepends the vendor dir to `PATH` when present; `install all` now also runs `update tree-sitter` automatically (idempotent) so it works out of the box on a fresh install
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

@@ -3,6 +3,19 @@
 -- nvim-treesitter.configs has been removed; each concern is now independent.
 
 -- ---------------------------------------------------------------------------
+-- tree-sitter CLI
+-- nvim-treesitter shells out to a bare `tree-sitter build` command with no
+-- option to configure its path — it relies entirely on PATH. `nvim-config
+-- update tree-sitter` downloads the CLI into vendor/tree-sitter/; prepend it
+-- to PATH here so that download is actually used instead of silently doing
+-- nothing (previously: ENOENT, "Error during tree-sitter build").
+-- ---------------------------------------------------------------------------
+local vendor_tree_sitter = vim.fn.stdpath('config') .. '/vendor/tree-sitter'
+if vim.fn.executable(vendor_tree_sitter .. '/tree-sitter') == 1 then
+    vim.env.PATH = vendor_tree_sitter .. ':' .. vim.env.PATH
+end
+
+-- ---------------------------------------------------------------------------
 -- Parser installation
 -- ---------------------------------------------------------------------------
 local parsers = {

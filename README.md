@@ -203,7 +203,10 @@ nvim
 ```
 
 On first startup, lazy.nvim bootstraps itself and installs all declared plugins
-automatically. This may take a minute. Once complete:
+automatically. This may take a minute. `install all` also fetches the
+`tree-sitter` CLI (into `vendor/tree-sitter/`) beforehand — nvim-treesitter
+needs it on `PATH` to build parsers; without it, parser installs fail with
+`ENOENT ... 'tree-sitter'` on first launch. Once complete:
 
 - Run `:Lazy` to review plugin status
 - Run `:Mason` to open the LSP server manager and install servers for your
@@ -217,6 +220,7 @@ automatically. This may take a minute. Once complete:
 ./bin/nvim-config update nvim              # Neovim only
 ./bin/nvim-config update plugins           # plugins only
 ./bin/nvim-config update dap-adapters      # Mason DAP packages for the active profile
+./bin/nvim-config update tree-sitter       # tree-sitter CLI (vendor/tree-sitter/) — also run by `install all`
 ```
 
 ### Neovim (manual)

@@ -780,6 +780,23 @@ EOF
   [ "$status" -eq 0 ]
 }
 
+@test "install all also fetches the tree-sitter CLI (needed by nvim-treesitter to build parsers on first launch)" {
+  run grep -n "run_update_tree_sitter" bin/nvim-config
+  [ "$status" -eq 0 ]
+  # must appear inside run_install's all) case, not just the update command
+  # (def + update's tree-sitter case + update's all case = 3 already; a 4th
+  # occurrence means install's all) case also calls it)
+  run grep -c "run_update_tree_sitter" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [ "$output" -ge 4 ]
+}
+
+@test "install --dry-run all fetches tree-sitter" {
+  run ./bin/nvim-config --dry-run install all
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
 @test "install nvim auto mode offers to install missing mise prerequisites via apt in the same prompt" {
   run grep -n -- "+ mise now" bin/nvim-config
   [ "$status" -eq 0 ]

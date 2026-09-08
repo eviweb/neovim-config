@@ -96,6 +96,13 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "treesitter config adds the vendored tree-sitter CLI to PATH if present (nvim-treesitter shells out to a bare 'tree-sitter' command with no configurable path)" {
+  run grep -n "vendor/tree-sitter" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+  run grep -n "vim.env.PATH" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "treesitter config uses vim.treesitter.foldexpr for folds" {
   run grep -n "vim\.treesitter\.foldexpr" lua/config/treesitter.lua
   [ "$status" -eq 0 ]
