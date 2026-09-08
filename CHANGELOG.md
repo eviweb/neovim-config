@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-09-08
+
 ### Added
 - `install mise` CLI subcommand — installs the [mise](https://mise.jdx.dev) version manager via curl, verifying the official release GPG key (`24853EC9F655CE80B48E6C3A8B81C9D17413A06D`) before executing the installer; idempotent (skips if `mise` is already present)
 - `install nvim` (no explicit flag) now cascades interactively: use `mise` if present → else prompt to install it → else use `snap` if present → else prompt to install `snapd` → else fall back to `apt`; prompts auto-decline outside a TTY, under `--quiet`, or under `--dry-run` (never blocks CI or scripted runs)
@@ -273,7 +275,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.6.1...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/eviweb/neovim-config/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/eviweb/neovim-config/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/eviweb/neovim-config/compare/0.5.0...0.6.0
 [0.5.0]: https://github.com/eviweb/neovim-config/compare/0.4.1...0.5.0
