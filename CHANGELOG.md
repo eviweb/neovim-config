@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-08
+
 ### Added
 - `SECURITY.md` — vulnerability reporting policy, scoped to the CLI's privileged/network operations (sudo installs, mise's GPG-verified installer, tree-sitter CLI download, shell rc writes)
 - `CONTRIBUTING.md` — contribution workflow (branch/commit conventions, TDD requirement, test/shellcheck steps); linked from a new README "Contributing" section
@@ -282,7 +284,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.7.0...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.7.1...HEAD
+[0.7.1]: https://github.com/eviweb/neovim-config/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/eviweb/neovim-config/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/eviweb/neovim-config/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/eviweb/neovim-config/compare/0.5.0...0.6.0
