@@ -1,6 +1,30 @@
-.packer
+# Local per-project overrides (see README — Project Profiles / UI Variants / Colorschemes)
+.nvim-profile
 .nvim-ui
 .nvim-theme
 
 # lua-language-server local config — path is installation-specific (snap, apt, Termux differ)
 .luarc.json
+
+# Legacy packer state (superseded by lazy.nvim)
+.packer
+
+# Downloaded CLI binaries (nvim-config update tree-sitter)
+/vendor/
+
+# Private local notes, draft release/commit messages — never committed
+.private/
+
+# Claude Code local session state
+.claude/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~

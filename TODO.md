@@ -322,6 +322,13 @@
 
 ---
 
+## Phase 24 — Pre-Publication Hygiene
+
+- [x] Fix: `.private/` and `vendor/` were only ignored via the maintainer's personal global `~/.gitignore`, not the project's own — a blind spot for anyone else cloning the repo. Added explicitly, plus the missing `.nvim-profile` entry (third local override file, siblings `.nvim-ui`/`.nvim-theme` were already covered) and standard OS/editor artifacts
+- [x] Added `SECURITY.md` and `CONTRIBUTING.md` ahead of making the repo public (0.7.1)
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

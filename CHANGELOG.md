@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `.private/` and `vendor/` (the downloaded `tree-sitter` CLI) were only kept untracked by the maintainer's personal *global* `~/.gitignore`, not the project's own `.gitignore` — invisible to anyone else cloning the repo, e.g. `git add -A` would have picked them up. Both are now explicitly ignored at the project level, alongside a missing `.nvim-profile` entry (the third local per-project override file — `.nvim-ui`/`.nvim-theme` were already covered) and standard OS/editor artifacts
+
 ## [0.7.1] - 2026-09-08
 
 ### Added
