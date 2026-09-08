@@ -950,6 +950,88 @@ EOF
   [[ "$output" == *"mise"* ]]
 }
 
+@test "bash completion offers classic/modern after 'ui set', not profile subcommands (regression: previous_word 'set' is ambiguous between profile/ui/theme)" {
+  run bash -c '
+    source <(./bin/nvim-config --show-completion bash)
+    COMP_WORDS=(nvim-config ui set "")
+    COMP_CWORD=3
+    _nvim_config_completions
+    echo "${COMPREPLY[*]}"
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "classic modern" ]
+}
+
+@test "bash completion offers theme names after 'theme set', not profile subcommands" {
+  run bash -c '
+    source <(./bin/nvim-config --show-completion bash)
+    COMP_WORDS=(nvim-config theme set "")
+    COMP_CWORD=3
+    _nvim_config_completions
+    echo "${COMPREPLY[*]}"
+  '
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nightfox"* ]]
+  [[ "$output" == *"catppuccin-mocha"* ]]
+  [[ "$output" != *"detect"* ]]
+}
+
+@test "bash completion still offers list/detect/set/unset/create/info after bare 'profile'" {
+  run bash -c '
+    source <(./bin/nvim-config --show-completion bash)
+    COMP_WORDS=(nvim-config profile "")
+    COMP_CWORD=2
+    _nvim_config_completions
+    echo "${COMPREPLY[*]}"
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "list detect set unset create info" ]
+}
+
+@test "bash completion still offers info/set/unset after bare 'ui'" {
+  run bash -c '
+    source <(./bin/nvim-config --show-completion bash)
+    COMP_WORDS=(nvim-config ui "")
+    COMP_CWORD=2
+    _nvim_config_completions
+    echo "${COMPREPLY[*]}"
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "info set unset" ]
+}
+
+@test "bash completion still offers info/list/set/unset after bare 'theme'" {
+  run bash -c '
+    source <(./bin/nvim-config --show-completion bash)
+    COMP_WORDS=(nvim-config theme "")
+    COMP_CWORD=2
+    _nvim_config_completions
+    echo "${COMPREPLY[*]}"
+  '
+  [ "$status" -eq 0 ]
+  [ "$output" = "info list set unset" ]
+}
+
+@test "zsh completion offers classic/modern specifically after 'ui set'" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  run grep -n "words\[3\].*set" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "zsh completion offers theme names specifically after 'theme set'" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nightfox"* ]]
+}
+
+@test "fish completion offers theme names specifically after 'theme set' (parity with the existing ui/set/classic-modern completion)" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  run grep -n "seen_subcommand_from theme; and __fish_seen_subcommand_from set" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
 @test "run_install_mise adds ~/.local/bin to PATH after a fresh install so mise is usable immediately" {
   run grep -n -- '\.local/bin' bin/nvim-config
   [ "$status" -eq 0 ]

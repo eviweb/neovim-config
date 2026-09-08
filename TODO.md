@@ -312,6 +312,16 @@
 
 ---
 
+## Phase 23 — Shell Completion Fixes
+
+- [x] Full code/doc consistency audit: `--help` verified complete against the actual command dispatch (no command, subcommand, or flag missing or stale) — no gaps found
+- [x] Fix: bash completion offered `list detect set unset create info` (profile's subcommands) after `ui set`/`theme set` instead of `classic modern` / theme names — `set`/`unset`/`info` are shared across profile/ui/theme and matching on the previous word alone picked profile's pattern first; a dedicated `classic|modern)` case existed but was dead code, unreachable due to case ordering. Bash completion now dispatches on the top-level command first
+- [x] zsh gained the missing third-level completion (`ui set` → classic/modern, `theme set` → theme names) — it only completed two levels deep before
+- [x] fish gained theme-name completion after `theme set`, for parity with the `ui`/`set`/classic-modern completion it already had
+- [x] Theme names are now injected into all 3 generated completion scripts from the single `VALID_THEMES` array (placeholder substitution in `show_completion()`) instead of being hand-duplicated — one source of truth
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

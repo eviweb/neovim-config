@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Shell completion: `nvim-config ui set <TAB>` and `nvim-config theme set <TAB>` incorrectly offered `list detect set unset create info` (profile's subcommands) instead of `classic modern` / the 14 theme names. Bash completion matched on the immediately preceding word only, and `set`/`unset`/`info` are shared between `profile`/`ui`/`theme`, so the `profile` pattern matched first — a dedicated `classic|modern)` case existed but was unreachable dead code. Bash completion now dispatches on the top-level command first, then disambiguates within it; zsh and fish gained the missing third-level completion (theme names) for parity with the `ui`/`classic`/`modern` case fish already had
+
 ## [0.7.0] - 2026-09-08
 
 ### Added

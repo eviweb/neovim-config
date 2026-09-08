@@ -323,37 +323,54 @@ run_keymaps() {
 _show_completion_bash() {
   cat <<'EOF'
 _nvim_config_completions() {
-  local current_word previous_word
+  local current_word previous_word top_word
   current_word="${COMP_WORDS[COMP_CWORD]}"
   previous_word="${COMP_WORDS[COMP_CWORD-1]}"
+  top_word="${COMP_WORDS[1]}"
 
   case "${previous_word}" in
     --show-completion|--install-completion)
       COMPREPLY=( $(compgen -W "bash zsh fish" -- "${current_word}") )
       return 0
       ;;
-    install|deps|config|all|tmux|nvim|mise|claude|codex|gemini)
+  esac
+
+  # Dispatch on the top-level command first — "set"/"unset"/"info" are
+  # shared subcommand names across profile/ui/theme, so matching on
+  # previous_word alone (as this used to) is ambiguous: e.g. "ui set <TAB>"
+  # would incorrectly offer profile's subcommand list instead of
+  # classic/modern.
+  case "${top_word}" in
+    install)
       COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise --activate --no-activate" -- "${current_word}") )
       return 0
       ;;
-    update|plugins)
+    update)
       COMPREPLY=( $(compgen -W "nvim plugins dap-adapters tree-sitter all" -- "${current_word}") )
       return 0
       ;;
-    profile|list|detect|set|unset|create|info)
-      COMPREPLY=( $(compgen -W "list detect set unset create info" -- "${current_word}") )
+    profile)
+      if [ "${previous_word}" = "profile" ]; then
+        COMPREPLY=( $(compgen -W "list detect set unset create info" -- "${current_word}") )
+      else
+        COMPREPLY=()
+      fi
       return 0
       ;;
     ui)
-      COMPREPLY=( $(compgen -W "info set unset" -- "${current_word}") )
-      return 0
-      ;;
-    classic|modern)
-      COMPREPLY=()
+      case "${previous_word}" in
+        ui)  COMPREPLY=( $(compgen -W "info set unset" -- "${current_word}") ) ;;
+        set) COMPREPLY=( $(compgen -W "classic modern" -- "${current_word}") ) ;;
+        *)   COMPREPLY=() ;;
+      esac
       return 0
       ;;
     theme)
-      COMPREPLY=( $(compgen -W "info list set unset" -- "${current_word}") )
+      case "${previous_word}" in
+        theme) COMPREPLY=( $(compgen -W "info list set unset" -- "${current_word}") ) ;;
+        set)   COMPREPLY=( $(compgen -W "__VALID_THEMES__" -- "${current_word}") ) ;;
+        *)     COMPREPLY=() ;;
+      esac
       return 0
       ;;
   esac
@@ -466,10 +483,18 @@ _nvim_config() {
       _arguments : "${profile_subcmds[@]}"
       ;;
     ui)
-      _arguments : "${ui_subcmds[@]}"
+      if [[ "${words[3]}" == "set" ]]; then
+        _arguments : '1:variant:(classic modern)'
+      else
+        _arguments : "${ui_subcmds[@]}"
+      fi
       ;;
     theme)
-      _arguments : "${theme_subcmds[@]}"
+      if [[ "${words[3]}" == "set" ]]; then
+        _arguments : '1:theme:(__VALID_THEMES__)'
+      else
+        _arguments : "${theme_subcmds[@]}"
+      fi
       ;;
     status|doctor|keymaps)
       ;;
@@ -565,20 +590,28 @@ complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a info  -d 'Show
 complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a list  -d 'List all available themes'
 complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a set   -d 'Write .nvim-theme at the config root'
 complete -c nvim-config -n '__fish_seen_subcommand_from theme' -a unset -d 'Remove .nvim-theme (reverts to nightfox)'
+complete -c nvim-config -n '__fish_seen_subcommand_from theme; and __fish_seen_subcommand_from set' \
+  -a '__VALID_THEMES__'
 EOF
 }
 
 show_completion() {
   local shell_name="$1"
+  local script
   case "${shell_name}" in
-    bash) _show_completion_bash ;;
-    zsh)  _show_completion_zsh  ;;
-    fish) _show_completion_fish ;;
+    bash) script="$(_show_completion_bash)" ;;
+    zsh)  script="$(_show_completion_zsh)"  ;;
+    fish) script="$(_show_completion_fish)" ;;
     *)
       printf 'Unsupported shell: %s. Supported: bash, zsh, fish\n' "${shell_name}" >&2
       return 1
       ;;
   esac
+  # The three heredocs above are single-quoted (fully literal, safe against
+  # premature expansion of their own $(...) completion logic), so the theme
+  # list — the one genuinely dynamic piece — is injected here instead via a
+  # placeholder substitution.
+  printf '%s\n' "${script//__VALID_THEMES__/${VALID_THEMES[*]}}"
 }
 
 install_completion() {
