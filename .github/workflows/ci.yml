@@ -2,7 +2,24 @@ name: CI
 
 on:
   push:
+    branches:
+      - main
+      - develop
+      - 'feat/**'
+      - 'fix/**'
+      - 'chore/**'
+      - 'docs/**'
+      - 'test/**'
+      - 'release/**'
+      - 'hotfix/**'
   pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -11,8 +28,53 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
+  detect-changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      docs-only: ${{ steps.check.outputs.docs-only }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      # The workflow itself always runs (a required status check needs a run
+      # to report against — a workflow that never triggers leaves a PR stuck
+      # waiting forever). Instead, lint/test are skipped at the job level via
+      # `if:` below when only documentation changed — GitHub reports a
+      # job skipped by `if:` as satisfying a required check, unlike a
+      # workflow that never ran at all.
+      - name: Determine if only docs/text files changed
+        id: check
+        run: |
+          set -euo pipefail
+          if [ "${GITHUB_EVENT_NAME}" = "pull_request" ]; then
+            range="${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }}"
+          else
+            before="${{ github.event.before }}"
+            if [ -z "${before}" ] || [ "${before}" = "0000000000000000000000000000000000000000" ]; then
+              # New branch or force-push with no known prior state — run everything.
+              echo "docs-only=false" >> "${GITHUB_OUTPUT}"
+              exit 0
+            fi
+            range="${before}..${{ github.sha }}"
+          fi
+
+          changed="$(git diff --name-only "${range}")"
+          if [ -z "${changed}" ]; then
+            echo "docs-only=false" >> "${GITHUB_OUTPUT}"
+          elif printf '%s\n' "${changed}" | grep -qvE '\.md$|^docs/|^\.editorconfig$'; then
+            echo "docs-only=false" >> "${GITHUB_OUTPUT}"
+          else
+            echo "docs-only=true" >> "${GITHUB_OUTPUT}"
+          fi
+
   lint:
     name: Lint
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -25,6 +87,8 @@ jobs:
 
   test:
     name: Test
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only != 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
