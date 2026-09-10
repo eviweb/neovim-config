@@ -331,6 +331,23 @@
 
 ---
 
+## Phase 25 — CLI Uninstall Command
+
+- [x] `nvim-config uninstall [config|nvim|mise|deps|all]` — reverses the corresponding `install`
+  subcommand(s): removes the `~/.config/nvim` symlink (only if it points at this repository),
+  removes Neovim (detects mise/snap/apt, same detection as `update nvim`, asks for confirmation),
+  removes the mise binary and the shell activation lines `install mise` added (identified by its
+  own marker comment; tools mise managed are left untouched)
+- [x] `uninstall deps` never runs `apt remove` — the packages `install deps` installs are shared
+  system dependencies other tools may also rely on; it only prints the manual removal command.
+  `uninstall all` follows the same policy and excludes `deps`
+- [x] `uninstall nvim`/`uninstall mise` are gated behind `_confirm`, auto-declining under
+  `--dry-run`/`--quiet`/outside a TTY, consistent with every other confirmation prompt in this CLI
+- [x] Shell completion (bash/zsh/fish) and `--help` updated for the new command; README gained an
+  "Uninstalling" section documenting the deps policy explicitly
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
@@ -367,6 +384,15 @@
 - [ ] neotest profile-driven adapters — `neotest-jest` (web, when Jest is preferred over Vitest),
   `neotest-busted` (Lua/busted projects); deferred until relevant project context
 
+### File explorer
+
+- [ ] `yazi.nvim` (mikavilpas) — floating-window file picker backed by the `yazi` terminal file
+  manager, with rich media preview (images, video, PDF); designed to coexist with neo-tree.nvim
+  and oil.nvim rather than replace either (different interaction model — modal picker, not a
+  sidebar); requires the `yazi` binary (official GPG-verified apt repo)
+  → https://yazi-rs.github.io
+  → https://github.com/mikavilpas/yazi.nvim
+
 ### Plugin management
 
 - [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to
@@ -374,10 +400,10 @@
 
 ### CLI
 
-- [ ] `nvim-config uninstall [nvim|mise|config|deps|all]` — reverse the corresponding `install`
-  subcommand(s): remove the `~/.config/nvim` symlink, uninstall mise/nvim depending on how they
-  were installed, optionally remove apt-installed deps; needs a clear policy on what "all" should
-  and shouldn't touch (e.g. never remove packages another tool might also depend on)
+- [ ] `uninstall` command is missing counterparts for `install tmux|claude|codex|gemini` —
+  scoped out of the 0.8.0 uninstall work (`config|nvim|mise|deps|all` only, matching the
+  original backlog item) to keep that release tight; revisit if the asymmetry becomes a
+  real pain point rather than fixing it speculatively
 
 ### Config distribution selector
 

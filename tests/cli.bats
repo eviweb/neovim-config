@@ -1050,3 +1050,163 @@ EOF
   run grep -n "Reminder: reload your shell" bin/nvim-config
   [ "$status" -eq 0 ]
 }
+
+@test "help documents uninstall command" {
+  run ./bin/nvim-config --help
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"uninstall"* ]]
+}
+
+@test "completion includes uninstall subcommands" {
+  run ./bin/nvim-config --show-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"uninstall"* ]]
+  [[ "$output" == *"config nvim mise deps all"* ]]
+}
+
+@test "zsh completion includes uninstall subcommands" {
+  run ./bin/nvim-config --show-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"uninstall_subcmds"* ]]
+}
+
+@test "fish completion includes uninstall subcommands" {
+  run ./bin/nvim-config --show-completion fish
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"__fish_seen_subcommand_from uninstall"* ]]
+}
+
+@test "uninstall config dry-run prints rm command" {
+  local nvim_config_dir="${HOME}/.config/nvim"
+  local project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}/.config"
+  ln -s "${project_dir}" "${nvim_config_dir}"
+  run ./bin/nvim-config --dry-run uninstall config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"rm"* ]]
+}
+
+@test "uninstall config removes the symlink when it points at this repository" {
+  local nvim_config_dir="${HOME}/.config/nvim"
+  local project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}/.config"
+  ln -s "${project_dir}" "${nvim_config_dir}"
+  run ./bin/nvim-config uninstall config
+  [ "$status" -eq 0 ]
+  [ ! -e "${nvim_config_dir}" ]
+}
+
+@test "uninstall config refuses to remove a symlink pointing elsewhere" {
+  local nvim_config_dir="${HOME}/.config/nvim"
+  local other_dir="${BATS_TEST_TMPDIR}/other"
+  mkdir -p "${HOME}/.config" "${other_dir}"
+  ln -s "${other_dir}" "${nvim_config_dir}"
+  run ./bin/nvim-config uninstall config
+  [ "$status" -eq 1 ]
+  [ -L "${nvim_config_dir}" ]
+}
+
+@test "uninstall config refuses to remove a real directory (not a symlink)" {
+  mkdir -p "${HOME}/.config/nvim"
+  run ./bin/nvim-config uninstall config
+  [ "$status" -eq 1 ]
+  [ -d "${HOME}/.config/nvim" ]
+}
+
+@test "uninstall config is a no-op when nothing is linked" {
+  run ./bin/nvim-config uninstall config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"nothing to uninstall"* ]]
+}
+
+@test "uninstall deps never runs apt remove — prints manual instructions instead" {
+  run ./bin/nvim-config uninstall deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"never removes apt packages"* ]]
+  [[ "$output" == *"sudo apt remove"* ]]
+}
+
+@test "uninstall deps behaves the same under --dry-run (nothing to simulate, it never acts)" {
+  run ./bin/nvim-config --dry-run uninstall deps
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"never removes apt packages"* ]]
+}
+
+@test "uninstall nvim is a no-op when nvim is not installed" {
+  local clean_path="" dir path_dirs
+  IFS=':' read -ra path_dirs <<< "$PATH"
+  for dir in "${path_dirs[@]}"; do
+    [ -x "${dir}/nvim" ] && continue
+    clean_path="${clean_path:+${clean_path}:}${dir}"
+  done
+  PATH="${clean_path}" run ./bin/nvim-config uninstall nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"not installed"* ]]
+}
+
+@test "uninstall mise is a no-op when mise is not installed" {
+  local clean_path="" dir path_dirs
+  IFS=':' read -ra path_dirs <<< "$PATH"
+  for dir in "${path_dirs[@]}"; do
+    [ -x "${dir}/mise" ] && continue
+    clean_path="${clean_path:+${clean_path}:}${dir}"
+  done
+  PATH="${clean_path}" run ./bin/nvim-config uninstall mise
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"not installed"* ]]
+}
+
+@test "uninstall mise declines automatically outside a TTY, leaving mise installed" {
+  local fake_bin="$BATS_TEST_TMPDIR/fake_bin"
+  mkdir -p "$fake_bin"
+  cat > "$fake_bin/mise" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+  chmod +x "$fake_bin/mise"
+
+  PATH="$fake_bin:$PATH" run ./bin/nvim-config uninstall mise
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Skipped"* ]]
+  [ -x "$fake_bin/mise" ]
+}
+
+@test "uninstall nvim declines automatically outside a TTY, leaving nvim installed" {
+  local fake_bin="$BATS_TEST_TMPDIR/fake_bin"
+  mkdir -p "$fake_bin"
+  cat > "$fake_bin/nvim" <<'EOF'
+#!/usr/bin/env bash
+exit 0
+EOF
+  chmod +x "$fake_bin/nvim"
+
+  PATH="$fake_bin:$PATH" run ./bin/nvim-config uninstall nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Skipped"* ]]
+  [ -x "$fake_bin/nvim" ]
+}
+
+@test "uninstall all never touches apt packages (deps step stays informational)" {
+  run ./bin/nvim-config uninstall all
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"never removes apt packages"* ]]
+}
+
+@test "uninstall rejects an unknown subcommand" {
+  run ./bin/nvim-config uninstall bogus
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Unknown uninstall subcommand"* ]]
+}
+
+@test "uninstall mise's rc cleanup targets the exact marker _offer_mise_activation writes" {
+  run grep -c "# Added by nvim-config install mise" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [ "$output" -eq 3 ]
+}
+
+@test "uninstall mise delegates rc-file cleanup to a dedicated helper (independent of the confirm gate)" {
+  run grep -n "_remove_mise_activation" bin/nvim-config
+  [ "$status" -eq 0 ]
+}

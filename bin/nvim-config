@@ -85,6 +85,16 @@ Commands:
                                Skip the mise shell-activation step entirely, no prompt
                                (for automated/non-interactive installs).
 
+  uninstall [config|nvim|mise|deps|all]
+                        Reverse the corresponding install subcommand(s)
+                          config — remove the ~/.config/nvim symlink (only if it points here)
+                          nvim   — remove Neovim (detects mise/snap/apt, asks for confirmation)
+                          mise   — remove the mise binary and its shell activation lines
+                                   (asks for confirmation; tools it managed are left untouched)
+                          deps   — never removes apt packages (they may be shared with other
+                                   tools); prints the manual removal command instead
+                          all    — config, nvim, then mise (deps stays informational, see above)
+
   update [nvim|plugins|dap-adapters|tree-sitter|all]
                         Update Neovim, plugins, or DAP adapters
                           nvim         — refresh Neovim (mise, snap, or apt — auto-detected)
@@ -345,6 +355,10 @@ _nvim_config_completions() {
       COMPREPLY=( $(compgen -W "deps config all tmux nvim mise claude codex gemini --with-node --snap --apt --mise --activate --no-activate" -- "${current_word}") )
       return 0
       ;;
+    uninstall)
+      COMPREPLY=( $(compgen -W "config nvim mise deps all" -- "${current_word}") )
+      return 0
+      ;;
     update)
       COMPREPLY=( $(compgen -W "nvim plugins dap-adapters tree-sitter all" -- "${current_word}") )
       return 0
@@ -376,7 +390,7 @@ _nvim_config_completions() {
   esac
 
   if [ "${COMP_CWORD}" -eq 1 ]; then
-    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install update profile ui theme status doctor keymaps" -- "${current_word}") )
+    COMPREPLY=( $(compgen -W "--help --version --verbose --quiet --debug --dry-run --no-color --no-log --log-dir --show-completion --install-completion install uninstall update profile ui theme status doctor keymaps" -- "${current_word}") )
     return 0
   fi
 
@@ -392,7 +406,7 @@ _show_completion_zsh() {
 #compdef nvim-config
 
 _nvim_config() {
-  local -a commands global_opts install_subcmds
+  local -a commands global_opts install_subcmds uninstall_subcmds
 
   global_opts=(
     '--help[Display usage and exit]'
@@ -431,6 +445,14 @@ _nvim_config() {
     '--no-activate[Skip the mise shell-activation step, no prompt]'
   )
 
+  uninstall_subcmds=(
+    'config:Remove the ~/.config/nvim symlink (only if it points here)'
+    'nvim:Remove Neovim (detects mise/snap/apt, asks for confirmation)'
+    'mise:Remove the mise binary and its shell activation lines'
+    'deps:Never removes apt packages; prints the manual removal command instead'
+    'all:config, nvim, then mise (deps stays informational)'
+  )
+
   update_subcmds=(
     'nvim:Refresh Neovim (snap or apt, auto-detected)'
     'plugins:Run Lazy! sync headlessly'
@@ -463,6 +485,7 @@ _nvim_config() {
 
   commands=(
     'install:Install system dependencies and/or config symlinks'
+    'uninstall:Reverse the corresponding install subcommand(s)'
     'update:Update Neovim, plugins, or DAP adapters'
     'profile:Manage per-project Neovim profiles'
     'ui:Manage the active UI variant'
@@ -475,6 +498,9 @@ _nvim_config() {
   case "${words[2]}" in
     install)
       _arguments : "${install_subcmds[@]}"
+      ;;
+    uninstall)
+      _arguments : "${uninstall_subcmds[@]}"
       ;;
     update)
       _arguments : "${update_subcmds[@]}"
@@ -529,21 +555,23 @@ complete -c nvim-config -l show-completion   -d 'Print the completion script' -a
 complete -c nvim-config -l install-completion -d 'Install completion for the current user' -a 'bash zsh fish'
 
 # Top-level commands (shown when no subcommand has been typed yet)
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a install -d 'Install system dependencies and/or config symlinks'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
+  -a uninstall -d 'Reverse the corresponding install subcommand(s)'
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a update  -d 'Update Neovim, plugins, or DAP adapters'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a profile -d 'Manage per-project Neovim profiles'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a ui      -d 'Manage the active UI variant'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a theme   -d 'Manage the active colorscheme'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a status  -d 'Show current configuration summary'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a doctor  -d 'Check that required tools and binaries are installed'
-complete -c nvim-config -n 'not __fish_seen_subcommand_from install update profile ui theme status doctor keymaps' \
+complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall update profile ui theme status doctor keymaps' \
   -a keymaps -d 'Open the keymaps reference in $PAGER'
 
 # install subcommands
@@ -562,6 +590,13 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -l apt     -d '
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l mise    -d 'Force Neovim install via mise'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l activate -d 'Add mise shell activation unattended, no prompt'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l no-activate -d 'Skip the mise shell-activation step, no prompt'
+
+# uninstall subcommands
+complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a config -d 'Remove the ~/.config/nvim symlink (only if it points here)'
+complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a nvim   -d 'Remove Neovim (detects mise/snap/apt, asks for confirmation)'
+complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a mise   -d 'Remove the mise binary and its shell activation lines'
+complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a deps   -d 'Never removes apt packages; prints the manual removal command instead'
+complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a all    -d 'config, nvim, then mise (deps stays informational)'
 
 # update subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from update' -a nvim         -d 'Refresh Neovim'
@@ -1451,6 +1486,154 @@ run_install_config() {
   log_message "INFO" "Linked ${nvim_config_dir} → ${PROJECT_DIR}"
 }
 
+run_uninstall_config() {
+  local nvim_config_dir="${HOME}/.config/nvim"
+
+  if [ ! -e "${nvim_config_dir}" ] && [ ! -L "${nvim_config_dir}" ]; then
+    log_message "INFO" "${nvim_config_dir} does not exist — nothing to uninstall"
+    return 0
+  fi
+
+  if [ ! -L "${nvim_config_dir}" ]; then
+    log_message "ERROR" "${nvim_config_dir} exists and is not a symlink — remove it manually if you're sure"
+    return 1
+  fi
+
+  local current_target
+  current_target="$(readlink -f "${nvim_config_dir}")"
+  if [ "${current_target}" != "${PROJECT_DIR}" ]; then
+    log_message "ERROR" "${nvim_config_dir} is a symlink to ${current_target}, not ${PROJECT_DIR} — leaving it untouched"
+    return 1
+  fi
+
+  run_command rm "${nvim_config_dir}"
+  log_message "INFO" "Removed ${nvim_config_dir}"
+}
+
+# apt packages installed by 'install deps' (git, make, gcc, curl, ripgrep,
+# fd-find, xsel, xclip, wl-clipboard, lolcat, gnupg) are shared system
+# dependencies — other tools on the machine may rely on them too. Removing
+# them automatically risks breaking something unrelated to this config, so
+# this only ever prints the manual command; it never runs apt remove itself.
+run_uninstall_deps() {
+  log_message "INFO" "nvim-config never removes apt packages automatically — they may be required by other tools on this system."
+  log_message "INFO" "Packages installed by 'install deps': git make gcc curl ripgrep fd-find xsel xclip wl-clipboard lolcat gnupg"
+  log_message "INFO" "Remove manually if you're sure none of them are needed elsewhere: sudo apt remove git make gcc curl ripgrep fd-find xsel xclip wl-clipboard lolcat gnupg"
+}
+
+run_uninstall_nvim() {
+  if ! command -v nvim > /dev/null 2>&1; then
+    log_message "INFO" "nvim is not installed — nothing to uninstall"
+    return 0
+  fi
+
+  if command -v mise > /dev/null 2>&1 && mise which nvim > /dev/null 2>&1; then
+    if ! _confirm "Remove Neovim installed via mise (mise unuse -g neovim + mise uninstall)? [y/N] "; then
+      log_message "INFO" "Skipped — nvim left installed"
+      return 0
+    fi
+    local nvim_version
+    nvim_version="$(mise current neovim 2>/dev/null | awk '{print $1}')"
+    run_command mise unuse -g neovim
+    if [ -n "${nvim_version}" ] && [ "${nvim_version}" != "none" ]; then
+      run_command mise uninstall "neovim@${nvim_version}"
+    else
+      log_message "WARN" "Could not determine the installed neovim version — run 'mise uninstall neovim@<version>' manually if needed"
+    fi
+  elif snap list nvim > /dev/null 2>&1; then
+    if ! _confirm "Remove Neovim installed via snap (sudo snap remove nvim)? [y/N] "; then
+      log_message "INFO" "Skipped — nvim left installed"
+      return 0
+    fi
+    run_command sudo snap remove nvim
+  else
+    if ! _confirm "Remove Neovim installed via apt (sudo apt remove neovim)? [y/N] "; then
+      log_message "INFO" "Skipped — nvim left installed"
+      return 0
+    fi
+    run_command sudo apt remove -y neovim
+  fi
+}
+
+# Reverses _offer_mise_activation: strips the exact block it appended
+# (marker comment + the 2 lines that follow it), identified by the same
+# marker comment. Kept as its own function, independent of the _confirm
+# gate in run_uninstall_mise, so the rc-file cleanup can be exercised on
+# its own.
+_remove_mise_activation() {
+  local rc_file
+  rc_file="$(_mise_shell_rc_file)"
+
+  if [ ! -f "${rc_file}" ] || ! grep -qF "# Added by nvim-config install mise" "${rc_file}" 2>/dev/null; then
+    return 0
+  fi
+
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "Remove the activation block added by 'install mise' from ${rc_file}"
+    return 0
+  fi
+
+  local tmp_rc
+  tmp_rc="$(mktemp)"
+  awk '
+    skip > 0 { skip--; next }
+    $0 == "# Added by nvim-config install mise" { skip = 2; next }
+    { print }
+  ' "${rc_file}" > "${tmp_rc}"
+  mv "${tmp_rc}" "${rc_file}"
+  log_message "INFO" "Removed mise activation lines from ${rc_file}"
+}
+
+run_uninstall_mise() {
+  if ! command -v mise > /dev/null 2>&1; then
+    log_message "INFO" "mise is not installed — nothing to uninstall"
+    return 0
+  fi
+
+  if ! _confirm "Remove the mise binary and its shell activation lines added by 'install mise'? [y/N] "; then
+    log_message "INFO" "Skipped — mise left installed"
+    return 0
+  fi
+
+  local mise_bin
+  mise_bin="$(command -v mise)"
+  run_command rm -f "${mise_bin}"
+  _remove_mise_activation
+
+  log_message "INFO" "mise binary removed — any tools it managed (e.g. under ~/.config/mise) are left untouched"
+}
+
+run_uninstall() {
+  local subcommand="${1:-all}"
+  case "${subcommand}" in
+    config)
+      run_uninstall_config
+      ;;
+    nvim)
+      run_uninstall_nvim
+      ;;
+    mise)
+      run_uninstall_mise
+      ;;
+    deps)
+      run_uninstall_deps
+      ;;
+    all)
+      local had_error=0
+      run_uninstall_config || had_error=1
+      run_uninstall_nvim || had_error=1
+      run_uninstall_mise || had_error=1
+      run_uninstall_deps
+      return "${had_error}"
+      ;;
+    *)
+      printf 'Unknown uninstall subcommand: %s\n' "${subcommand}" >&2
+      print_usage
+      exit 1
+      ;;
+  esac
+}
+
 run_install() {
   local subcommand="${1:-all}"
   case "${subcommand}" in
@@ -1580,6 +1763,14 @@ while [ "$#" -gt 0 ]; do
         shift
       fi
       ;;
+    uninstall)
+      COMMAND="uninstall"
+      shift
+      if [ "$#" -gt 0 ] && [[ "$1" != -* ]]; then
+        SUBCOMMAND="$1"
+        shift
+      fi
+      ;;
     update)
       COMMAND="update"
       shift
@@ -1658,6 +1849,9 @@ case "${COMMAND}" in
     ;;
   install)
     run_install "${SUBCOMMAND}"
+    ;;
+  uninstall)
+    run_uninstall "${SUBCOMMAND}"
     ;;
   update)
     run_update "${SUBCOMMAND}"
