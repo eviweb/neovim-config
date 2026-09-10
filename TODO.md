@@ -367,6 +367,15 @@
 - [ ] neotest profile-driven adapters — `neotest-jest` (web, when Jest is preferred over Vitest),
   `neotest-busted` (Lua/busted projects); deferred until relevant project context
 
+### File explorer
+
+- [ ] `yazi.nvim` (mikavilpas) — floating-window file picker backed by the `yazi` terminal file
+  manager, with rich media preview (images, video, PDF); designed to coexist with neo-tree.nvim
+  and oil.nvim rather than replace either (different interaction model — modal picker, not a
+  sidebar); requires the `yazi` binary (official GPG-verified apt repo)
+  → https://yazi-rs.github.io
+  → https://github.com/mikavilpas/yazi.nvim
+
 ### Plugin management
 
 - [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to
