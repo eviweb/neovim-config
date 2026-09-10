@@ -326,6 +326,8 @@
 
 - [x] Fix: `.private/` and `vendor/` were only ignored via the maintainer's personal global `~/.gitignore`, not the project's own — a blind spot for anyone else cloning the repo. Added explicitly, plus the missing `.nvim-profile` entry (third local override file, siblings `.nvim-ui`/`.nvim-theme` were already covered) and standard OS/editor artifacts
 - [x] Added `SECURITY.md` and `CONTRIBUTING.md` ahead of making the repo public (0.7.1)
+- [x] CI triggers scoped down: `push` limited to `main`/`develop`/conventional branch prefixes (no more tags, no more scratch branches), `pull_request` limited to PRs targeting `main`; added `workflow_dispatch` and a `concurrency` group (already required by this project's own CI conventions, previously missing)
+- [x] `detect-changes` job skips `lint`/`test` (via job-level `if:`, not a trigger-level `paths-ignore`) when a push/PR only touched `**/*.md`/`docs/**`/`.editorconfig` — the workflow still always runs so required status checks are never left stuck waiting
 
 ---
 

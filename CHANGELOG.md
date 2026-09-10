@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- CI (`.github/workflows/ci.yml`) no longer runs on every push and every ref: `push` is now scoped to `main`/`develop` and the conventional branch prefixes (`feat/`, `fix/`, `chore/`, `docs/`, `test/`, `release/`, `hotfix/`), tag pushes no longer trigger a run (a tag should already point at a commit CI validated on `main`), and `pull_request` is scoped to PRs targeting `main`. Added `workflow_dispatch` for manual runs and a `concurrency` group with `cancel-in-progress` to stop superseded runs, both already mandated by this project's own CI conventions but missing from the actual workflow
+- A new `detect-changes` job determines whether a push/PR touched only documentation (`**/*.md`, `docs/**`, `.editorconfig`); `lint`/`test` are skipped via job-level `if:` when it did. The workflow itself still always triggers and reports — a job skipped by `if:` satisfies a required status check, whereas a workflow that never runs at all leaves a PR stuck waiting indefinitely, which is why this isn't implemented as a trigger-level `paths-ignore`
+
 ### Fixed
 - `.private/` and `vendor/` (the downloaded `tree-sitter` CLI) were only kept untracked by the maintainer's personal *global* `~/.gitignore`, not the project's own `.gitignore` — invisible to anyone else cloning the repo, e.g. `git add -A` would have picked them up. Both are now explicitly ignored at the project level, alongside a missing `.nvim-profile` entry (the third local per-project override file — `.nvim-ui`/`.nvim-theme` were already covered) and standard OS/editor artifacts
 
