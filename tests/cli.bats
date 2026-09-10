@@ -1135,13 +1135,25 @@ EOF
 }
 
 @test "uninstall nvim is a no-op when nvim is not installed" {
-  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" run ./bin/nvim-config uninstall nvim
+  local clean_path="" dir path_dirs
+  IFS=':' read -ra path_dirs <<< "$PATH"
+  for dir in "${path_dirs[@]}"; do
+    [ -x "${dir}/nvim" ] && continue
+    clean_path="${clean_path:+${clean_path}:}${dir}"
+  done
+  PATH="${clean_path}" run ./bin/nvim-config uninstall nvim
   [ "$status" -eq 0 ]
   [[ "$output" == *"not installed"* ]]
 }
 
 @test "uninstall mise is a no-op when mise is not installed" {
-  PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" run ./bin/nvim-config uninstall mise
+  local clean_path="" dir path_dirs
+  IFS=':' read -ra path_dirs <<< "$PATH"
+  for dir in "${path_dirs[@]}"; do
+    [ -x "${dir}/mise" ] && continue
+    clean_path="${clean_path:+${clean_path}:}${dir}"
+  done
+  PATH="${clean_path}" run ./bin/nvim-config uninstall mise
   [ "$status" -eq 0 ]
   [[ "$output" == *"not installed"* ]]
 }
