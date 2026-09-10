@@ -257,6 +257,27 @@ nvim --headless -u init.lua +"Lazy! sync" +qa
 ones. The `lazy-lock.json` file pins exact plugin versions — commit it to lock
 your plugin state across machines.
 
+## Uninstalling
+
+```bash
+./bin/nvim-config uninstall config   # remove the ~/.config/nvim symlink (only if it points here)
+./bin/nvim-config uninstall nvim     # remove Neovim (detects mise/snap/apt, asks for confirmation)
+./bin/nvim-config uninstall mise     # remove the mise binary + its shell activation lines
+./bin/nvim-config uninstall deps     # never removes apt packages — prints the manual command instead
+./bin/nvim-config uninstall all      # config, nvim, then mise (deps stays informational, see above)
+```
+
+`uninstall deps` is intentionally informational only: the packages installed by
+`install deps` (`git`, `make`, `gcc`, `curl`, `ripgrep`, `fd-find`, `xsel`,
+`xclip`, `wl-clipboard`, `lolcat`, `gnupg`) are shared system dependencies that
+other tools may also rely on — nvim-config never runs `apt remove` on your
+behalf. `uninstall all` follows the same policy and leaves them untouched.
+
+`uninstall nvim` and `uninstall mise` each ask for confirmation before removing
+anything — like every interactive prompt in this CLI, they auto-decline under
+`--dry-run`, `--quiet`, or outside a TTY, so automated runs never hang or
+remove something unexpectedly.
+
 ## Project Profiles
 
 Profiles enable per-project tooling — only the LSP servers, null-ls sources, and

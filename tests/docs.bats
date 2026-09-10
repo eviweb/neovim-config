@@ -66,6 +66,13 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "readme documents the uninstall command and its deps policy" {
+  run grep -n "uninstall config\|uninstall nvim\|uninstall mise\|uninstall deps\|uninstall all" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "never removes apt packages\|never runs" README.md
+  [ "$status" -eq 0 ]
+}
+
 @test "readme documents node as managed via nvm" {
   run grep -n "nvm" README.md
   [ "$status" -eq 0 ]
