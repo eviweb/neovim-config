@@ -97,10 +97,16 @@ vim.keymap.set('n', '[]', function()
     require('nvim-treesitter-textobjects.move').goto_previous_end('@class.outer', 'textobjects')
 end, { desc = 'Previous class end' })
 
--- Swap: <Leader>a (next parameter), <Leader>A (previous parameter)
-vim.keymap.set('n', '<Leader>a', function()
+-- Swap: ]a (next parameter), [a (previous parameter).
+-- Was <Leader>a / <Leader>A (nvim-treesitter-textobjects' own README example)
+-- until it collided with <Leader>a as the AI which-key group prefix: with a
+-- real keymap on the exact prefix key, pressing <Leader>a either fired the
+-- swap immediately or raced the AI submenu against Vim's timeoutlen,
+-- depending on typing speed. Bracket motions match the convention already
+-- used above for other treesitter textobject moves ([m/]m, [[/]], [h/]h).
+vim.keymap.set('n', ']a', function()
     require('nvim-treesitter-textobjects.swap').swap_next('@parameter.outer', 'textobjects')
 end, { desc = 'Swap with next parameter' })
-vim.keymap.set('n', '<Leader>A', function()
+vim.keymap.set('n', '[a', function()
     require('nvim-treesitter-textobjects.swap').swap_previous('@parameter.inner', 'textobjects')
 end, { desc = 'Swap with previous parameter' })

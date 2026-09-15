@@ -55,3 +55,16 @@ Replaces the cmdline with a centered floating popup. Messages (echoes, warnings)
 | `gR`          | LSP references                |
 
 Inside Trouble: `<CR>` jump · `o` preview · `q` close · `r` refresh
+
+## Comment.nvim
+| Key            | Action                                  |
+|----------------|------------------------------------------|
+| `gcc`          | Toggle comment on the current line        |
+| `gc{motion}`   | Toggle comment over a motion, e.g. `gcap` |
+| `gc` (visual)  | Toggle comment on the selected block      |
+| `gbc`          | Toggle block comment (`/* */` style) on the current line |
+| `gco` / `gcO`  | Insert comment below / above the current line |
+| `gcA`          | Insert comment at the end of the current line |
+
+Default keymaps (no overrides in `lua/plugins/comment.lua`) — comment style is
+derived from `commentstring`, so it adapts per filetype automatically.
