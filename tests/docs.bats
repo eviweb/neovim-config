@@ -91,8 +91,36 @@ setup() {
   [ -d "docs/cheatsheets" ]
 }
 
+@test "basics cheatsheet exists" {
+  [ -f "docs/cheatsheets/basics.md" ]
+}
+
+@test "basics cheatsheet covers modes, leader key, and command-line mode" {
+  run grep -n "Normal\|Insert\|Visual" docs/cheatsheets/basics.md
+  [ "$status" -eq 0 ]
+  run grep -n "Leader" docs/cheatsheets/basics.md
+  [ "$status" -eq 0 ]
+  run grep -n ':w\|:q' docs/cheatsheets/basics.md
+  [ "$status" -eq 0 ]
+}
+
+@test "basics cheatsheet states this config's actual leader key (Space)" {
+  run grep -n "Space" docs/cheatsheets/basics.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme links to the basics cheatsheet" {
+  run grep -n "docs/cheatsheets/basics.md" README.md
+  [ "$status" -eq 0 ]
+}
+
 @test "editing cheatsheet exists" {
   [ -f "docs/cheatsheets/editing.md" ]
+}
+
+@test "editing cheatsheet does not document the removed C-z undo binding" {
+  run grep -n "C-z" docs/cheatsheets/editing.md
+  [ "$status" -eq 1 ]
 }
 
 @test "lsp cheatsheet exists" {
