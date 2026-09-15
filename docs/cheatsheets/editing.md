@@ -10,6 +10,31 @@
 | `%`          | Jump to matching bracket                |
 | `*` / `#`    | Search word under cursor fwd / bwd      |
 
+## Treesitter textobjects
+
+Select (combine with an operator, e.g. `daf`, `vic`):
+
+| Key         | Textobject              |
+|-------------|--------------------------|
+| `af` / `if` | Outer / inner function   |
+| `ac` / `ic` | Outer / inner class      |
+
+Move:
+
+| Key         | Action                          |
+|-------------|----------------------------------|
+| `]m` / `[m` | Next / previous function start   |
+| `]M` / `[M` | Next / previous function end     |
+| `]]` / `[[` | Next / previous class start      |
+| `][` / `[]` | Next / previous class end        |
+
+Swap:
+
+| Key  | Action                             |
+|------|-------------------------------------|
+| `]a` | Swap parameter with the next one     |
+| `[a` | Swap parameter with the previous one |
+
 ## Visual search
 | Key          | Action                                  |
 |--------------|-----------------------------------------|

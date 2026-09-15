@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`gcc`, `gc{motion}`, visual-mode `gc`, `gbc`, `gco`/`gcO`/`gcA`) — the
   plugin (`lua/plugins/comment.lua`) was installed but had zero documentation
   anywhere in the project
+- `docs/cheatsheets/editing.md`: new "Treesitter textobjects" section
+  documenting select (`af`/`if`, `ac`/`ic`), move (`]m`/`[m`, `]M`/`[M`,
+  `]]`/`[[`, `][`/`[]`), and swap (`]a`/`[a`) — none of these
+  `lua/config/treesitter.lua` keymaps were documented anywhere before
 
 ### Changed
 - `lua/config/treesitter.lua`: treesitter textobjects swap keymaps moved from
