@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `docs/usage.md`: "Extending completion to other Lua projects" subsection under
+  `## LSP` — generalizes this repo's own `lua_ls` `workspace.library` pattern
+  (already used for its own Neovim API completion) into a reusable recipe for
+  any Lua-based tool with LuaCATS type stubs, with WezTerm
+  (`DrKJeff16/wezterm-types`) as a worked example
+
 ## [0.8.0] - 2026-09-10
 
 ### Added

@@ -59,6 +59,57 @@ Navigate between diagnostics:
 
 > For a full workspace or buffer diagnostics view, see the [Diagnostics](#diagnostics) section.
 
+### Extending completion to other Lua projects
+
+This config's own Neovim API completion (`vim.*` symbols, `require('plugins.foo')`
+resolving to `lua/plugins/foo.lua`) works because `lua_ls` is told where to find
+extra type information via `settings.Lua.workspace.library` — see `.luarc.json`
+and the `lua_ls` setup in `lua/config/lsp.lua`. The same mechanism works for
+**any** Lua-based tool that ships (or has community-provided) LuaCATS type
+annotations — Hammerspoon, AwesomeWM, WezTerm, and so on:
+
+1. Clone or install the type-stub repository for that tool
+2. Drop a `.luarc.json` at the root of *that tool's* config directory (not this
+   one), pointing `workspace.library` at the stub path:
+   ```json
+   {
+     "workspace": {
+       "library": ["/absolute/path/to/the-types-repo"]
+     }
+   }
+   ```
+3. `lua_ls` auto-discovers the nearest `.luarc.json` per workspace root, so this
+   only affects completion inside that tool's config directory — it never
+   touches or is affected by this repository's own `.luarc.json`
+
+**Worked example — WezTerm**, using
+[`DrKJeff16/wezterm-types`](https://github.com/DrKJeff16/wezterm-types):
+
+```bash
+git clone https://github.com/DrKJeff16/wezterm-types.git ~/.config/wezterm/wezterm-types
+```
+
+```json
+// ~/.config/wezterm/.luarc.json
+{
+  "workspace": {
+    "library": ["/home/<you>/.config/wezterm/wezterm-types"]
+  }
+}
+```
+
+```lua
+-- ~/.config/wezterm/wezterm.lua
+local wezterm = require('wezterm') ---@type Wezterm
+local config = wezterm.config_builder() ---@type Config
+```
+
+An alternative for tighter scoping within a single mixed-purpose Lua file is
+[`folke/lazydev.nvim`](https://github.com/folke/lazydev.nvim), which injects a
+library's types only when a matching `require(...)` is detected in the buffer
+(via its `mods` option) rather than for the whole workspace — not needed here
+since a tool's config typically lives in its own dedicated directory anyway.
+
 ---
 
 ## Completion
