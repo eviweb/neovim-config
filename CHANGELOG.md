@@ -20,6 +20,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   documents this config's own additions on top of it. Picked up automatically
   by `:Cheat` (topics are discovered dynamically from the directory); linked
   from README's "Documentation" section as the suggested starting point
+- `docs/cheatsheets/plugins.md`: documented `Comment.nvim`'s default keymaps
+  (`gcc`, `gc{motion}`, visual-mode `gc`, `gbc`, `gco`/`gcO`/`gcA`) — the
+  plugin (`lua/plugins/comment.lua`) was installed but had zero documentation
+  anywhere in the project
+
+### Changed
+- `lua/config/treesitter.lua`: treesitter textobjects swap keymaps moved from
+  `<Leader>a` / `<Leader>A` to `]a` / `[a` — `<Leader>a` is also the which-key
+  group prefix for the AI (Avante) submenu (`<Leader>aa`, `<Leader>ae`, …),
+  and having a real keymap on the exact prefix key meant pressing `<Leader>a`
+  either fired the swap immediately or raced the AI submenu against Vim's
+  `timeoutlen`, depending on typing speed. Bracket motions match the
+  convention already used for other treesitter textobject moves in the same
+  file (`[m`/`]m`, `[[`/`]]`, `[h`/`]h`) and fully resolve the ambiguity
 
 ### Fixed
 - `docs/cheatsheets/editing.md`: removed a stale `<C-z>` → Undo entry — that

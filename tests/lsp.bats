@@ -118,6 +118,17 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "treesitter swap keymaps use bracket motions, not Leader>a (collides with the AI which-key group prefix)" {
+  run grep -n "nvim-treesitter-textobjects\.swap" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+  run grep -n "'<Leader>a'\|'<Leader>A'" lua/config/treesitter.lua
+  [ "$status" -eq 1 ]
+  run grep -n "'\]a'" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+  run grep -n "'\[a'" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "lsp plugin does not depend on diaglist anymore" {
   run grep -n "diaglist.nvim" lua/plugins/lsp.lua
   [ "$status" -eq 1 ]
