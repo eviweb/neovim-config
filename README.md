@@ -431,10 +431,11 @@ Requires Node.js / npm. Use `install deps --with-node` if not already installed.
 
 ## Documentation
 
+- [Vim/Neovim basics](docs/cheatsheets/basics.md) — new to Neovim? Start here: modes, motions, windows, command-line — none of it specific to this config
 - [Usage guide](docs/usage.md) — LSP, completion, diagnostics, git, testing, debugging, AI tools, and more
 - [Keymaps cheatsheet](docs/keymaps.md) — all custom mappings and plugin shortcuts
 - [Plugin quick-reference](docs/cheatsheets/plugins.md) — concise tables per plugin
-- [Cheatsheets](docs/cheatsheets/) — editing, git, LSP, profiles
+- [Cheatsheets](docs/cheatsheets/) — basics, editing, git, LSP, profiles
 
 ## Usage
 

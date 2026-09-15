@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (already used for its own Neovim API completion) into a reusable recipe for
   any Lua-based tool with LuaCATS type stubs, with WezTerm
   (`DrKJeff16/wezterm-types`) as a worked example
+- `docs/cheatsheets/basics.md` — foundational vanilla Vim/Neovim reference
+  (modes, leader key, cursor movement, basic editing, windows/tabs,
+  command-line mode), not specific to this config; fills a real gap for
+  newcomers since every other cheatsheet assumes prior Vim knowledge and only
+  documents this config's own additions on top of it. Picked up automatically
+  by `:Cheat` (topics are discovered dynamically from the directory); linked
+  from README's "Documentation" section as the suggested starting point
+
+### Fixed
+- `docs/cheatsheets/editing.md`: removed a stale `<C-z>` → Undo entry — that
+  binding was intentionally removed in an earlier change (conflicts with the
+  shell's `SIGTSTP`, see `<C-s>`/`<C-z>`/`<C-r>` keymap cleanup in this
+  CHANGELOG's history) but the cheatsheet was never updated to match
 
 ## [0.8.0] - 2026-09-10
 
