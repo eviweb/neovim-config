@@ -123,6 +123,15 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "editing cheatsheet documents treesitter textobjects (select, move, swap)" {
+  run grep -n "af.*if\|Outer / inner function" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+  run grep -n "\]m.*\[m\|Next / previous function start" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+  run grep -n "\]a\|\[a" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+}
+
 @test "lsp cheatsheet exists" {
   [ -f "docs/cheatsheets/lsp.md" ]
 }
