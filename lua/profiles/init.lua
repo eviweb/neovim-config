@@ -164,6 +164,20 @@ function M.get_lsp_servers()
     return servers
 end
 
+-- Return treesitter parser names required by active profiles.
+function M.get_treesitter_parsers()
+    local parsers = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.treesitter_parsers then
+            for _, parser in ipairs(profile.treesitter_parsers) do
+                table.insert(parsers, parser)
+            end
+        end
+    end
+    return parsers
+end
+
 -- Return Mason package names for DAP adapters required by active profiles.
 function M.get_dap_mason_packages()
     local packages = {}

@@ -20,16 +20,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   documents this config's own additions on top of it. Picked up automatically
   by `:Cheat` (topics are discovered dynamically from the directory); linked
   from README's "Documentation" section as the suggested starting point
-- `docs/cheatsheets/plugins.md`: documented `Comment.nvim`'s default keymaps
-  (`gcc`, `gc{motion}`, visual-mode `gc`, `gbc`, `gco`/`gcO`/`gcA`) — the
-  plugin (`lua/plugins/comment.lua`) was installed but had zero documentation
-  anywhere in the project
+- `docs/cheatsheets/editing.md`: new "Commenting (native Neovim, no plugin)"
+  section — `gcc`, `5gcc` (count), visual `gc`, `gc{motion}` (`gc2j`, `gcip`,
+  `gc}`) and `dgc`; commenting had no documentation anywhere before
+- Profiles can declare `treesitter_parsers` (new `profiles.get_treesitter_parsers()`),
+  installed at startup alongside the global list; the `php` profile declares
+  `php` (which also lets native commenting pick `<!-- -->` inside HTML regions of
+  mixed PHP/HTML files — the html parser comes in as a dependency)
+- `ssh_config` added to the global treesitter parser list (the `sshconfig`
+  filetype maps to it automatically)
 - `docs/cheatsheets/editing.md`: new "Treesitter textobjects" section
   documenting select (`af`/`if`, `ac`/`ic`), move (`]m`/`[m`, `]M`/`[M`,
   `]]`/`[[`, `][`/`[]`), and swap (`]a`/`[a`) — none of these
   `lua/config/treesitter.lua` keymaps were documented anywhere before
 
 ### Changed
+- **Commenting now uses Neovim's native `gc`/`gcc`** instead of `Comment.nvim`
+  (removed: `lua/plugins/comment.lua`). `gc` (visual/operator), `gcc` and counts
+  keep working; `gb`/`gbc` (block comments) and `gco`/`gcO`/`gcA` are gone — none
+  of the maintained alternatives offer block-comment toggling either. Minimum
+  supported Neovim goes from 0.9 to **0.10** (README updated) since native
+  commenting was added in 0.10. Run `:Lazy clean` to drop the plugin and its
+  `lazy-lock.json` entry
+- php buffers use `// %s` as `commentstring` (`lua/options.lua`): Neovim's own
+  default is `/* %s */`, which would wrap every commented line in a block
+  comment — `Comment.nvim` used `//` for php, so this keeps that behaviour
 - `lua/config/treesitter.lua`: treesitter textobjects swap keymaps moved from
   `<Leader>a` / `<Leader>A` to `]a` / `[a` — `<Leader>a` is also the which-key
   group prefix for the AI (Avante) submenu (`<Leader>aa`, `<Leader>ae`, …),
@@ -40,6 +55,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file (`[m`/`]m`, `[[`/`]]`, `[h`/`]h`) and fully resolve the ambiguity
 
 ### Fixed
+- `gc`/`gcc` failed with a bare `[Comment.nvim] nil` notification (nothing got
+  commented) in every buffer whose filetype has no treesitter parser — ssh config,
+  and php unless a parser was installed. On Neovim 0.12
+  `vim.treesitter.get_parser()` returns `nil` instead of raising, which
+  Comment.nvim's `ft.calculate` doesn't expect (`attempt to index local 'tree'`);
+  its error handler then prints `err.msg`, which is `nil` for a plain string
+  error, hiding the real cause. Comment.nvim has had no commit since June 2024,
+  so no upstream fix; native commenting falls back to `commentstring` instead
 - `docs/cheatsheets/editing.md`: removed a stale `<C-z>` → Undo entry — that
   binding was intentionally removed in an earlier change (conflicts with the
   shell's `SIGTSTP`, see `<C-s>`/`<C-z>`/`<C-r>` keymap cleanup in this

@@ -8,7 +8,7 @@ Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
 - **OS**: Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
 - **Shell**: Bash 5+
-- **Neovim**: 0.9+
+- **Neovim**: 0.10+
 
 ## Dependencies
 
@@ -148,7 +148,7 @@ restrictions):
 sudo snap install nvim --classic
 ```
 
-Minimum required version: **0.9+**. Check with `nvim --version`.
+Minimum required version: **0.10+** (native `gc`/`gcc` commenting; see `docs/cheatsheets/editing.md`). Check with `nvim --version`.
 
 Alternatively, via apt (version depends on the Ubuntu release):
 

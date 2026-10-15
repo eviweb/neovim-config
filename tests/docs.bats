@@ -172,3 +172,24 @@ setup() {
   run grep -n "cheatsheets" lua/commands.lua
   [ "$status" -eq 0 ]
 }
+
+@test "readme states Neovim 0.10+ as the minimum (native gc/gcc commenting needs it)" {
+  run grep -n "Neovim\*\*: 0.10+\|Minimum required version: \*\*0.10+\*\*" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "0\.9+" README.md
+  [ "$status" -eq 1 ]
+}
+
+@test "editing cheatsheet documents native commenting, including count and motions" {
+  run grep -n "gcc" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+  run grep -n "5gcc\|\[count\]gcc" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+  run grep -n "gc2j\|gcip" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins cheatsheet no longer documents the removed Comment.nvim" {
+  run grep -n "Comment.nvim" docs/cheatsheets/plugins.md
+  [ "$status" -eq 1 ]
+}

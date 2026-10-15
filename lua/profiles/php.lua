@@ -22,6 +22,10 @@ return {
 
     lsp_servers = { 'intelephense' },
 
+    -- Also gives context-aware commenting in mixed PHP/HTML files (the html
+    -- parser is pulled in as a dependency).
+    treesitter_parsers = { 'php' },
+
     plugins = {
         { 'olimorris/neotest-phpunit', lazy = true },
     },

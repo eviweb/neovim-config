@@ -270,6 +270,17 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "profiles init defines get_treesitter_parsers" {
+  run grep -n "get_treesitter_parsers" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile declares treesitter_parsers with php" {
+  run grep -n "treesitter_parsers" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'php'"* ]]
+}
+
 @test "rust profile declares dap_mason_packages with codelldb" {
   run grep -n "codelldb" lua/profiles/rust.lua
   [ "$status" -eq 0 ]

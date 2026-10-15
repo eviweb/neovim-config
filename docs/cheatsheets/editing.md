@@ -35,6 +35,23 @@ Swap:
 | `]a` | Swap parameter with the next one     |
 | `[a` | Swap parameter with the previous one |
 
+## Commenting (native Neovim, no plugin)
+
+| Key            | Action                                                   |
+|----------------|-----------------------------------------------------------|
+| `gcc`          | Toggle comment on the current line                         |
+| `5gcc`         | Toggle comment on 5 lines, starting at the cursor          |
+| `gc` (visual)  | Toggle comment on the selected lines (`V` then `gc`)       |
+| `gc{motion}`   | Toggle comment over a motion: `gc2j` (2 lines down), `gcip` (paragraph), `gc}` (to next blank line) |
+| `dgc`          | Delete the comment block under the cursor                  |
+
+Comment style comes from the filetype's `commentstring` (`#` for ssh config and
+bash, `//` for PHP — overridden in `lua/options.lua`, Neovim's own default is
+`/* … */` — …), so it also works on filetypes without a treesitter parser.
+Toggling is all-or-nothing: if every selected line is already commented they
+are uncommented, otherwise all of them get commented. There is no block-comment
+(`/* */`) toggle.
+
 ## Visual search
 | Key          | Action                                  |
 |--------------|-----------------------------------------|

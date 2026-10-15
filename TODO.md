@@ -348,6 +348,19 @@
 
 ---
 
+## Phase 26 — Native Commenting
+
+- [x] Fix: `gc`/`gcc` printed `[Comment.nvim] nil` and commented nothing in any buffer without a
+  treesitter parser (ssh config, php) — Comment.nvim assumes `vim.treesitter.get_parser()` raises when
+  no parser exists, but on Neovim 0.12 it returns `nil`; the plugin is unmaintained since June 2024
+- [x] Replace Comment.nvim with Neovim's native commenting (`gc`/`gcc`, counts, `dgc`); minimum Neovim
+  raised to 0.10; php buffers keep `//` comments via a `commentstring` override
+- [x] Profiles can declare `treesitter_parsers` (`php` profile → `php`); `ssh_config` added to the
+  global parser list
+- [x] Commenting documented in `docs/cheatsheets/editing.md` (count and motions included)
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
@@ -392,6 +405,16 @@
   sidebar); requires the `yazi` binary (official GPG-verified apt repo)
   → https://yazi-rs.github.io
   → https://github.com/mikavilpas/yazi.nvim
+
+### Treesitter
+
+- [ ] Install a missing parser on the fly when a file of that filetype is opened (`FileType`
+  autocmd → `require('nvim-treesitter').install({ lang })`, async). Trade-offs to settle first:
+  it downloads and compiles third-party grammar code for any of the ~320 available parsers
+  without asking, needs network + `tree-sitter` CLI + `gcc` (fails noisily offline/Termux unless
+  attempts are remembered per session), and — now that commenting is native and works without
+  a parser — would only add highlighting. Alternatives: explicit lists (global + per profile,
+  already supported), or an allow-list / confirmation prompt
 
 ### Plugin management
 

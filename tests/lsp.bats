@@ -79,6 +79,16 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "treesitter parser list includes ssh_config (sshconfig filetype maps to the ssh_config parser)" {
+  run grep -n "'ssh_config'" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "treesitter config also installs the parsers declared by active profiles" {
+  run grep -n "get_treesitter_parsers" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+}
+
 @test "treesitter config does not enable rainbow without a declared plugin" {
   run grep -n "rainbow =" lua/config/treesitter.lua
   [ "$status" -eq 1 ]
