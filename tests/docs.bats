@@ -256,3 +256,14 @@ _profile_names() {
   run grep -n "apt install shellcheck shfmt" README.md
   [ "$status" -eq 0 ]
 }
+
+@test "readme documents the devops profile: markers, Mason-installed tools, and the yaml.github filetype" {
+  run grep -n "actionlint" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "hadolint" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "yaml.github" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "mason_packages" README.md
+  [ "$status" -eq 0 ]
+}

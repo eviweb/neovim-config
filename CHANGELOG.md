@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`devops` profile**: hadolint on Dockerfiles and actionlint on GitHub Actions workflows (nvim-lint),
+  plus the `dockerfile` treesitter parser. Auto-detected from a `Dockerfile`, `compose.y*ml`,
+  `docker-compose.y*ml` or `.github/workflows/`; otherwise `nvim-config profile set devops`.
+  No language server for now (the YAML and Dockerfile servers are npm packages)
+- Profiles can declare `mason_packages`, a generic field for Mason-installed tools that are not in
+  apt (new `profiles.get_mason_packages()` and `install_mason_packages()`). They are installed in the
+  background at startup and when a profile is switched on with `:NvimProfile`, and skipped on Termux.
+  A test checks every package name declared by a profile exists in the Mason registry
+- `nvim-config doctor`: a "DevOps tools" section for actionlint and hadolint. It also looks in
+  Neovim's Mason `bin` directory, which is on Neovim's `PATH` but never on the shell's
 - **`shell` profile**: shellcheck diagnostics (nvim-lint) and shfmt formatting (conform) for
   `sh` buffers — Neovim files `.sh`, `.bash`, `.bats` and shebang scripts all under that one
   filetype. Auto-detected from `.shellcheckrc`, a root-level `*.sh` / `*.bash`, or
@@ -53,6 +63,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `lua/config/treesitter.lua` keymaps were documented anywhere before
 
 ### Changed
+- GitHub Actions workflow files (`.github/workflows/*.yml|yaml`) now have the compound filetype
+  `yaml.github` instead of `yaml`, so actionlint can be attached to them and not to every YAML file
+  (it reports errors on anything that is not a workflow). `yaml` linters and formatters, including
+  the web profile's prettier, still apply: nvim-lint and conform look tools up per dot-separated part
+  of the filetype, and treesitter maps it to the `yaml` parser
 - conform no longer formats `sh` buffers **on save** (shfmt stays available on demand with
   `<Space>f`): shfmt's defaults rewrite most of an existing script on first save — measured on
   `bin/nvim-config`, ~970 of 1930 lines with `-i 2`, ~2470 with the tab default that applies when

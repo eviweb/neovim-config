@@ -391,6 +391,21 @@
 
 ---
 
+## Phase 29 — DevOps Profile
+
+- [x] `devops` profile: hadolint (Dockerfile) and actionlint (GitHub workflows) through nvim-lint,
+  `dockerfile` parser; auto-detected from a Dockerfile, a compose file or `.github/workflows/`
+- [x] New generic profile field `mason_packages` (+ `profiles.get_mason_packages()` and
+  `install_mason_packages()`): Mason-installed tools that are not in apt, installed at startup and on
+  runtime `:NvimProfile` activation, skipped on Termux; a test checks every declared name exists in
+  the Mason registry
+- [x] Workflow files get the compound filetype `yaml.github` so actionlint never runs on arbitrary
+  YAML (nvim-lint and conform split compound filetypes on the dot, so `yaml` tooling is unchanged)
+- [x] `nvim-config doctor` lists actionlint and hadolint, looking in Neovim's Mason `bin` directory
+  as well as the shell `PATH`; `profile detect` mirrors the new detector
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
@@ -447,6 +462,16 @@
   already supported), or an allow-list / confirmation prompt
 
 ### Profiles
+
+- [ ] `devops` profile: `yaml-language-server` (with schemastore, already a plugin here) and
+  `dockerfile-language-server` — npm packages, so only when `npm` is available. Deferred for the
+  same reasons as the shell profile's language server
+
+- [ ] `lua` profile: StyLua through conform. Its defaults (tabs, double quotes) differ from this
+  repository's style (4 spaces, single quotes) and there is no `stylua.toml` here, so it only makes
+  sense with `require_cwd` (format only where a `stylua.toml` exists) — which would leave the profile
+  inert in this repo. `lua_ls` already covers diagnostics and `luacheck` needs luarocks. Revisit when
+  a Lua project with a `stylua.toml` shows up (e.g. a WezTerm config)
 
 - [ ] `shell` profile: `bash-language-server` (completion, go-to-definition, hover), only when
   `npm` is available — it is an npm package and Node is optional here. It runs shellcheck itself,
