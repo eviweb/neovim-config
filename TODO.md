@@ -355,8 +355,9 @@
   no parser exists, but on Neovim 0.12 it returns `nil`; the plugin is unmaintained since June 2024
 - [x] Replace Comment.nvim with Neovim's native commenting (`gc`/`gcc`, counts, `dgc`); minimum Neovim
   raised to 0.10; php buffers keep `//` comments via a `commentstring` override
-- [x] Profiles can declare `treesitter_parsers` (`php` profile → `php`); `ssh_config` added to the
-  global parser list
+- [x] Profiles can declare `treesitter_parsers` (`php` → `php`, `laravel` → `blade`, `web` →
+  `tsx`/`vue`/`svelte`, `rust` → `rust`/`toml`, `python` → `python`/`toml`); installed at startup and
+  on runtime `:NvimProfile` activation; `ssh_config` added to the global parser list
 - [x] Commenting documented in `docs/cheatsheets/editing.md` (count and motions included)
 
 ---

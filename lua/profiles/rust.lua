@@ -11,6 +11,9 @@ return {
 
     lsp_servers = { 'rust_analyzer' },
 
+    -- toml: Cargo.toml
+    treesitter_parsers = { 'rust', 'toml' },
+
     plugins = {
         { 'rouge8/neotest-rust', lazy = true },
     },

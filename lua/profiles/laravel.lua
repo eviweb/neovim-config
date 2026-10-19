@@ -10,6 +10,9 @@ return {
 
     lsp_servers = {},
 
+    -- php comes in through `extends = { 'php' }`.
+    treesitter_parsers = { 'blade' },
+
     plugins = {},
 
     null_ls_sources = function(null_ls)

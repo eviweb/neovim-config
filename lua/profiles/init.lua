@@ -298,6 +298,25 @@ function M.activate(name)
         vim.lsp.enable(servers)
     end
 
+    -- Install treesitter parsers (async). Startup only installs the parsers of
+    -- profiles active at launch; without this a profile switched on with
+    -- :NvimProfile would keep missing its parsers until the next restart.
+    local parsers = {}
+    for _, n in ipairs(to_add) do
+        local ok, profile = pcall(require, 'profiles.' .. n)
+        if ok and profile.treesitter_parsers then
+            for _, parser in ipairs(profile.treesitter_parsers) do
+                table.insert(parsers, parser)
+            end
+        end
+    end
+    if #parsers > 0 then
+        local ok_ts, ts = pcall(require, 'nvim-treesitter')
+        if ok_ts then
+            ts.install(parsers)
+        end
+    end
+
     -- Register null-ls sources
     local ok_null_ls, null_ls = pcall(require, 'null-ls')
     if ok_null_ls then
@@ -323,6 +342,9 @@ function M.activate(name)
     end
     if has_plugins then
         msg = msg .. '\nPlugin changes require a restart.'
+    end
+    if #parsers > 0 then
+        msg = msg .. '\nInstalling treesitter parsers in the background: ' .. table.concat(parsers, ', ')
     end
     vim.notify(msg, vim.log.levels.INFO)
 end

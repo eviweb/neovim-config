@@ -24,9 +24,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   section — `gcc`, `5gcc` (count), visual `gc`, `gc{motion}` (`gc2j`, `gcip`,
   `gc}`) and `dgc`; commenting had no documentation anywhere before
 - Profiles can declare `treesitter_parsers` (new `profiles.get_treesitter_parsers()`),
-  installed at startup alongside the global list; the `php` profile declares
-  `php` (which also lets native commenting pick `<!-- -->` inside HTML regions of
-  mixed PHP/HTML files — the html parser comes in as a dependency)
+  installed at startup alongside the global list, and — new — also when a profile is
+  switched on at runtime with `:NvimProfile` (previously a restart was needed for
+  anything beyond LSP/null-ls). Declared: `php` → `php` (which also lets native
+  commenting pick `<!-- -->` inside HTML regions of mixed PHP/HTML files — the html
+  parser comes in as a dependency), `laravel` → `blade`, `web` → `tsx`/`vue`/`svelte`,
+  `rust` → `rust`/`toml`, `python` → `python`/`toml`. Without a parser a language gets
+  no treesitter highlighting, folds or textobjects (`af`, `]m`, `]a`…); a new test
+  checks every declared name exists in nvim-treesitter
 - `ssh_config` added to the global treesitter parser list (the `sshconfig`
   filetype maps to it automatically)
 - `docs/cheatsheets/editing.md`: new "Treesitter textobjects" section

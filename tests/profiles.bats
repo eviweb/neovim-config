@@ -375,3 +375,51 @@ setup() {
   run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/mcp-diagnostics.lua
   [ "$status" -eq 0 ]
 }
+
+@test "web profile declares treesitter_parsers for tsx, vue and svelte (its LSPs are enabled for those filetypes)" {
+  run grep -n "treesitter_parsers" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'tsx'"* ]]
+  [[ "$output" == *"'vue'"* ]]
+  [[ "$output" == *"'svelte'"* ]]
+}
+
+@test "laravel profile declares the blade treesitter parser" {
+  run grep -n "treesitter_parsers" lua/profiles/laravel.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'blade'"* ]]
+}
+
+@test "rust profile declares rust and toml treesitter parsers (Cargo.toml)" {
+  run grep -n "treesitter_parsers" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'rust'"* ]]
+  [[ "$output" == *"'toml'"* ]]
+}
+
+@test "python profile declares python and toml treesitter parsers (pyproject.toml)" {
+  run grep -n "treesitter_parsers" lua/profiles/python.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'python'"* ]]
+  [[ "$output" == *"'toml'"* ]]
+}
+
+@test "runtime profile activation installs the profile's treesitter parsers (previously only done at startup)" {
+  run sed -n '/^function M.activate/,/^end/p' lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"treesitter_parsers"* ]]
+  [[ "$output" == *"nvim-treesitter"* ]]
+}
+
+@test "every treesitter parser declared by a profile exists in nvim-treesitter (guards against typos and removed parsers)" {
+  local real_home parsers_file
+  real_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
+  parsers_file="${XDG_DATA_HOME:-${real_home}/.local/share}/nvim/lazy/nvim-treesitter/lua/nvim-treesitter/parsers.lua"
+  [ -f "$parsers_file" ] || skip "nvim-treesitter is not installed (CI does not install plugins)"
+  # Reads the plugin's parser table directly (pure data): no init.lua, so no
+  # network access and no side effects such as parser installation.
+  run nvim --headless -u NONE --noplugin -c "lua local available = dofile('${parsers_file}') local missing = {} for _, f in ipairs(vim.fn.glob(vim.fn.getcwd() .. '/lua/profiles/*.lua', false, true)) do local ok, p = pcall(dofile, f) if ok and type(p) == 'table' and p.treesitter_parsers then for _, l in ipairs(p.treesitter_parsers) do if not available[l] then missing[#missing + 1] = vim.fn.fnamemodify(f, ':t:r') .. ':' .. l end end end end io.stdout:write('MISSING=' .. table.concat(missing, ',') .. '\n')" -c "qa!"
+  local result
+  result="$(printf '%s\n' "$output" | grep '^MISSING=')"
+  [ "$result" = "MISSING=" ]
+}
