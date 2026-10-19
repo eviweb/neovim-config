@@ -20,15 +20,17 @@ end
 -- ---------------------------------------------------------------------------
 local parsers = {
     'bash', 'css', 'html', 'javascript', 'json', 'lua',
-    'markdown', 'markdown_inline', 'query', 'regex', 'typescript',
-    'vim', 'vimdoc', 'yaml',
+    'markdown', 'markdown_inline', 'query', 'regex', 'ssh_config',
+    'typescript', 'vim', 'vimdoc', 'yaml',
 }
 
--- Install missing parsers once on startup (async, non-blocking).
+-- Install missing parsers once on startup (async, non-blocking), including
+-- the ones declared by active profiles (e.g. php).
 vim.api.nvim_create_autocmd('VimEnter', {
     once     = true,
     callback = function()
-        require('nvim-treesitter').install(parsers)
+        local wanted = vim.list_extend(vim.deepcopy(parsers), require('profiles').get_treesitter_parsers())
+        require('nvim-treesitter').install(wanted)
     end,
     desc = 'Install missing treesitter parsers',
 })

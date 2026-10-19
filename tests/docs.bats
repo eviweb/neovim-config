@@ -172,3 +172,87 @@ setup() {
   run grep -n "cheatsheets" lua/commands.lua
   [ "$status" -eq 0 ]
 }
+
+@test "readme states Neovim 0.10+ as the minimum (native gc/gcc commenting needs it)" {
+  run grep -n "Neovim\*\*: 0.10+\|Minimum required version: \*\*0.10+\*\*" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "0\.9+" README.md
+  [ "$status" -eq 1 ]
+}
+
+@test "editing cheatsheet documents native commenting, including count and motions" {
+  run grep -n "gcc" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+  run grep -n "5gcc\|\[count\]gcc" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+  run grep -n "gc2j\|gcip" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+}
+
+@test "plugins cheatsheet no longer documents the removed Comment.nvim" {
+  run grep -n "Comment.nvim" docs/cheatsheets/plugins.md
+  [ "$status" -eq 1 ]
+}
+
+# ---------------------------------------------------------------------------
+# Profiles documentation must follow lua/profiles/
+# ---------------------------------------------------------------------------
+
+_profile_names() {
+  local f name
+  for f in lua/profiles/*.lua; do
+    name="$(basename "$f" .lua)"
+    case "$name" in init|picker) continue ;; esac
+    printf '%s\n' "$name"
+  done
+}
+
+@test "readme lists every profile found in lua/profiles/" {
+  local missing="" name
+  while IFS= read -r name; do
+    grep -q "\`${name}\`" README.md || missing="${missing} ${name}"
+  done < <(_profile_names)
+  [ -z "$missing" ] || { echo "missing from README:${missing}"; return 1; }
+}
+
+@test "usage guide lists every profile found in lua/profiles/" {
+  local missing="" name
+  while IFS= read -r name; do
+    grep -q "\`${name}\`" docs/usage.md || missing="${missing} ${name}"
+  done < <(_profile_names)
+  [ -z "$missing" ] || { echo "missing from docs/usage.md:${missing}"; return 1; }
+}
+
+@test "profiles cheatsheet lists every profile found in lua/profiles/" {
+  local missing="" name
+  while IFS= read -r name; do
+    grep -q "\`${name}\`" docs/cheatsheets/profiles.md || missing="${missing} ${name}"
+  done < <(_profile_names)
+  [ -z "$missing" ] || { echo "missing from profiles cheatsheet:${missing}"; return 1; }
+}
+
+@test "readme documents how each profile is detected (python markers, termux env var, ai opt-in)" {
+  run grep -n "pyproject.toml" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "TERMUX_VERSION" README.md
+  [ "$status" -eq 0 ]
+  run grep -n -i "never auto-detected\|opt-in" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents the treesitter_parsers profile field and when parsers get installed" {
+  run grep -n "treesitter_parsers" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles cheatsheet documents python detection markers" {
+  run grep -n "pyproject.toml" docs/cheatsheets/profiles.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents the shell profile: detection markers and how to install shellcheck and shfmt" {
+  run grep -n "\.shellcheckrc" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "apt install shellcheck shfmt" README.md
+  [ "$status" -eq 0 ]
+}

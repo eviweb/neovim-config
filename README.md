@@ -8,7 +8,7 @@ Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
 - **OS**: Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
 - **Shell**: Bash 5+
-- **Neovim**: 0.9+
+- **Neovim**: 0.10+
 
 ## Dependencies
 
@@ -148,7 +148,7 @@ restrictions):
 sudo snap install nvim --classic
 ```
 
-Minimum required version: **0.9+**. Check with `nvim --version`.
+Minimum required version: **0.10+** (native `gc`/`gcc` commenting; see `docs/cheatsheets/editing.md`). Check with `nvim --version`.
 
 Alternatively, via apt (version depends on the Ubuntu release):
 
@@ -274,27 +274,78 @@ other tools may also rely on — nvim-config never runs `apt remove` on your
 behalf. `uninstall all` follows the same policy and leaves them untouched.
 
 `uninstall nvim` and `uninstall mise` each ask for confirmation before removing
-anything — like every interactive prompt in this CLI, they auto-decline under
-`--dry-run`, `--quiet`, or outside a TTY, so automated runs never hang or
-remove something unexpectedly.
+anything. Without a TTY or under `--quiet` they decline, so automated runs never
+hang or remove something unexpectedly. `--dry-run` skips the prompt (nothing runs,
+so there is nothing to consent to) and prints the plan instead — for example
+`mise unuse -g neovim` then `mise uninstall neovim@<version>`, `sudo snap remove nvim`
+or `sudo apt remove -y neovim`, depending on how Neovim was installed. The other
+prompts of this CLI (`install`) offer alternatives rather than ask for consent, so
+they still decline under `--dry-run`.
 
 ## Project Profiles
 
-Profiles enable per-project tooling — only the LSP servers, null-ls sources, and
-plugins relevant to the current project are activated.
+Profiles enable per-project tooling — only the LSP servers, treesitter parsers,
+null-ls sources, and plugins relevant to the current project are activated.
 
-Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`.
+Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`, `python`,
+`shell`, `termux`, `ai`.
 
 ### Auto-detection
 
-Profiles are detected automatically at startup:
+Profiles are detected automatically at startup, from the directory Neovim was
+launched in:
 
-| File | Profile |
-|------|---------|
+| Marker | Profile |
+|--------|---------|
 | `package.json` | `web` |
 | `composer.json` | `php` |
 | `composer.json` + `laravel/framework` | `laravel` |
 | `Cargo.toml` | `rust` |
+| `pyproject.toml`, `setup.py`, `setup.cfg` or `requirements.txt` | `python` |
+| `.shellcheckrc`, a root-level `*.sh` or `*.bash` file, or `tests/*.bats` | `shell` |
+| `TERMUX_VERSION` environment variable (set by Termux) | `termux` |
+
+`ai` is opt-in and never auto-detected: it only turns on the AI plugins (avante,
+codecompanion, codeium, mcphub) when you pin it with `profile set ai`.
+
+### What each profile provides
+
+| Profile | LSP | Treesitter parsers | Debug adapter |
+|---------|-----|--------------------|---------------|
+| `web` | `ts_ls`, `vue_ls`, `svelte` | `tsx`, `vue`, `svelte` | `js-debug-adapter` |
+| `php` | `intelephense` | `php` | `php-debug-adapter` (Xdebug) |
+| `laravel` | via `php` | `blade` | via `php` |
+| `rust` | `rust_analyzer` | `rust`, `toml` | `codelldb` |
+| `python` | `pyright` | `python`, `toml` | `debugpy` |
+| `shell` | — (see below) | — (`bash` is global) | — |
+| `termux` | `lua_ls` only | — | none (no DAP, no OAuth plugins) |
+| `ai` | — | — | — |
+
+Profiles also bring their formatters (conform.nvim), linters (nvim-lint) and
+neotest adapters. A profile is a Lua table in `lua/profiles/<name>.lua`; besides
+`lsp_servers`, `plugins`, `dap_mason_packages` and the tool hooks it may declare
+`treesitter_parsers`. Without a parser a language gets no treesitter highlighting,
+folds or textobjects (`af`, `]m`, `]a`…). Parsers declared by the active profiles
+are installed in the background at startup, and also when a profile is switched on
+at runtime.
+
+### The `shell` profile
+
+Lints shell scripts with [shellcheck](https://www.shellcheck.net) (on save and when
+leaving insert mode) and formats them with [shfmt](https://github.com/mvdan/sh). Both
+are expected on `PATH` — `nvim-config doctor` lists them:
+
+```bash
+sudo apt install shellcheck shfmt
+```
+
+It applies to every buffer Neovim calls `sh`: `.sh`, `.bash`, `.bats` and scripts with a
+shell shebang. **shfmt runs on demand (`<Space>f`), not on save**, unlike every other
+formatter here: its defaults (tabs, its own redirect and alignment style) rewrite most of
+an existing script the first time it is saved — about half the lines of this repository's
+own `bin/nvim-config`. It reads `.editorconfig` when one covers the file. There is no
+language server on purpose (`bash-language-server` is an npm package and would duplicate
+shellcheck's diagnostics).
 
 ### Manual override
 
@@ -307,8 +358,8 @@ Pin a profile for the current project by writing `.nvim-profile` at the project 
 
 ### Runtime switching
 
-Switch the active profile without restarting Neovim (LSP and null-ls update immediately;
-plugin changes require a restart):
+Switch the active profile without restarting Neovim (LSP and null-ls update immediately,
+treesitter parsers install in the background; plugin changes require a restart):
 
 ```vim
 :NvimProfile web

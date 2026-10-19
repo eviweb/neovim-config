@@ -40,6 +40,12 @@ setup() {
   [ "$status" -eq 1 ]
 }
 
+@test "plugins list does not load Comment.nvim (Neovim's native gc/gcc commenting replaces it; Comment.nvim crashes with '[Comment.nvim] nil' on any filetype without a treesitter parser since get_parser() stopped raising)" {
+  run grep -n "plugins.comment\|Comment.nvim" lua/plugins.lua
+  [ "$status" -eq 1 ]
+  [ ! -f "lua/plugins/comment.lua" ]
+}
+
 @test "lualine config does not reference nvim-gps" {
   run grep -n "nvim-gps\|nvim_gps" lua/config/lualine.lua
   [ "$status" -eq 1 ]
@@ -1063,4 +1069,23 @@ setup() {
   run grep -n "list_cmd" lua/config/noice.lua
   [ "$status" -eq 0 ]
   [[ "$output" == *"split"* ]]
+}
+
+@test "php buffers comment with // (Neovim's default php commentstring is /* %s */, which wraps every commented line in a block comment)" {
+  run grep -n "commentstring" lua/options.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"// %s"* ]]
+}
+
+@test "php commentstring override behaves as // end-to-end (gcc on a php buffer)" {
+  # Loads lua/options.lua explicitly instead of `-u init.lua`: init.lua resolves
+  # its modules through the runtimepath, i.e. through ~/.config/nvim being a
+  # symlink to this repo — true on a developer machine, not on CI.
+  run nvim --headless --noplugin -u NORC \
+    +"luafile lua/options.lua" \
+    +"enew" +"setfiletype php" \
+    +"call setline(1, ['\$a = 1;'])" +"normal! gg" +"normal gcc" \
+    +"lua io.stdout:write(vim.api.nvim_buf_get_lines(0,0,1,false)[1])" \
+    +"qa!"
+  [[ "$output" == *"// \$a = 1;"* ]]
 }

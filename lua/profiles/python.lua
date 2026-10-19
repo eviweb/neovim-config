@@ -10,6 +10,9 @@ return {
 
     lsp_servers = { 'pyright' },
 
+    -- toml: pyproject.toml
+    treesitter_parsers = { 'python', 'toml' },
+
     plugins = {
         { 'nvim-neotest/neotest-python', lazy = true },
     },

@@ -106,6 +106,17 @@ end, { expr = true, silent = true, desc = 'Bracketed paste start' })
 -- Without this, .kdl files have no filetype and ts_ls attaches via root_dir.
 vim.filetype.add({ extension = { kdl = 'kdl' } })
 
+-- Neovim's default php commentstring is `/* %s */`, so `gcc` would wrap every
+-- commented line in its own block comment. Use `//` like the PHP ecosystem
+-- (and the previous Comment.nvim setup) does. A FileType autocmd also feeds
+-- vim.filetype.get_option(), which native commenting consults when a php
+-- treesitter parser is installed.
+vim.api.nvim_create_autocmd('FileType', {
+    pattern  = 'php',
+    callback = function() vim.bo.commentstring = '// %s' end,
+    desc     = 'Use // line comments in php buffers',
+})
+
 -- Detect shell scripts by shebang for extensionless files.
 -- priority = -math.huge ensures this fires only when no other rule matched.
 vim.filetype.add({

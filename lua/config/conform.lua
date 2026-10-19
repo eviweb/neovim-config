@@ -17,10 +17,17 @@ end
 conform.setup({
     formatters_by_ft = require('profiles').get_conform_formatters(),
 
-    format_on_save = {
-        timeout_ms = 1000,
-        lsp_format = 'fallback',
-    },
+    -- Format on save, except for shell scripts: shfmt's defaults (tabs unless an
+    -- .editorconfig section matches the file, its own redirect/alignment style)
+    -- rewrite most of an existing script on the first save — measured on this
+    -- repo's bin/nvim-config: ~970 of 1930 lines even with `-i 2`. Shell is
+    -- formatted on demand with <Space>f instead; shellcheck still runs on save.
+    format_on_save = function(bufnr)
+        if vim.bo[bufnr].filetype == 'sh' then
+            return nil
+        end
+        return { timeout_ms = 1000, lsp_format = 'fallback' }
+    end,
 
     -- Per-formatter binary resolution (evaluated at format time).
     formatters = {

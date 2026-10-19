@@ -1210,3 +1210,194 @@ EOF
   run grep -n "_remove_mise_activation" bin/nvim-config
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# update tree-sitter: network failures must be reported, not swallowed
+# ---------------------------------------------------------------------------
+
+# Writes a fake `curl` into a private dir and prints that dir (prepend to PATH).
+#   api-fails             every call fails (offline / API rate limit)
+#   api-ok-download-fails the release API answers, the asset download fails
+_fake_curl_dir() {
+  local mode="$1" dir="$BATS_TEST_TMPDIR/fake_curl_bin"
+  mkdir -p "$dir"
+  case "$mode" in
+    api-fails)
+      printf '#!/usr/bin/env bash\nexit 22\n' > "$dir/curl"
+      ;;
+    api-ok-download-fails)
+      cat > "$dir/curl" <<'CURLEOF'
+#!/usr/bin/env bash
+case "$*" in
+  *api.github.com*) printf '{\n  "tag_name": "v9.9.9"\n}\n' ;;
+  *) exit 22 ;;
+esac
+CURLEOF
+      ;;
+  esac
+  chmod +x "$dir/curl"
+  printf '%s' "$dir"
+}
+
+@test "update tree-sitter reports an error and exits 1 when the latest release cannot be fetched (it used to exit silently under set -e)" {
+  PATH="$(_fake_curl_dir api-fails):$PATH" run ./bin/nvim-config update tree-sitter
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Could not fetch latest tree-sitter release tag"* ]]
+}
+
+@test "update tree-sitter --dry-run still succeeds when the GitHub API is unreachable (dry-run must not depend on the network)" {
+  PATH="$(_fake_curl_dir api-fails):$PATH" run ./bin/nvim-config --dry-run update tree-sitter
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
+@test "update tree-sitter --dry-run shows the release it would download when the API answers" {
+  PATH="$(_fake_curl_dir api-ok-download-fails):$PATH" run ./bin/nvim-config --dry-run update tree-sitter
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"would download: https://github.com/tree-sitter/tree-sitter/releases/download/v9.9.9/"* ]]
+}
+
+@test "update tree-sitter reports a failed download and does not claim success" {
+  PATH="$(_fake_curl_dir api-ok-download-fails):$PATH" run ./bin/nvim-config update tree-sitter
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Failed to download"* ]]
+  [[ "$output" != *"tree-sitter updated to"* ]]
+}
+
+@test "update tree-sitter treats a vendored binary that cannot report its version as outdated (it used to exit silently under set -e)" {
+  # Run a copy of the script from a throwaway project root so the "vendored"
+  # binary lives in the temp dir instead of this repository's vendor/.
+  local proj="$BATS_TEST_TMPDIR/proj"
+  mkdir -p "$proj/bin" "$proj/vendor/tree-sitter"
+  cp bin/nvim-config "$proj/bin/nvim-config"
+  printf '0.0.0\n' > "$proj/VERSION"
+  printf '#!/usr/bin/env bash\nexit 1\n' > "$proj/vendor/tree-sitter/tree-sitter"
+  chmod +x "$proj/vendor/tree-sitter/tree-sitter"
+
+  PATH="$(_fake_curl_dir api-ok-download-fails):$PATH" run "$proj/bin/nvim-config" --dry-run update tree-sitter
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Updating tree-sitter none → 9.9.9"* ]]
+}
+
+@test "uninstall nvim does not abort silently when 'mise current' fails (the failing pipeline sits in a plain assignment)" {
+  run grep -n 'nvim_version="$(mise current neovim.*)" || nvim_version=""' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# uninstall --dry-run shows the removal plan instead of "Skipped"
+# ---------------------------------------------------------------------------
+
+# Prints $PATH with every directory that holds an executable named $1 removed.
+_path_without() {
+  local name="$1" dir out="" path_dirs
+  IFS=':' read -ra path_dirs <<< "$PATH"
+  for dir in "${path_dirs[@]}"; do
+    [ -x "${dir}/${name}" ] && continue
+    out="${out:+${out}:}${dir}"
+  done
+  printf '%s' "$out"
+}
+
+# Fake tools in a private dir; prints the dir. Usage: _fake_uninstall_tools nvim mise snap-managed
+_fake_uninstall_tools() {
+  local dir="$BATS_TEST_TMPDIR/fake_uninstall_bin" tool
+  mkdir -p "$dir"
+  for tool in "$@"; do
+    case "$tool" in
+      nvim)
+        printf '#!/usr/bin/env bash\nexit 0\n' > "$dir/nvim" ;;
+      mise)
+        cat > "$dir/mise" <<'FAKEEOF'
+#!/usr/bin/env bash
+case "$1" in
+  current) echo "0.12.5" ;;
+  *) ;;
+esac
+exit 0
+FAKEEOF
+        ;;
+      snap-managed)
+        printf '#!/usr/bin/env bash\nexit 0\n' > "$dir/snap" ;;
+      snap-absent-package)
+        printf '#!/usr/bin/env bash\nexit 1\n' > "$dir/snap" ;;
+    esac
+  done
+  chmod +x "$dir"/*
+  printf '%s' "$dir"
+}
+
+@test "uninstall nvim --dry-run shows the mise removal commands instead of skipping" {
+  local fake; fake="$(_fake_uninstall_tools nvim mise)"
+  PATH="$fake:$PATH" run ./bin/nvim-config --dry-run uninstall nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"mise unuse -g neovim"* ]]
+  [[ "$output" == *"mise uninstall neovim@0.12.5"* ]]
+  [[ "$output" != *"Skipped"* ]]
+}
+
+@test "uninstall nvim --dry-run shows the snap removal command when nvim comes from snap" {
+  local fake; fake="$(_fake_uninstall_tools nvim snap-managed)"
+  PATH="$fake:$(_path_without mise)" run ./bin/nvim-config --dry-run uninstall nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"sudo snap remove nvim"* ]]
+  [[ "$output" != *"Skipped"* ]]
+}
+
+@test "uninstall nvim --dry-run shows the apt removal command when nvim comes from neither mise nor snap" {
+  local fake; fake="$(_fake_uninstall_tools nvim snap-absent-package)"
+  PATH="$fake:$(_path_without mise)" run ./bin/nvim-config --dry-run uninstall nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"sudo apt remove -y neovim"* ]]
+  [[ "$output" != *"Skipped"* ]]
+}
+
+@test "uninstall mise --dry-run shows the binary and shell rc cleanup it would do, and changes nothing" {
+  local fake; fake="$(_fake_uninstall_tools mise)"
+  cat > "${HOME}/.bashrc" <<'RCEOF'
+before
+
+# Added by nvim-config install mise
+export PATH="$HOME/.local/bin:$PATH"
+eval "$(mise activate bash)"
+after
+RCEOF
+  local before; before="$(cat "${HOME}/.bashrc")"
+
+  SHELL=/bin/bash PATH="$fake:$PATH" run ./bin/nvim-config --dry-run uninstall mise
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"rm -f ${fake}/mise"* ]]
+  [[ "$output" == *"Remove the activation block added by 'install mise'"* ]]
+  [[ "$output" != *"Skipped"* ]]
+  [ -x "${fake}/mise" ]
+  [ "$(cat "${HOME}/.bashrc")" = "$before" ]
+}
+
+@test "uninstall all --dry-run prints the whole plan (config link, nvim, mise) and still leaves apt packages alone" {
+  local fake project_dir
+  fake="$(_fake_uninstall_tools nvim mise)"
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}/.config"
+  ln -s "${project_dir}" "${HOME}/.config/nvim"
+
+  PATH="$fake:$PATH" run ./bin/nvim-config --dry-run uninstall all
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"rm ${HOME}/.config/nvim"* ]]
+  [[ "$output" == *"mise unuse -g neovim"* ]]
+  [[ "$output" == *"rm -f ${fake}/mise"* ]]
+  [[ "$output" == *"never removes apt packages"* ]]
+  [ -L "${HOME}/.config/nvim" ]
+}
+
+@test "uninstall still declines without --dry-run when there is no TTY (the bypass is dry-run only)" {
+  local fake; fake="$(_fake_uninstall_tools nvim mise)"
+  PATH="$fake:$PATH" run ./bin/nvim-config uninstall nvim
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Skipped"* ]]
+  [[ "$output" != *"mise unuse"* ]]
+}
+
+@test "doctor lists shellcheck and shfmt as optional shell tools" {
+  run grep -n "for bin in shellcheck shfmt" bin/nvim-config
+  [ "$status" -eq 0 ]
+}

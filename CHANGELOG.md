@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`shell` profile**: shellcheck diagnostics (nvim-lint) and shfmt formatting (conform) for
+  `sh` buffers — Neovim files `.sh`, `.bash`, `.bats` and shebang scripts all under that one
+  filetype. Auto-detected from `.shellcheckrc`, a root-level `*.sh` / `*.bash`, or
+  `tests/*.bats`; otherwise `nvim-config profile set shell`. Both tools are expected on `PATH`
+  (`sudo apt install shellcheck shfmt`) and `nvim-config doctor` now lists them. No language
+  server for now: `bash-language-server` is an npm package and would duplicate shellcheck's
+  diagnostics (recorded as deferred)
 - `docs/usage.md`: "Extending completion to other Lua projects" subsection under
   `## LSP` — generalizes this repo's own `lua_ls` `workspace.library` pattern
   (already used for its own Neovim API completion) into a reusable recipe for
@@ -20,16 +27,53 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   documents this config's own additions on top of it. Picked up automatically
   by `:Cheat` (topics are discovered dynamically from the directory); linked
   from README's "Documentation" section as the suggested starting point
-- `docs/cheatsheets/plugins.md`: documented `Comment.nvim`'s default keymaps
-  (`gcc`, `gc{motion}`, visual-mode `gc`, `gbc`, `gco`/`gcO`/`gcA`) — the
-  plugin (`lua/plugins/comment.lua`) was installed but had zero documentation
-  anywhere in the project
+- `docs/cheatsheets/editing.md`: new "Commenting (native Neovim, no plugin)"
+  section — `gcc`, `5gcc` (count), visual `gc`, `gc{motion}` (`gc2j`, `gcip`,
+  `gc}`) and `dgc`; commenting had no documentation anywhere before
+- Profiles can declare `treesitter_parsers` (new `profiles.get_treesitter_parsers()`),
+  installed at startup alongside the global list, and — new — also when a profile is
+  switched on at runtime with `:NvimProfile` (previously a restart was needed for
+  anything beyond LSP/null-ls). Declared: `php` → `php` (which also lets native
+  commenting pick `<!-- -->` inside HTML regions of mixed PHP/HTML files — the html
+  parser comes in as a dependency), `laravel` → `blade`, `web` → `tsx`/`vue`/`svelte`,
+  `rust` → `rust`/`toml`, `python` → `python`/`toml`. Without a parser a language gets
+  no treesitter highlighting, folds or textobjects (`af`, `]m`, `]a`…); a new test
+  checks every declared name exists in nvim-treesitter
+- Profiles documentation brought in line with `lua/profiles/`: the README, `docs/usage.md`
+  and `docs/cheatsheets/profiles.md` listed only `web`/`php`/`laravel`/`rust`, while `python`,
+  `termux` and `ai` already existed. Detection markers (python files, `TERMUX_VERSION`, `ai`
+  being opt-in) and a per-profile table (LSP, parsers, debug adapter) are now documented, and
+  a test fails if a profile file is missing from any of the three docs
+- `nvim-config profile create` template now includes the `treesitter_parsers` field
+- `ssh_config` added to the global treesitter parser list (the `sshconfig`
+  filetype maps to it automatically)
 - `docs/cheatsheets/editing.md`: new "Treesitter textobjects" section
   documenting select (`af`/`if`, `ac`/`ic`), move (`]m`/`[m`, `]M`/`[M`,
   `]]`/`[[`, `][`/`[]`), and swap (`]a`/`[a`) — none of these
   `lua/config/treesitter.lua` keymaps were documented anywhere before
 
 ### Changed
+- conform no longer formats `sh` buffers **on save** (shfmt stays available on demand with
+  `<Space>f`): shfmt's defaults rewrite most of an existing script on first save — measured on
+  `bin/nvim-config`, ~970 of 1930 lines with `-i 2`, ~2470 with the tab default that applies when
+  a `.editorconfig` exists but has no section matching the file
+- `uninstall nvim` / `uninstall mise` with `--dry-run` now print the removal plan (the
+  `mise unuse` / `mise uninstall`, `snap remove` or `apt remove` command, the binary and the
+  shell rc cleanup) instead of "Skipped — … left installed". A dry-run executes nothing, so the
+  consent prompt is skipped there; without a TTY or with `--quiet` a real run still declines.
+  `install`'s prompts are unchanged: they choose between alternatives, so declining still
+  leads somewhere informative. Previously this logic could only be checked by reading the
+  source; fake `mise`/`snap` tests now cover each detection path
+- **Commenting now uses Neovim's native `gc`/`gcc`** instead of `Comment.nvim`
+  (removed: `lua/plugins/comment.lua`). `gc` (visual/operator), `gcc` and counts
+  keep working; `gb`/`gbc` (block comments) and `gco`/`gcO`/`gcA` are gone — none
+  of the maintained alternatives offer block-comment toggling either. Minimum
+  supported Neovim goes from 0.9 to **0.10** (README updated) since native
+  commenting was added in 0.10. Run `:Lazy clean` to drop the plugin and its
+  `lazy-lock.json` entry
+- php buffers use `// %s` as `commentstring` (`lua/options.lua`): Neovim's own
+  default is `/* %s */`, which would wrap every commented line in a block
+  comment — `Comment.nvim` used `//` for php, so this keeps that behaviour
 - `lua/config/treesitter.lua`: treesitter textobjects swap keymaps moved from
   `<Leader>a` / `<Leader>A` to `]a` / `[a` — `<Leader>a` is also the which-key
   group prefix for the AI (Avante) submenu (`<Leader>aa`, `<Leader>ae`, …),
@@ -40,6 +84,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file (`[m`/`]m`, `[[`/`]]`, `[h`/`]h`) and fully resolve the ambiguity
 
 ### Fixed
+- `nvim-config profile detect` ignored the `python` and `termux` profiles that the Lua detection
+  has; it now mirrors all detectors (and `shell`)
+- `nvim-config update` (and `update tree-sitter`) exited with status 1 and **no message** when
+  the GitHub API call for the latest tree-sitter release failed (offline, or the anonymous
+  60 requests/hour rate limit): the failing `curl | grep | sed` pipeline sits in a plain
+  assignment, which ends the script under `set -e` before the error could be logged. It now logs
+  "Could not fetch latest tree-sitter release tag" and returns 1. `install all` was unaffected
+  only because errexit is suppressed in its call tree
+- `--dry-run` no longer fails when that API is unreachable: it warns that the release could not
+  be queried and succeeds, instead of making a dry run depend on the network (this made four
+  unrelated `cli.bats` tests fail whenever the quota was exhausted)
+- The tree-sitter download is now checked step by step (`curl -f`, `gunzip`, `chmod`): a 404 or
+  a failed download used to be written to disk as the "archive", fall through, and end with a
+  "tree-sitter updated" message when run from `install all`
+- A vendored `tree-sitter` binary that cannot run (wrong architecture, corrupt) is now treated as
+  outdated and replaced, instead of ending the script silently
+- `uninstall nvim` no longer stops silently after the confirmation when `mise current neovim`
+  fails; it falls through to the existing "could not determine the installed neovim version"
+  warning
+- `gc`/`gcc` failed with a bare `[Comment.nvim] nil` notification (nothing got
+  commented) in every buffer whose filetype has no treesitter parser — ssh config,
+  and php unless a parser was installed. On Neovim 0.12
+  `vim.treesitter.get_parser()` returns `nil` instead of raising, which
+  Comment.nvim's `ft.calculate` doesn't expect (`attempt to index local 'tree'`);
+  its error handler then prints `err.msg`, which is `nil` for a plain string
+  error, hiding the real cause. Comment.nvim has had no commit since June 2024,
+  so no upstream fix; native commenting falls back to `commentstring` instead
 - `docs/cheatsheets/editing.md`: removed a stale `<C-z>` → Undo entry — that
   binding was intentionally removed in an earlier change (conflicts with the
   shell's `SIGTSTP`, see `<C-s>`/`<C-z>`/`<C-r>` keymap cleanup in this

@@ -270,6 +270,17 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
+@test "profiles init defines get_treesitter_parsers" {
+  run grep -n "get_treesitter_parsers" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "php profile declares treesitter_parsers with php" {
+  run grep -n "treesitter_parsers" lua/profiles/php.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'php'"* ]]
+}
+
 @test "rust profile declares dap_mason_packages with codelldb" {
   run grep -n "codelldb" lua/profiles/rust.lua
   [ "$status" -eq 0 ]
@@ -363,4 +374,150 @@ setup() {
 @test "mcp-diagnostics plugin cond requires ai profile" {
   run grep -n "is_active.*ai\|ai.*is_active" lua/plugins/mcp-diagnostics.lua
   [ "$status" -eq 0 ]
+}
+
+@test "web profile declares treesitter_parsers for tsx, vue and svelte (its LSPs are enabled for those filetypes)" {
+  run grep -n "treesitter_parsers" lua/profiles/web.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'tsx'"* ]]
+  [[ "$output" == *"'vue'"* ]]
+  [[ "$output" == *"'svelte'"* ]]
+}
+
+@test "laravel profile declares the blade treesitter parser" {
+  run grep -n "treesitter_parsers" lua/profiles/laravel.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'blade'"* ]]
+}
+
+@test "rust profile declares rust and toml treesitter parsers (Cargo.toml)" {
+  run grep -n "treesitter_parsers" lua/profiles/rust.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'rust'"* ]]
+  [[ "$output" == *"'toml'"* ]]
+}
+
+@test "python profile declares python and toml treesitter parsers (pyproject.toml)" {
+  run grep -n "treesitter_parsers" lua/profiles/python.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'python'"* ]]
+  [[ "$output" == *"'toml'"* ]]
+}
+
+@test "runtime profile activation installs the profile's treesitter parsers (previously only done at startup)" {
+  run sed -n '/^function M.activate/,/^end/p' lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"treesitter_parsers"* ]]
+  [[ "$output" == *"nvim-treesitter"* ]]
+}
+
+@test "every treesitter parser declared by a profile exists in nvim-treesitter (guards against typos and removed parsers)" {
+  local real_home parsers_file
+  real_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
+  parsers_file="${XDG_DATA_HOME:-${real_home}/.local/share}/nvim/lazy/nvim-treesitter/lua/nvim-treesitter/parsers.lua"
+  [ -f "$parsers_file" ] || skip "nvim-treesitter is not installed (CI does not install plugins)"
+  # Reads the plugin's parser table directly (pure data): no init.lua, so no
+  # network access and no side effects such as parser installation.
+  run nvim --headless -u NONE --noplugin -c "lua local available = dofile('${parsers_file}') local missing = {} for _, f in ipairs(vim.fn.glob(vim.fn.getcwd() .. '/lua/profiles/*.lua', false, true)) do local ok, p = pcall(dofile, f) if ok and type(p) == 'table' and p.treesitter_parsers then for _, l in ipairs(p.treesitter_parsers) do if not available[l] then missing[#missing + 1] = vim.fn.fnamemodify(f, ':t:r') .. ':' .. l end end end end io.stdout:write('MISSING=' .. table.concat(missing, ',') .. '\n')" -c "qa!"
+  local result
+  result="$(printf '%s\n' "$output" | grep '^MISSING=')"
+  [ "$result" = "MISSING=" ]
+}
+
+@test "profile create template includes the treesitter_parsers field" {
+  run grep -n "treesitter_parsers = {}" bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# shell profile
+# ---------------------------------------------------------------------------
+
+_lua_detect() {
+  # Prints the profiles auto-detected by lua/profiles/init.lua for directory $1.
+  nvim --headless -u NONE --noplugin --cmd "set rtp+=$(pwd)" \
+    -c "lua io.stdout:write('DETECTED=' .. table.concat(require('profiles').detect('$1'), ',') .. '\n')" \
+    -c "qa!" 2>&1 | grep '^DETECTED='
+}
+
+@test "shell profile definition file exists and is named shell" {
+  [ -f "lua/profiles/shell.lua" ]
+  run grep -n "name = 'shell'" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "shell profile formats with shfmt and lints with shellcheck, for sh buffers (bash, .bats and shebang scripts are all filetype sh)" {
+  run grep -n "shfmt" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+  run grep -n "shellcheck" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+  run grep -n "sh = {" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "shell profile declares no language server (bash-language-server is deferred: npm package, duplicates shellcheck diagnostics)" {
+  run grep -n "lsp_servers = {}" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lua detection finds the shell profile from .shellcheckrc" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/.shellcheckrc"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection finds the shell profile from a root-level .sh file" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/deploy.sh"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection finds the shell profile from a root-level .bash file" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/lib.bash"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection finds the shell profile from bats tests under tests/" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/tests"; : > "$d/tests/cli.bats"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection does not pick the shell profile for an unrelated directory" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/tests"; : > "$d/README.md"; : > "$d/tests/notes.txt"
+  run _lua_detect "$d"
+  [[ "$output" != *"shell"* ]]
+}
+
+@test "cli 'profile detect' reports every profile the lua detection knows (it was missing python and termux)" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/tests"
+  : > "$d/pyproject.toml"; : > "$d/tests/cli.bats"
+  cd "$d"
+  run "$script" --no-log profile detect
+  [[ "$output" == *"python"* ]]
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "cli 'profile detect' reports termux from TERMUX_VERSION" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"
+  cd "$d"
+  TERMUX_VERSION=0.118 run "$script" --no-log profile detect
+  [[ "$output" == *"termux"* ]]
+}
+
+@test "cli 'profile detect' still reports web, rust and php" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"
+  : > "$d/package.json"; : > "$d/Cargo.toml"; printf '{}' > "$d/composer.json"
+  cd "$d"
+  run "$script" --no-log profile detect
+  [[ "$output" == *"web"* ]]
+  [[ "$output" == *"rust"* ]]
+  [[ "$output" == *"php"* ]]
 }

@@ -348,6 +348,49 @@
 
 ---
 
+## Phase 26 — Native Commenting
+
+- [x] Fix: `gc`/`gcc` printed `[Comment.nvim] nil` and commented nothing in any buffer without a
+  treesitter parser (ssh config, php) — Comment.nvim assumes `vim.treesitter.get_parser()` raises when
+  no parser exists, but on Neovim 0.12 it returns `nil`; the plugin is unmaintained since June 2024
+- [x] Replace Comment.nvim with Neovim's native commenting (`gc`/`gcc`, counts, `dgc`); minimum Neovim
+  raised to 0.10; php buffers keep `//` comments via a `commentstring` override
+- [x] Profiles can declare `treesitter_parsers` (`php` → `php`, `laravel` → `blade`, `web` →
+  `tsx`/`vue`/`svelte`, `rust` → `rust`/`toml`, `python` → `python`/`toml`); installed at startup and
+  on runtime `:NvimProfile` activation; `ssh_config` added to the global parser list
+- [x] Commenting documented in `docs/cheatsheets/editing.md` (count and motions included)
+
+---
+
+## Phase 27 — Silent failures
+
+- [x] `update` / `update tree-sitter` exited 1 without a message when the GitHub release lookup
+  failed (offline or rate limited) — `set -e` ended the script inside a `$(curl | grep | sed)`
+  assignment before the error was logged; now a clear error
+- [x] `--dry-run` no longer depends on the network for that lookup (warns and succeeds), which had
+  made four unrelated tests fail whenever the anonymous API quota was exhausted
+- [x] tree-sitter download checked step by step (no more "updated" message after a failed
+  download); a vendored binary that cannot run is replaced instead of aborting; `uninstall nvim`
+  no longer aborts silently when `mise current` fails
+- [x] `uninstall nvim|mise --dry-run` prints the removal plan instead of "Skipped" (the consent
+  prompt is skipped in dry-run only); covered by tests with fake `mise`/`snap`/`nvim`
+
+---
+
+## Phase 28 — Shell Profile
+
+- [x] `shell` profile: shellcheck (nvim-lint) and shfmt (conform) for `sh` buffers (which covers
+  `.sh`, `.bash`, `.bats` and shebang scripts); auto-detected from `.shellcheckrc`, a root-level
+  `*.sh`/`*.bash` or `tests/*.bats`, otherwise opt-in; no language server (deferred, see below)
+- [x] shfmt runs on demand only: conform no longer formats `sh` buffers on save — measured on
+  this repo, saving `bin/nvim-config` would have rewritten ~970 of 1930 lines (2 470 with the
+  tabs default of a `.editorconfig` that does not match the file)
+- [x] `nvim-config profile detect` mirrored the Lua detection only partly: it ignored `python` and
+  `termux`; now complete, plus `shell`
+- [x] `nvim-config doctor` lists shellcheck and shfmt under "Shell tools (optional)"
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
@@ -392,6 +435,33 @@
   sidebar); requires the `yazi` binary (official GPG-verified apt repo)
   → https://yazi-rs.github.io
   → https://github.com/mikavilpas/yazi.nvim
+
+### Treesitter
+
+- [ ] Install a missing parser on the fly when a file of that filetype is opened (`FileType`
+  autocmd → `require('nvim-treesitter').install({ lang })`, async). Trade-offs to settle first:
+  it downloads and compiles third-party grammar code for any of the ~320 available parsers
+  without asking, needs network + `tree-sitter` CLI + `gcc` (fails noisily offline/Termux unless
+  attempts are remembered per session), and — now that commenting is native and works without
+  a parser — would only add highlighting. Alternatives: explicit lists (global + per profile,
+  already supported), or an allow-list / confirmation prompt
+
+### Profiles
+
+- [ ] `shell` profile: `bash-language-server` (completion, go-to-definition, hover), only when
+  `npm` is available — it is an npm package and Node is optional here. It runs shellcheck itself,
+  so enabling it means dropping shellcheck from nvim-lint for `sh` buffers to avoid doubled
+  diagnostics, and keeping both paths (with and without npm) tested
+
+- [ ] `go` profile — `gopls`, parsers `go` `gomod` `gosum` `gowork`, Delve for DAP, formatter
+  (gofumpt/goimports) and linter (golangci-lint) through conform/nvim-lint; detected by `go.mod`.
+  Mason package names to confirm when implementing. Deferred until Go is actually used
+
+- [ ] `java` profile — `jdtls`, parser `java`, java-debug-adapter / java-test for DAP and tests,
+  formatter; detected by `pom.xml`, `build.gradle(.kts)` or `settings.gradle`. `jdtls` needs a JDK
+  and workspace handling that the other profiles don't, so it is the heavier of the two. Deferred
+  until Java is actually used (a `jenv` install on the maintainer's `PATH` hints at it but doesn't
+  confirm it)
 
 ### Plugin management
 

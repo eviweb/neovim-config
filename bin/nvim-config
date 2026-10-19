@@ -309,6 +309,10 @@ run_doctor() {
     for bin in python3 pyright ruff black mypy; do
       _check_bin "${bin}" || true
     done
+    log_message "INFO" "=== Shell tools (optional) ==="
+    for bin in shellcheck shfmt; do
+      _check_bin "${bin}" || true
+    done
     log_message "INFO" "=== Build tools (optional) ==="
     _check_bin "cargo" || true
   fi
@@ -899,6 +903,18 @@ _confirm() {
   [[ "${reply}" =~ ^[Yy]$ ]]
 }
 
+# Consent prompt for a destructive action. A dry-run executes nothing, so there
+# is nothing to consent to: skip the prompt and let run_command print the plan.
+# The other prompts (install) stay declined under --dry-run because they choose
+# between alternatives, where declining still leads somewhere informative. A
+# real run without a TTY, or with --quiet, still declines.
+_confirm_unless_dry_run() {
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    return 0
+  fi
+  _confirm "$1"
+}
+
 _install_nvim_via() {
   local pkg_manager="$1"
   case "${pkg_manager}" in
@@ -1070,17 +1086,26 @@ run_update_tree_sitter() {
 
   command -v curl > /dev/null 2>&1 || { log_message "ERROR" "curl is required" >&2; return 1; }
 
+  # A failing pipeline inside $(...) would end the script right here under
+  # `set -e`, before the error below could be logged; the emptiness check that
+  # follows handles the failure explicitly.
   local latest_tag
   latest_tag="$(curl -sf https://api.github.com/repos/tree-sitter/tree-sitter/releases/latest \
-    | grep '"tag_name"' | sed 's/.*"tag_name": "\(.*\)".*/\1/')"
+    | grep '"tag_name"' | sed 's/.*"tag_name": "\(.*\)".*/\1/')" || latest_tag=""
   if [ -z "${latest_tag}" ]; then
-    log_message "ERROR" "Could not fetch latest tree-sitter release tag"
+    if [ "${DRY_RUN}" -eq 1 ]; then
+      log_message "WARN" "Could not query the latest tree-sitter release (offline or GitHub API rate limit) — a real run would download ${asset} into ${vendor_dir}"
+      return 0
+    fi
+    log_message "ERROR" "Could not fetch latest tree-sitter release tag (offline or GitHub API rate limit?) — retry later"
     return 1
   fi
 
   local current_version="none"
   if [ -x "${binary}" ]; then
-    current_version="$("${binary}" --version 2>/dev/null | awk '{print $2}')"
+    # A vendored binary that cannot run (wrong architecture, corrupt) must read
+    # as outdated so it gets replaced, not end the script under `set -e`.
+    current_version="$("${binary}" --version 2>/dev/null | awk '{print $2}')" || current_version="none"
   fi
   local latest_version="${latest_tag#v}"
 
@@ -1096,10 +1121,18 @@ run_update_tree_sitter() {
   fi
 
   local url="https://github.com/tree-sitter/tree-sitter/releases/download/${latest_tag}/${asset}"
-  run_command mkdir -p "${vendor_dir}"
-  curl -sL "${url}" -o "${binary}.gz"
-  gunzip -f "${binary}.gz"
-  chmod +x "${binary}"
+  run_command mkdir -p "${vendor_dir}" || return 1
+  # Every step is guarded explicitly: this function also runs under
+  # `run_update_tree_sitter || had_error=1` (install all), where errexit is
+  # suppressed for the whole call tree, so a failed download would otherwise
+  # fall through to a success message.
+  if ! curl -sfL "${url}" -o "${binary}.gz"; then
+    rm -f "${binary}.gz"
+    log_message "ERROR" "Failed to download ${url}"
+    return 1
+  fi
+  gunzip -f "${binary}.gz" || { log_message "ERROR" "Failed to decompress ${binary}.gz"; return 1; }
+  chmod +x "${binary}" || return 1
   log_message "INFO" "tree-sitter updated to $("${binary}" --version)"
 }
 
@@ -1185,13 +1218,24 @@ run_profile_info() {
   fi
 }
 
+# Mirrors the detectors in lua/profiles/init.lua — keep the two in sync.
 run_profile_detect() {
   local detected=()
+  if [ -n "${TERMUX_VERSION:-}" ]; then
+    detected+=("termux")
+  fi
   if [ -f "package.json" ]; then
     detected+=("web")
   fi
   if [ -f "Cargo.toml" ]; then
     detected+=("rust")
+  fi
+  if [ -f "pyproject.toml" ] || [ -f "setup.py" ] || [ -f "setup.cfg" ] || [ -f "requirements.txt" ]; then
+    detected+=("python")
+  fi
+  if [ -f ".shellcheckrc" ] || compgen -G "*.sh" > /dev/null || compgen -G "*.bash" > /dev/null \
+    || compgen -G "tests/*.bats" > /dev/null; then
+    detected+=("shell")
   fi
   if [ -f "composer.json" ]; then
     if grep -q "laravel/framework" composer.json 2>/dev/null; then
@@ -1251,6 +1295,9 @@ return {
     extends = {},
 
     lsp_servers = {},
+
+    -- treesitter parsers installed in the background when the profile is active
+    treesitter_parsers = {},
 
     plugins = {},
 
@@ -1528,12 +1575,13 @@ run_uninstall_nvim() {
   fi
 
   if command -v mise > /dev/null 2>&1 && mise which nvim > /dev/null 2>&1; then
-    if ! _confirm "Remove Neovim installed via mise (mise unuse -g neovim + mise uninstall)? [y/N] "; then
+    if ! _confirm_unless_dry_run "Remove Neovim installed via mise (mise unuse -g neovim + mise uninstall)? [y/N] "; then
       log_message "INFO" "Skipped — nvim left installed"
       return 0
     fi
     local nvim_version
-    nvim_version="$(mise current neovim 2>/dev/null | awk '{print $1}')"
+    # Empty on failure: handled by the "could not determine" warning below.
+    nvim_version="$(mise current neovim 2>/dev/null | awk '{print $1}')" || nvim_version=""
     run_command mise unuse -g neovim
     if [ -n "${nvim_version}" ] && [ "${nvim_version}" != "none" ]; then
       run_command mise uninstall "neovim@${nvim_version}"
@@ -1541,13 +1589,13 @@ run_uninstall_nvim() {
       log_message "WARN" "Could not determine the installed neovim version — run 'mise uninstall neovim@<version>' manually if needed"
     fi
   elif snap list nvim > /dev/null 2>&1; then
-    if ! _confirm "Remove Neovim installed via snap (sudo snap remove nvim)? [y/N] "; then
+    if ! _confirm_unless_dry_run "Remove Neovim installed via snap (sudo snap remove nvim)? [y/N] "; then
       log_message "INFO" "Skipped — nvim left installed"
       return 0
     fi
     run_command sudo snap remove nvim
   else
-    if ! _confirm "Remove Neovim installed via apt (sudo apt remove neovim)? [y/N] "; then
+    if ! _confirm_unless_dry_run "Remove Neovim installed via apt (sudo apt remove neovim)? [y/N] "; then
       log_message "INFO" "Skipped — nvim left installed"
       return 0
     fi
@@ -1590,7 +1638,7 @@ run_uninstall_mise() {
     return 0
   fi
 
-  if ! _confirm "Remove the mise binary and its shell activation lines added by 'install mise'? [y/N] "; then
+  if ! _confirm_unless_dry_run "Remove the mise binary and its shell activation lines added by 'install mise'? [y/N] "; then
     log_message "INFO" "Skipped — mise left installed"
     return 0
   fi

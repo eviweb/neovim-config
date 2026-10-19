@@ -2,19 +2,31 @@
 
 ## Profiles
 
-Available: `web` · `php` · `laravel` · `rust`
+Available: `web` · `php` · `laravel` · `rust` · `python` · `shell` · `termux` · `ai`
 
-Auto-detected from: `package.json` → web · `composer.json` → php/laravel · `Cargo.toml` → rust
+Auto-detected from: `package.json` → web · `composer.json` → php/laravel · `Cargo.toml` → rust ·
+`pyproject.toml` / `setup.py` / `setup.cfg` / `requirements.txt` → python ·
+`.shellcheckrc` / root `*.sh` `*.bash` / `tests/*.bats` → shell ·
+`TERMUX_VERSION` env var → termux
+
+`shell`: shellcheck on save, shfmt only on `<Space>f` (not on save).
+Needs `sudo apt install shellcheck shfmt`.
+
+`ai` is opt-in (never detected): `nvim-config profile set ai`.
+
+Each profile also installs its treesitter parsers (background, at startup and on
+`:NvimProfile`): web → tsx vue svelte · php → php · laravel → blade · rust → rust toml ·
+python → python toml
 
 ### In-editor
 | Key / Command          | Action                                     |
 |------------------------|--------------------------------------------|
-| `:NvimProfile web`     | Activate profile (LSP + null-ls immediate) |
+| `:NvimProfile web`     | Activate profile (LSP, null-ls, parsers)   |
 | `:NvimProfile`         | Open profile picker                        |
 | `<Leader>fp`           | Open profile picker (Telescope)            |
 
 Picker: `<CR>` activate · `●` active · `○` inactive
-Plugin changes take effect after restart.
+Plugin changes take effect after restart (LSP, null-ls and parsers apply immediately).
 
 ### CLI
 ```

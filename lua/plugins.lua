@@ -44,7 +44,6 @@ local base_plugins = {
     -- Utils
     require('plugins.nvim-autopairs'),
     require('plugins.vim-surround'),
-    require('plugins.comment'),
     require('plugins.vim-illuminate'),
     require('plugins.indent-blankline'),
 

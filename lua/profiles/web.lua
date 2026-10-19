@@ -18,6 +18,10 @@ return {
 
     lsp_servers = { 'ts_ls', 'vue_ls', 'svelte' },
 
+    -- html/css/javascript/typescript/json/yaml/markdown are in the global
+    -- list; typescriptreact maps to the tsx parser.
+    treesitter_parsers = { 'tsx', 'vue', 'svelte' },
+
     plugins = {
         {
             'mattn/emmet-vim',
