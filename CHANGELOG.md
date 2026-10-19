@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`shell` profile**: shellcheck diagnostics (nvim-lint) and shfmt formatting (conform) for
+  `sh` buffers — Neovim files `.sh`, `.bash`, `.bats` and shebang scripts all under that one
+  filetype. Auto-detected from `.shellcheckrc`, a root-level `*.sh` / `*.bash`, or
+  `tests/*.bats`; otherwise `nvim-config profile set shell`. Both tools are expected on `PATH`
+  (`sudo apt install shellcheck shfmt`) and `nvim-config doctor` now lists them. No language
+  server for now: `bash-language-server` is an npm package and would duplicate shellcheck's
+  diagnostics (recorded as deferred)
 - `docs/usage.md`: "Extending completion to other Lua projects" subsection under
   `## LSP` — generalizes this repo's own `lua_ls` `workspace.library` pattern
   (already used for its own Neovim API completion) into a reusable recipe for
@@ -46,6 +53,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `lua/config/treesitter.lua` keymaps were documented anywhere before
 
 ### Changed
+- conform no longer formats `sh` buffers **on save** (shfmt stays available on demand with
+  `<Space>f`): shfmt's defaults rewrite most of an existing script on first save — measured on
+  `bin/nvim-config`, ~970 of 1930 lines with `-i 2`, ~2470 with the tab default that applies when
+  a `.editorconfig` exists but has no section matching the file
 - `uninstall nvim` / `uninstall mise` with `--dry-run` now print the removal plan (the
   `mise unuse` / `mise uninstall`, `snap remove` or `apt remove` command, the binary and the
   shell rc cleanup) instead of "Skipped — … left installed". A dry-run executes nothing, so the
@@ -73,6 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file (`[m`/`]m`, `[[`/`]]`, `[h`/`]h`) and fully resolve the ambiguity
 
 ### Fixed
+- `nvim-config profile detect` ignored the `python` and `termux` profiles that the Lua detection
+  has; it now mirrors all detectors (and `shell`)
 - `nvim-config update` (and `update tree-sitter`) exited with status 1 and **no message** when
   the GitHub API call for the latest tree-sitter release failed (offline, or the anonymous
   60 requests/hour rate limit): the failing `curl | grep | sed` pipeline sits in a plain

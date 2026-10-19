@@ -288,7 +288,7 @@ Profiles enable per-project tooling — only the LSP servers, treesitter parsers
 null-ls sources, and plugins relevant to the current project are activated.
 
 Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`, `python`,
-`termux`, `ai`.
+`shell`, `termux`, `ai`.
 
 ### Auto-detection
 
@@ -302,6 +302,7 @@ launched in:
 | `composer.json` + `laravel/framework` | `laravel` |
 | `Cargo.toml` | `rust` |
 | `pyproject.toml`, `setup.py`, `setup.cfg` or `requirements.txt` | `python` |
+| `.shellcheckrc`, a root-level `*.sh` or `*.bash` file, or `tests/*.bats` | `shell` |
 | `TERMUX_VERSION` environment variable (set by Termux) | `termux` |
 
 `ai` is opt-in and never auto-detected: it only turns on the AI plugins (avante,
@@ -316,6 +317,7 @@ codecompanion, codeium, mcphub) when you pin it with `profile set ai`.
 | `laravel` | via `php` | `blade` | via `php` |
 | `rust` | `rust_analyzer` | `rust`, `toml` | `codelldb` |
 | `python` | `pyright` | `python`, `toml` | `debugpy` |
+| `shell` | — (see below) | — (`bash` is global) | — |
 | `termux` | `lua_ls` only | — | none (no DAP, no OAuth plugins) |
 | `ai` | — | — | — |
 
@@ -326,6 +328,24 @@ neotest adapters. A profile is a Lua table in `lua/profiles/<name>.lua`; besides
 folds or textobjects (`af`, `]m`, `]a`…). Parsers declared by the active profiles
 are installed in the background at startup, and also when a profile is switched on
 at runtime.
+
+### The `shell` profile
+
+Lints shell scripts with [shellcheck](https://www.shellcheck.net) (on save and when
+leaving insert mode) and formats them with [shfmt](https://github.com/mvdan/sh). Both
+are expected on `PATH` — `nvim-config doctor` lists them:
+
+```bash
+sudo apt install shellcheck shfmt
+```
+
+It applies to every buffer Neovim calls `sh`: `.sh`, `.bash`, `.bats` and scripts with a
+shell shebang. **shfmt runs on demand (`<Space>f`), not on save**, unlike every other
+formatter here: its defaults (tabs, its own redirect and alignment style) rewrite most of
+an existing script the first time it is saved — about half the lines of this repository's
+own `bin/nvim-config`. It reads `.editorconfig` when one covers the file. There is no
+language server on purpose (`bash-language-server` is an npm package and would duplicate
+shellcheck's diagnostics).
 
 ### Manual override
 

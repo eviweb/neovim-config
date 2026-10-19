@@ -1396,3 +1396,8 @@ RCEOF
   [[ "$output" == *"Skipped"* ]]
   [[ "$output" != *"mise unuse"* ]]
 }
+
+@test "doctor lists shellcheck and shfmt as optional shell tools" {
+  run grep -n "for bin in shellcheck shfmt" bin/nvim-config
+  [ "$status" -eq 0 ]
+}

@@ -243,14 +243,15 @@ parsers, null-ls sources, and plugins relevant to the detected or configured
 profile are loaded.
 
 Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`, `python`,
-`termux`, `ai`.
+`shell`, `termux`, `ai`.
 
 ### Activating a profile
 
 Profiles are detected automatically at startup from marker files in the directory
 Neovim was launched in (`package.json` → `web`, `composer.json` → `php`/`laravel`,
 `Cargo.toml` → `rust`, `pyproject.toml`/`setup.py`/`setup.cfg`/`requirements.txt` →
-`python`); `termux` is detected from the `TERMUX_VERSION` environment variable.
+`python`; `.shellcheckrc`, a root-level `*.sh`/`*.bash` or `tests/*.bats` → `shell`);
+`termux` is detected from the `TERMUX_VERSION` environment variable.
 `ai` is never auto-detected — pin it to enable the AI plugins. To pin a profile for
 a project:
 
@@ -272,6 +273,12 @@ Or use the Telescope picker with `<Leader>fp` — active profiles are marked wit
 inactive with ○. Press `<CR>` to activate the selected profile. LSP servers and
 null-ls sources update immediately, the profile's treesitter parsers install in the
 background; plugin changes take effect after a restart.
+
+### Shell scripts
+
+With the `shell` profile, shellcheck diagnostics appear on save and when leaving insert
+mode. Format with `<Space>f` — shfmt is deliberately not run on save (see the README).
+Install the tools with `sudo apt install shellcheck shfmt`.
 
 ### Treesitter parsers
 

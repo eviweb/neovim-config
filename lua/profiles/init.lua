@@ -68,6 +68,15 @@ local detectors = {
     rust = function(dir)
         return vim.fn.filereadable(dir .. '/Cargo.toml') == 1
     end,
+    -- Shell scripts rarely come with a manifest, so look for lightweight hints:
+    -- a shellcheck config, a root-level script, or a bats test suite. A false
+    -- positive is harmless (the linter only runs on sh buffers).
+    shell = function(dir)
+        return vim.fn.filereadable(dir .. '/.shellcheckrc') == 1
+            or #vim.fn.glob(dir .. '/*.sh', false, true) > 0
+            or #vim.fn.glob(dir .. '/*.bash', false, true) > 0
+            or #vim.fn.glob(dir .. '/tests/*.bats', false, true) > 0
+    end,
 }
 
 -- Return names of auto-detected profiles for dir.

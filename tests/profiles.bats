@@ -428,3 +428,96 @@ setup() {
   run grep -n "treesitter_parsers = {}" bin/nvim-config
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# shell profile
+# ---------------------------------------------------------------------------
+
+_lua_detect() {
+  # Prints the profiles auto-detected by lua/profiles/init.lua for directory $1.
+  nvim --headless -u NONE --noplugin --cmd "set rtp+=$(pwd)" \
+    -c "lua io.stdout:write('DETECTED=' .. table.concat(require('profiles').detect('$1'), ',') .. '\n')" \
+    -c "qa!" 2>&1 | grep '^DETECTED='
+}
+
+@test "shell profile definition file exists and is named shell" {
+  [ -f "lua/profiles/shell.lua" ]
+  run grep -n "name = 'shell'" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "shell profile formats with shfmt and lints with shellcheck, for sh buffers (bash, .bats and shebang scripts are all filetype sh)" {
+  run grep -n "shfmt" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+  run grep -n "shellcheck" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+  run grep -n "sh = {" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "shell profile declares no language server (bash-language-server is deferred: npm package, duplicates shellcheck diagnostics)" {
+  run grep -n "lsp_servers = {}" lua/profiles/shell.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "lua detection finds the shell profile from .shellcheckrc" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/.shellcheckrc"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection finds the shell profile from a root-level .sh file" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/deploy.sh"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection finds the shell profile from a root-level .bash file" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/lib.bash"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection finds the shell profile from bats tests under tests/" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/tests"; : > "$d/tests/cli.bats"
+  run _lua_detect "$d"
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "lua detection does not pick the shell profile for an unrelated directory" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/tests"; : > "$d/README.md"; : > "$d/tests/notes.txt"
+  run _lua_detect "$d"
+  [[ "$output" != *"shell"* ]]
+}
+
+@test "cli 'profile detect' reports every profile the lua detection knows (it was missing python and termux)" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/tests"
+  : > "$d/pyproject.toml"; : > "$d/tests/cli.bats"
+  cd "$d"
+  run "$script" --no-log profile detect
+  [[ "$output" == *"python"* ]]
+  [[ "$output" == *"shell"* ]]
+}
+
+@test "cli 'profile detect' reports termux from TERMUX_VERSION" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"
+  cd "$d"
+  TERMUX_VERSION=0.118 run "$script" --no-log profile detect
+  [[ "$output" == *"termux"* ]]
+}
+
+@test "cli 'profile detect' still reports web, rust and php" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"
+  : > "$d/package.json"; : > "$d/Cargo.toml"; printf '{}' > "$d/composer.json"
+  cd "$d"
+  run "$script" --no-log profile detect
+  [[ "$output" == *"web"* ]]
+  [[ "$output" == *"rust"* ]]
+  [[ "$output" == *"php"* ]]
+}

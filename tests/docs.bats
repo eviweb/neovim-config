@@ -249,3 +249,10 @@ _profile_names() {
   run grep -n "pyproject.toml" docs/cheatsheets/profiles.md
   [ "$status" -eq 0 ]
 }
+
+@test "readme documents the shell profile: detection markers and how to install shellcheck and shfmt" {
+  run grep -n "\.shellcheckrc" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "apt install shellcheck shfmt" README.md
+  [ "$status" -eq 0 ]
+}

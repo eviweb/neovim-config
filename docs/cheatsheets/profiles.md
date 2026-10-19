@@ -2,11 +2,15 @@
 
 ## Profiles
 
-Available: `web` · `php` · `laravel` · `rust` · `python` · `termux` · `ai`
+Available: `web` · `php` · `laravel` · `rust` · `python` · `shell` · `termux` · `ai`
 
 Auto-detected from: `package.json` → web · `composer.json` → php/laravel · `Cargo.toml` → rust ·
 `pyproject.toml` / `setup.py` / `setup.cfg` / `requirements.txt` → python ·
+`.shellcheckrc` / root `*.sh` `*.bash` / `tests/*.bats` → shell ·
 `TERMUX_VERSION` env var → termux
+
+`shell`: shellcheck on save, shfmt only on `<Space>f` (not on save).
+Needs `sudo apt install shellcheck shfmt`.
 
 `ai` is opt-in (never detected): `nvim-config profile set ai`.
 

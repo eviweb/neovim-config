@@ -377,6 +377,20 @@
 
 ---
 
+## Phase 28 — Shell Profile
+
+- [x] `shell` profile: shellcheck (nvim-lint) and shfmt (conform) for `sh` buffers (which covers
+  `.sh`, `.bash`, `.bats` and shebang scripts); auto-detected from `.shellcheckrc`, a root-level
+  `*.sh`/`*.bash` or `tests/*.bats`, otherwise opt-in; no language server (deferred, see below)
+- [x] shfmt runs on demand only: conform no longer formats `sh` buffers on save — measured on
+  this repo, saving `bin/nvim-config` would have rewritten ~970 of 1930 lines (2 470 with the
+  tabs default of a `.editorconfig` that does not match the file)
+- [x] `nvim-config profile detect` mirrored the Lua detection only partly: it ignored `python` and
+  `termux`; now complete, plus `shell`
+- [x] `nvim-config doctor` lists shellcheck and shfmt under "Shell tools (optional)"
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
@@ -433,6 +447,11 @@
   already supported), or an allow-list / confirmation prompt
 
 ### Profiles
+
+- [ ] `shell` profile: `bash-language-server` (completion, go-to-definition, hover), only when
+  `npm` is available — it is an npm package and Node is optional here. It runs shellcheck itself,
+  so enabling it means dropping shellcheck from nvim-lint for `sh` buffers to avoid doubled
+  diagnostics, and keeping both paths (with and without npm) tested
 
 - [ ] `go` profile — `gopls`, parsers `go` `gomod` `gosum` `gowork`, Delve for DAP, formatter
   (gofumpt/goimports) and linter (golangci-lint) through conform/nvim-lint; detected by `go.mod`.

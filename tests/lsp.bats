@@ -256,3 +256,18 @@ setup() {
   run grep -n "'<space>f'" lua/config/lsp.lua
   [ "$status" -ne 0 ]
 }
+
+@test "conform does not format shell scripts on save (shfmt defaults would rewrite most of an existing script), other filetypes still do" {
+  # conform and profiles are stubbed so this runs without any plugin installed.
+  run nvim --headless --noplugin -u NONE --cmd "set rtp+=$(pwd)" \
+    -c "lua package.preload['conform'] = function() return { setup = function(o) _G.conform_opts = o end, format = function() end } end
+         package.preload['profiles'] = function() return { get_conform_formatters = function() return {} end } end
+         dofile('lua/config/conform.lua')
+         local sh_buf, lua_buf = vim.api.nvim_create_buf(false, true), vim.api.nvim_create_buf(false, true)
+         vim.bo[sh_buf].filetype = 'sh'
+         vim.bo[lua_buf].filetype = 'lua'
+         local on_save = _G.conform_opts.format_on_save
+         io.stdout:write('SH=' .. type(on_save(sh_buf)) .. ' LUA=' .. type(on_save(lua_buf)) .. '\n')" \
+    -c "qa!"
+  [[ "$output" == *"SH=nil LUA=table"* ]]
+}
