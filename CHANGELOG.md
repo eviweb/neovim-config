@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-10-19
+
 ### Added
 - **`devops` profile**: hadolint on Dockerfiles and actionlint on GitHub Actions workflows (nvim-lint),
   plus the `dockerfile` treesitter parser. Auto-detected from a `Dockerfile`, `compose.y*ml`,
@@ -433,7 +435,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.7.1...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.9.0...HEAD
+[0.9.0]: https://github.com/eviweb/neovim-config/compare/0.8.0...0.9.0
+[0.8.0]: https://github.com/eviweb/neovim-config/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/eviweb/neovim-config/compare/0.7.0...0.7.1
 [0.7.0]: https://github.com/eviweb/neovim-config/compare/0.6.1...0.7.0
 [0.6.1]: https://github.com/eviweb/neovim-config/compare/0.6.0...0.6.1
