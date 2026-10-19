@@ -123,6 +123,12 @@ for _, pkg_name in ipairs(profiles.get_dap_mason_packages()) do
     end
 end
 
+-- Mason-installed tools declared by profiles (linters, formatters...). Skipped
+-- on Termux like the LSP servers above: Mason has no ARM binaries there.
+if not profiles.is_active('termux') then
+    profiles.install_mason_packages(profiles.get_mason_packages())
+end
+
 vim.diagnostic.config({
     virtual_text = false,
     float = {

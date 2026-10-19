@@ -1401,3 +1401,13 @@ RCEOF
   run grep -n "for bin in shellcheck shfmt" bin/nvim-config
   [ "$status" -eq 0 ]
 }
+
+@test "doctor checks the devops tools in Neovim's Mason bin directory too (the shell PATH never contains it)" {
+  mkdir -p "${HOME}/.local/share/nvim/mason/bin"
+  printf '#!/usr/bin/env bash\nexit 0\n' > "${HOME}/.local/share/nvim/mason/bin/actionlint"
+  chmod +x "${HOME}/.local/share/nvim/mason/bin/actionlint"
+  XDG_DATA_HOME="${HOME}/.local/share" run ./bin/nvim-config --no-log doctor
+  [[ "$output" == *"DevOps tools"* ]]
+  [[ "$output" == *"[ok]  actionlint"* ]]
+  [[ "$output" == *"[!!]  hadolint"* ]]
+}

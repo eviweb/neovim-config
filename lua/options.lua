@@ -117,6 +117,14 @@ vim.api.nvim_create_autocmd('FileType', {
     desc     = 'Use // line comments in php buffers',
 })
 
+-- GitHub Actions workflows: `yaml.github` instead of plain `yaml`, so that
+-- actionlint (devops profile) can be attached to them and not to every yaml
+-- file. Linters and formatters declared for `yaml` still apply, they are looked
+-- up per dot-separated part of the filetype.
+vim.filetype.add({
+    pattern = { ['.*/%.github/workflows/.*%.ya?ml'] = 'yaml.github' },
+})
+
 -- Detect shell scripts by shebang for extensionless files.
 -- priority = -math.huge ensures this fires only when no other rule matched.
 vim.filetype.add({

@@ -1089,3 +1089,14 @@ setup() {
     +"qa!"
   [[ "$output" == *"// \$a = 1;"* ]]
 }
+
+@test "GitHub workflow files get the compound filetype yaml.github, other yaml files stay yaml (so actionlint never runs on arbitrary yaml)" {
+  run nvim --headless --noplugin -u NORC +"luafile lua/options.lua" \
+    +"lua local m = vim.filetype.match; io.stdout:write('WF=' .. tostring(m({ filename = '/p/.github/workflows/ci.yml' })) .. ' WF2=' .. tostring(m({ filename = '/p/.github/workflows/release.yaml' })) .. ' OTHER=' .. tostring(m({ filename = '/p/compose.yaml' })) .. ' ACTION=' .. tostring(m({ filename = '/p/.github/dependabot.yml' })) .. '\n')" \
+    +"qa!"
+  [[ "$output" == *"WF=yaml.github"* ]]
+  [[ "$output" == *"WF2=yaml.github"* ]]
+  [[ "$output" == *"OTHER=yaml "* ]]
+  [[ "$output" == *"ACTION=yaml"* ]]
+  [[ "$output" != *"ACTION=yaml.github"* ]]
+}

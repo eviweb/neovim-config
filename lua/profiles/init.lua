@@ -68,6 +68,13 @@ local detectors = {
     rust = function(dir)
         return vim.fn.filereadable(dir .. '/Cargo.toml') == 1
     end,
+    -- A Dockerfile, a compose file, or GitHub Actions workflows.
+    devops = function(dir)
+        return vim.fn.filereadable(dir .. '/Dockerfile') == 1
+            or #vim.fn.glob(dir .. '/compose.y*ml', false, true) > 0
+            or #vim.fn.glob(dir .. '/docker-compose.y*ml', false, true) > 0
+            or vim.fn.isdirectory(dir .. '/.github/workflows') == 1
+    end,
     -- Shell scripts rarely come with a manifest, so look for lightweight hints:
     -- a shellcheck config, a root-level script, or a bats test suite. A false
     -- positive is harmless (the linter only runs on sh buffers).
@@ -185,6 +192,39 @@ function M.get_treesitter_parsers()
         end
     end
     return parsers
+end
+
+-- Return Mason package names (linters, formatters... that are not in apt)
+-- required by active profiles. DAP adapters have their own field below.
+function M.get_mason_packages()
+    local packages = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.mason_packages then
+            for _, pkg in ipairs(profile.mason_packages) do
+                table.insert(packages, pkg)
+            end
+        end
+    end
+    return packages
+end
+
+-- Install the given Mason packages that are not installed yet (async). Does
+-- nothing when Mason is not available.
+function M.install_mason_packages(names)
+    if #names == 0 then
+        return
+    end
+    local ok, registry = pcall(require, 'mason-registry')
+    if not ok then
+        return
+    end
+    for _, pkg_name in ipairs(names) do
+        local found, pkg = pcall(registry.get_package, pkg_name)
+        if found and not pkg:is_installed() then
+            pkg:install()
+        end
+    end
 end
 
 -- Return Mason package names for DAP adapters required by active profiles.
@@ -326,6 +366,20 @@ function M.activate(name)
         end
     end
 
+    -- Same for Mason-installed tools (not on Termux: no ARM binaries).
+    local mason_packages = {}
+    if not M.is_active('termux') then
+        for _, n in ipairs(to_add) do
+            local ok, profile = pcall(require, 'profiles.' .. n)
+            if ok and profile.mason_packages then
+                for _, pkg in ipairs(profile.mason_packages) do
+                    table.insert(mason_packages, pkg)
+                end
+            end
+        end
+        M.install_mason_packages(mason_packages)
+    end
+
     -- Register null-ls sources
     local ok_null_ls, null_ls = pcall(require, 'null-ls')
     if ok_null_ls then
@@ -354,6 +408,9 @@ function M.activate(name)
     end
     if #parsers > 0 then
         msg = msg .. '\nInstalling treesitter parsers in the background: ' .. table.concat(parsers, ', ')
+    end
+    if #mason_packages > 0 then
+        msg = msg .. '\nInstalling Mason packages in the background: ' .. table.concat(mason_packages, ', ')
     end
     vim.notify(msg, vim.log.levels.INFO)
 end

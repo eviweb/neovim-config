@@ -246,6 +246,19 @@ _extract_lua_list() {
   ' "${file}" | grep -oP "'\K[^']+"
 }
 
+# Mason installs its tools under Neovim's data directory: that is on Neovim's
+# PATH but never on the shell's, so look there as well.
+_check_mason_bin() {
+  local bin="$1"
+  local mason_bin="${XDG_DATA_HOME:-${HOME}/.local/share}/nvim/mason/bin/${bin}"
+  if command -v "${bin}" > /dev/null 2>&1 || [ -x "${mason_bin}" ]; then
+    log_message "INFO" "  [ok]  ${bin}"
+  else
+    log_message "WARN" "  [!!]  ${bin} — not found (Neovim installs it through Mason at startup when the devops profile is active)"
+    return 1
+  fi
+}
+
 _check_bin() {
   local bin="$1"
   if command -v "${bin}" > /dev/null 2>&1; then
@@ -312,6 +325,10 @@ run_doctor() {
     log_message "INFO" "=== Shell tools (optional) ==="
     for bin in shellcheck shfmt; do
       _check_bin "${bin}" || true
+    done
+    log_message "INFO" "=== DevOps tools (optional, installed by Neovim through Mason) ==="
+    for bin in actionlint hadolint; do
+      _check_mason_bin "${bin}" || true
     done
     log_message "INFO" "=== Build tools (optional) ==="
     _check_bin "cargo" || true
@@ -1232,6 +1249,10 @@ run_profile_detect() {
   fi
   if [ -f "pyproject.toml" ] || [ -f "setup.py" ] || [ -f "setup.cfg" ] || [ -f "requirements.txt" ]; then
     detected+=("python")
+  fi
+  if [ -f "Dockerfile" ] || compgen -G "compose.y*ml" > /dev/null \
+    || compgen -G "docker-compose.y*ml" > /dev/null || [ -d ".github/workflows" ]; then
+    detected+=("devops")
   fi
   if [ -f ".shellcheckrc" ] || compgen -G "*.sh" > /dev/null || compgen -G "*.bash" > /dev/null \
     || compgen -G "tests/*.bats" > /dev/null; then

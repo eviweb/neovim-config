@@ -288,7 +288,7 @@ Profiles enable per-project tooling — only the LSP servers, treesitter parsers
 null-ls sources, and plugins relevant to the current project are activated.
 
 Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`, `python`,
-`shell`, `termux`, `ai`.
+`shell`, `devops`, `termux`, `ai`.
 
 ### Auto-detection
 
@@ -303,6 +303,7 @@ launched in:
 | `Cargo.toml` | `rust` |
 | `pyproject.toml`, `setup.py`, `setup.cfg` or `requirements.txt` | `python` |
 | `.shellcheckrc`, a root-level `*.sh` or `*.bash` file, or `tests/*.bats` | `shell` |
+| `Dockerfile`, `compose.y*ml`, `docker-compose.y*ml` or `.github/workflows/` | `devops` |
 | `TERMUX_VERSION` environment variable (set by Termux) | `termux` |
 
 `ai` is opt-in and never auto-detected: it only turns on the AI plugins (avante,
@@ -318,13 +319,14 @@ codecompanion, codeium, mcphub) when you pin it with `profile set ai`.
 | `rust` | `rust_analyzer` | `rust`, `toml` | `codelldb` |
 | `python` | `pyright` | `python`, `toml` | `debugpy` |
 | `shell` | — (see below) | — (`bash` is global) | — |
+| `devops` | — (see below) | `dockerfile` | — |
 | `termux` | `lua_ls` only | — | none (no DAP, no OAuth plugins) |
 | `ai` | — | — | — |
 
 Profiles also bring their formatters (conform.nvim), linters (nvim-lint) and
 neotest adapters. A profile is a Lua table in `lua/profiles/<name>.lua`; besides
 `lsp_servers`, `plugins`, `dap_mason_packages` and the tool hooks it may declare
-`treesitter_parsers`. Without a parser a language gets no treesitter highlighting,
+`treesitter_parsers` and `mason_packages`. Without a parser a language gets no treesitter highlighting,
 folds or textobjects (`af`, `]m`, `]a`…). Parsers declared by the active profiles
 are installed in the background at startup, and also when a profile is switched on
 at runtime.
@@ -346,6 +348,22 @@ an existing script the first time it is saved — about half the lines of this r
 own `bin/nvim-config`. It reads `.editorconfig` when one covers the file. There is no
 language server on purpose (`bash-language-server` is an npm package and would duplicate
 shellcheck's diagnostics).
+
+### The `devops` profile
+
+Lints Dockerfiles with [hadolint](https://github.com/hadolint/hadolint) and GitHub Actions
+workflows with [actionlint](https://github.com/rhysd/actionlint). Neither is in apt, so
+the profile declares them in `mason_packages` — a profile field for Mason-installed tools,
+next to `dap_mason_packages` — and Neovim installs them in the background at startup, or
+when you switch the profile on with `:NvimProfile devops` (needs network; skipped on
+Termux, where Mason has no ARM binaries). Mason's `bin` directory is on Neovim's `PATH`
+but not on your shell's, so `nvim-config doctor` looks there too.
+
+actionlint reports errors on any YAML that is not a workflow, so workflow files
+(`.github/workflows/*.yml|yaml`) get the compound filetype `yaml.github` (set in
+`lua/options.lua`). Neovim plugins split a compound filetype on the dot: `yaml` keeps its
+own linters and formatters and only `github` adds actionlint. There is no language server
+on purpose (`yaml-language-server` and `dockerfile-language-server` are npm packages).
 
 ### Manual override
 

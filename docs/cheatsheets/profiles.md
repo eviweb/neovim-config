@@ -2,15 +2,19 @@
 
 ## Profiles
 
-Available: `web` · `php` · `laravel` · `rust` · `python` · `shell` · `termux` · `ai`
+Available: `web` · `php` · `laravel` · `rust` · `python` · `shell` · `devops` · `termux` · `ai`
 
 Auto-detected from: `package.json` → web · `composer.json` → php/laravel · `Cargo.toml` → rust ·
 `pyproject.toml` / `setup.py` / `setup.cfg` / `requirements.txt` → python ·
 `.shellcheckrc` / root `*.sh` `*.bash` / `tests/*.bats` → shell ·
+`Dockerfile` / `compose.y*ml` / `docker-compose.y*ml` / `.github/workflows/` → devops ·
 `TERMUX_VERSION` env var → termux
 
 `shell`: shellcheck on save, shfmt only on `<Space>f` (not on save).
 Needs `sudo apt install shellcheck shfmt`.
+
+`devops`: hadolint (Dockerfile) + actionlint (`.github/workflows`, filetype `yaml.github`),
+installed by Neovim through Mason (`mason_packages`) when the profile is active.
 
 `ai` is opt-in (never detected): `nvim-config profile set ai`.
 

@@ -243,14 +243,15 @@ parsers, null-ls sources, and plugins relevant to the detected or configured
 profile are loaded.
 
 Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`, `python`,
-`shell`, `termux`, `ai`.
+`shell`, `devops`, `termux`, `ai`.
 
 ### Activating a profile
 
 Profiles are detected automatically at startup from marker files in the directory
 Neovim was launched in (`package.json` → `web`, `composer.json` → `php`/`laravel`,
 `Cargo.toml` → `rust`, `pyproject.toml`/`setup.py`/`setup.cfg`/`requirements.txt` →
-`python`; `.shellcheckrc`, a root-level `*.sh`/`*.bash` or `tests/*.bats` → `shell`);
+`python`; `.shellcheckrc`, a root-level `*.sh`/`*.bash` or `tests/*.bats` → `shell`;
+`Dockerfile`, a compose file or `.github/workflows/` → `devops`);
 `termux` is detected from the `TERMUX_VERSION` environment variable.
 `ai` is never auto-detected — pin it to enable the AI plugins. To pin a profile for
 a project:
@@ -279,6 +280,13 @@ background; plugin changes take effect after a restart.
 With the `shell` profile, shellcheck diagnostics appear on save and when leaving insert
 mode. Format with `<Space>f` — shfmt is deliberately not run on save (see the README).
 Install the tools with `sudo apt install shellcheck shfmt`.
+
+### Dockerfiles and GitHub workflows
+
+With the `devops` profile, hadolint lints Dockerfiles and actionlint lints
+`.github/workflows/*.yml` (diagnostics on save and when leaving insert mode). Both tools
+are installed by Neovim through Mason the first time the profile is active. See the README
+for how workflow files are told apart from other YAML.
 
 ### Treesitter parsers
 

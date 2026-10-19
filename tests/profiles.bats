@@ -521,3 +521,101 @@ _lua_detect() {
   [[ "$output" == *"rust"* ]]
   [[ "$output" == *"php"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# devops profile + generic mason_packages
+# ---------------------------------------------------------------------------
+
+@test "devops profile definition file exists and is named devops" {
+  [ -f "lua/profiles/devops.lua" ]
+  run grep -n "name = 'devops'" lua/profiles/devops.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "devops profile lints Dockerfiles with hadolint and GitHub workflows with actionlint (filetype yaml.github splits into yaml + github)" {
+  run grep -nE "dockerfile *= *\{ 'hadolint' \}" lua/profiles/devops.lua
+  [ "$status" -eq 0 ]
+  run grep -nE "github *= *\{ 'actionlint' \}" lua/profiles/devops.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "devops profile has its tools installed through Mason (neither is in apt) and the dockerfile parser" {
+  run grep -n "mason_packages" lua/profiles/devops.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'actionlint'"* ]]
+  [[ "$output" == *"'hadolint'"* ]]
+  run grep -n "treesitter_parsers" lua/profiles/devops.lua
+  [[ "$output" == *"'dockerfile'"* ]]
+}
+
+@test "devops profile declares no language server (yaml-language-server and dockerfile-language-server are npm packages)" {
+  run grep -n "lsp_servers = {}" lua/profiles/devops.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "profiles init defines get_mason_packages and install_mason_packages" {
+  run grep -n "function M.get_mason_packages\|function M.install_mason_packages" lua/profiles/init.lua
+  [ "$status" -eq 0 ]
+  [ "${#lines[@]}" -eq 2 ]
+}
+
+@test "lsp config installs profile mason packages at startup, but not on Termux (no ARM binaries)" {
+  run grep -B1 "install_mason_packages(profiles.get_mason_packages" lua/config/lsp.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"if not profiles.is_active('termux') then"* ]]
+}
+
+@test "runtime profile activation also installs the profile's mason packages" {
+  run sed -n '/^function M.activate/,/^end/p' lua/profiles/init.lua
+  [[ "$output" == *"mason_packages"* ]]
+}
+
+@test "lua detection finds the devops profile from a Dockerfile" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d"; : > "$d/Dockerfile"
+  run _lua_detect "$d"
+  [[ "$output" == *"devops"* ]]
+}
+
+@test "lua detection finds the devops profile from compose.yaml and docker-compose.yml" {
+  local d="$BATS_TEST_TMPDIR/p1" e="$BATS_TEST_TMPDIR/p2"; mkdir -p "$d" "$e"
+  : > "$d/compose.yaml"; : > "$e/docker-compose.yml"
+  run _lua_detect "$d"
+  [[ "$output" == *"devops"* ]]
+  run _lua_detect "$e"
+  [[ "$output" == *"devops"* ]]
+}
+
+@test "lua detection finds the devops profile from .github/workflows" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/.github/workflows"
+  run _lua_detect "$d"
+  [[ "$output" == *"devops"* ]]
+}
+
+@test "lua detection does not pick the devops profile for an unrelated directory (a .github dir without workflows is not enough)" {
+  local d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/.github"; : > "$d/README.md"
+  run _lua_detect "$d"
+  [[ "$output" != *"devops"* ]]
+}
+
+@test "cli 'profile detect' reports devops (Dockerfile, compose, workflows)" {
+  local script d
+  script="$(pwd)/bin/nvim-config"
+  d="$BATS_TEST_TMPDIR/p"; mkdir -p "$d/.github/workflows"
+  cd "$d"
+  run "$script" --no-log profile detect
+  [[ "$output" == *"devops"* ]]
+  : > "$d/Dockerfile"; rm -rf "$d/.github"
+  run "$script" --no-log profile detect
+  [[ "$output" == *"devops"* ]]
+}
+
+@test "every mason package declared by a profile exists in the Mason registry (guards against typos and renamed packages)" {
+  local real_home registry
+  real_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
+  registry="${XDG_DATA_HOME:-${real_home}/.local/share}/nvim/mason/registries/github/mason-org/mason-registry/registry.json"
+  [ -f "$registry" ] || skip "Mason registry not downloaded (CI does not install plugins)"
+  run nvim --headless -u NONE --noplugin -c "lua local known = {} for _, p in ipairs(vim.json.decode(table.concat(vim.fn.readfile('${registry}'), '\n'))) do known[p.name] = true end local missing = {} for _, f in ipairs(vim.fn.glob(vim.fn.getcwd() .. '/lua/profiles/*.lua', false, true)) do local ok, p = pcall(dofile, f) if ok and type(p) == 'table' then for _, key in ipairs({ 'mason_packages', 'dap_mason_packages' }) do for _, n in ipairs(p[key] or {}) do if not known[n] then missing[#missing + 1] = vim.fn.fnamemodify(f, ':t:r') .. ':' .. n end end end end end io.stdout:write('MISSING=' .. table.concat(missing, ',') .. '\n')" -c "qa!"
+  local result
+  result="$(printf '%s\n' "$output" | grep '^MISSING=')"
+  [ "$result" = "MISSING=" ]
+}
