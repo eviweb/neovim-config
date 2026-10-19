@@ -1077,9 +1077,15 @@ setup() {
   [[ "$output" == *"// %s"* ]]
 }
 
-@test "php commentstring override behaves as // end-to-end with the real config (gcc on a php buffer)" {
-  run nvim --headless -u init.lua -c "enew" -c "setfiletype php" \
-    -c "call setline(1, ['\$a = 1;'])" -c "normal! gg" -c "normal gcc" \
-    -c "lua io.stdout:write(vim.api.nvim_buf_get_lines(0,0,1,false)[1])" -c "qa!"
+@test "php commentstring override behaves as // end-to-end (gcc on a php buffer)" {
+  # Loads lua/options.lua explicitly instead of `-u init.lua`: init.lua resolves
+  # its modules through the runtimepath, i.e. through ~/.config/nvim being a
+  # symlink to this repo — true on a developer machine, not on CI.
+  run nvim --headless --noplugin -u NORC \
+    +"luafile lua/options.lua" \
+    +"enew" +"setfiletype php" \
+    +"call setline(1, ['\$a = 1;'])" +"normal! gg" +"normal gcc" \
+    +"lua io.stdout:write(vim.api.nvim_buf_get_lines(0,0,1,false)[1])" \
+    +"qa!"
   [[ "$output" == *"// \$a = 1;"* ]]
 }
