@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `tests/run` clears `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and `XDG_CACHE_HOME`
+  before running bats, so a local run behaves like CI. On a developer machine they usually point at
+  the installed config (`~/.config/nvim` is a symlink to this repository), which let a test pass
+  locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
+
 ## [0.9.0] - 2026-10-19
 
 ### Added

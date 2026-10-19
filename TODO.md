@@ -406,6 +406,23 @@
 
 ---
 
+## Phase 30 — CI and dev loop, usability (target 0.10.0)
+
+Order agreed with the maintainer; each item is its own branch and PR.
+
+- [x] `tests/run` clears `XDG_*` so a local run behaves like CI
+- [ ] CI: verify the Neovim tarball checksum before extracting it with `sudo`, pin bats-core by commit
+  SHA instead of a tag (`rules/ci.md`: verify downloaded binaries, pin by SHA)
+- [ ] `:Cheat` extension points: a configurable user directory, and a `cheatsheets` field a profile
+  can declare (the `shell` profile would ship its own sheet when active)
+- [ ] Yazi: plugin loaded only when the `yazi` binary is present, dedicated keymap next to
+  `<Leader>n`, listed by `doctor`; no automatic install. A real yazi/neo-tree switch would come later
+- [ ] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"
+- [ ] GARM/Incus CI profile: a `ci-garm.yml` workflow on `[self-hosted, linux, x64, incus]` like
+  `shell/dotfiles`, triggered by `ci/garm*` branches and on demand, never by pull requests
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
