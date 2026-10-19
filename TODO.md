@@ -417,6 +417,18 @@
   a parser — would only add highlighting. Alternatives: explicit lists (global + per profile,
   already supported), or an allow-list / confirmation prompt
 
+### Profiles
+
+- [ ] `go` profile — `gopls`, parsers `go` `gomod` `gosum` `gowork`, Delve for DAP, formatter
+  (gofumpt/goimports) and linter (golangci-lint) through conform/nvim-lint; detected by `go.mod`.
+  Mason package names to confirm when implementing. Deferred until Go is actually used
+
+- [ ] `java` profile — `jdtls`, parser `java`, java-debug-adapter / java-test for DAP and tests,
+  formatter; detected by `pom.xml`, `build.gradle(.kts)` or `settings.gradle`. `jdtls` needs a JDK
+  and workspace handling that the other profiles don't, so it is the heavier of the two. Deferred
+  until Java is actually used (a `jenv` install on the maintainer's `PATH` hints at it but doesn't
+  confirm it)
+
 ### Plugin management
 
 - [ ] `mason-nvim-dap.nvim` — declarative DAP adapter installation via Mason (alternative to

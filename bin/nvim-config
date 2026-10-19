@@ -1252,6 +1252,9 @@ return {
 
     lsp_servers = {},
 
+    -- treesitter parsers installed in the background when the profile is active
+    treesitter_parsers = {},
+
     plugins = {},
 
     null_ls_sources = function(null_ls)

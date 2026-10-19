@@ -32,6 +32,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `rust` → `rust`/`toml`, `python` → `python`/`toml`. Without a parser a language gets
   no treesitter highlighting, folds or textobjects (`af`, `]m`, `]a`…); a new test
   checks every declared name exists in nvim-treesitter
+- Profiles documentation brought in line with `lua/profiles/`: the README, `docs/usage.md`
+  and `docs/cheatsheets/profiles.md` listed only `web`/`php`/`laravel`/`rust`, while `python`,
+  `termux` and `ai` already existed. Detection markers (python files, `TERMUX_VERSION`, `ai`
+  being opt-in) and a per-profile table (LSP, parsers, debug adapter) are now documented, and
+  a test fails if a profile file is missing from any of the three docs
+- `nvim-config profile create` template now includes the `treesitter_parsers` field
 - `ssh_config` added to the global treesitter parser list (the `sshconfig`
   filetype maps to it automatically)
 - `docs/cheatsheets/editing.md`: new "Treesitter textobjects" section

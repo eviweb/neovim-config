@@ -423,3 +423,8 @@ setup() {
   result="$(printf '%s\n' "$output" | grep '^MISSING=')"
   [ "$result" = "MISSING=" ]
 }
+
+@test "profile create template includes the treesitter_parsers field" {
+  run grep -n "treesitter_parsers = {}" bin/nvim-config
+  [ "$status" -eq 0 ]
+}

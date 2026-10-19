@@ -238,15 +238,21 @@ The `telescope-node_modules` extension is loaded if present. Access it with:
 
 ## Profiles
 
-Project profiles enable per-project tooling. Only the LSP servers, null-ls
-sources, and plugins relevant to the detected or configured profile are loaded.
+Project profiles enable per-project tooling. Only the LSP servers, treesitter
+parsers, null-ls sources, and plugins relevant to the detected or configured
+profile are loaded.
 
-Available profiles: `web`, `php`, `laravel`, `rust`.
+Available profiles: `web`, `php`, `laravel` (extends `php`), `rust`, `python`,
+`termux`, `ai`.
 
 ### Activating a profile
 
-Profiles are detected automatically at startup from marker files (`package.json`,
-`composer.json`, `Cargo.toml`). To pin a profile for a project:
+Profiles are detected automatically at startup from marker files in the directory
+Neovim was launched in (`package.json` → `web`, `composer.json` → `php`/`laravel`,
+`Cargo.toml` → `rust`, `pyproject.toml`/`setup.py`/`setup.cfg`/`requirements.txt` →
+`python`); `termux` is detected from the `TERMUX_VERSION` environment variable.
+`ai` is never auto-detected — pin it to enable the AI plugins. To pin a profile for
+a project:
 
 ```bash
 ./bin/nvim-config profile set web
@@ -264,7 +270,16 @@ Switch the active profile without restarting Neovim:
 
 Or use the Telescope picker with `<Leader>fp` — active profiles are marked with ●,
 inactive with ○. Press `<CR>` to activate the selected profile. LSP servers and
-null-ls sources update immediately; plugin changes take effect after a restart.
+null-ls sources update immediately, the profile's treesitter parsers install in the
+background; plugin changes take effect after a restart.
+
+### Treesitter parsers
+
+Each profile lists the treesitter parsers its languages need (for example `rust` and
+`toml` for the `rust` profile). Without a parser a filetype has no treesitter
+highlighting, folds or textobjects (`af`, `]m`, `]a`…), though commenting with `gc`
+still works. The `ssh_config` parser is installed for everyone. The full table is in
+the README, under "Project Profiles".
 
 ---
 
