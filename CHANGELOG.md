@@ -66,6 +66,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file (`[m`/`]m`, `[[`/`]]`, `[h`/`]h`) and fully resolve the ambiguity
 
 ### Fixed
+- `nvim-config update` (and `update tree-sitter`) exited with status 1 and **no message** when
+  the GitHub API call for the latest tree-sitter release failed (offline, or the anonymous
+  60 requests/hour rate limit): the failing `curl | grep | sed` pipeline sits in a plain
+  assignment, which ends the script under `set -e` before the error could be logged. It now logs
+  "Could not fetch latest tree-sitter release tag" and returns 1. `install all` was unaffected
+  only because errexit is suppressed in its call tree
+- `--dry-run` no longer fails when that API is unreachable: it warns that the release could not
+  be queried and succeeds, instead of making a dry run depend on the network (this made four
+  unrelated `cli.bats` tests fail whenever the quota was exhausted)
+- The tree-sitter download is now checked step by step (`curl -f`, `gunzip`, `chmod`): a 404 or
+  a failed download used to be written to disk as the "archive", fall through, and end with a
+  "tree-sitter updated" message when run from `install all`
+- A vendored `tree-sitter` binary that cannot run (wrong architecture, corrupt) is now treated as
+  outdated and replaced, instead of ending the script silently
+- `uninstall nvim` no longer stops silently after the confirmation when `mise current neovim`
+  fails; it falls through to the existing "could not determine the installed neovim version"
+  warning
 - `gc`/`gcc` failed with a bare `[Comment.nvim] nil` notification (nothing got
   commented) in every buffer whose filetype has no treesitter parser — ssh config,
   and php unless a parser was installed. On Neovim 0.12

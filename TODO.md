@@ -362,6 +362,19 @@
 
 ---
 
+## Phase 27 — Silent failures
+
+- [x] `update` / `update tree-sitter` exited 1 without a message when the GitHub release lookup
+  failed (offline or rate limited) — `set -e` ended the script inside a `$(curl | grep | sed)`
+  assignment before the error was logged; now a clear error
+- [x] `--dry-run` no longer depends on the network for that lookup (warns and succeeds), which had
+  made four unrelated tests fail whenever the anonymous API quota was exhausted
+- [x] tree-sitter download checked step by step (no more "updated" message after a failed
+  download); a vendored binary that cannot run is replaced instead of aborting; `uninstall nvim`
+  no longer aborts silently when `mise current` fails
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

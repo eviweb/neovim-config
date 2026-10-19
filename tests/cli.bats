@@ -1210,3 +1210,76 @@ EOF
   run grep -n "_remove_mise_activation" bin/nvim-config
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# update tree-sitter: network failures must be reported, not swallowed
+# ---------------------------------------------------------------------------
+
+# Writes a fake `curl` into a private dir and prints that dir (prepend to PATH).
+#   api-fails             every call fails (offline / API rate limit)
+#   api-ok-download-fails the release API answers, the asset download fails
+_fake_curl_dir() {
+  local mode="$1" dir="$BATS_TEST_TMPDIR/fake_curl_bin"
+  mkdir -p "$dir"
+  case "$mode" in
+    api-fails)
+      printf '#!/usr/bin/env bash\nexit 22\n' > "$dir/curl"
+      ;;
+    api-ok-download-fails)
+      cat > "$dir/curl" <<'CURLEOF'
+#!/usr/bin/env bash
+case "$*" in
+  *api.github.com*) printf '{\n  "tag_name": "v9.9.9"\n}\n' ;;
+  *) exit 22 ;;
+esac
+CURLEOF
+      ;;
+  esac
+  chmod +x "$dir/curl"
+  printf '%s' "$dir"
+}
+
+@test "update tree-sitter reports an error and exits 1 when the latest release cannot be fetched (it used to exit silently under set -e)" {
+  PATH="$(_fake_curl_dir api-fails):$PATH" run ./bin/nvim-config update tree-sitter
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Could not fetch latest tree-sitter release tag"* ]]
+}
+
+@test "update tree-sitter --dry-run still succeeds when the GitHub API is unreachable (dry-run must not depend on the network)" {
+  PATH="$(_fake_curl_dir api-fails):$PATH" run ./bin/nvim-config --dry-run update tree-sitter
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
+@test "update tree-sitter --dry-run shows the release it would download when the API answers" {
+  PATH="$(_fake_curl_dir api-ok-download-fails):$PATH" run ./bin/nvim-config --dry-run update tree-sitter
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"would download: https://github.com/tree-sitter/tree-sitter/releases/download/v9.9.9/"* ]]
+}
+
+@test "update tree-sitter reports a failed download and does not claim success" {
+  PATH="$(_fake_curl_dir api-ok-download-fails):$PATH" run ./bin/nvim-config update tree-sitter
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Failed to download"* ]]
+  [[ "$output" != *"tree-sitter updated to"* ]]
+}
+
+@test "update tree-sitter treats a vendored binary that cannot report its version as outdated (it used to exit silently under set -e)" {
+  # Run a copy of the script from a throwaway project root so the "vendored"
+  # binary lives in the temp dir instead of this repository's vendor/.
+  local proj="$BATS_TEST_TMPDIR/proj"
+  mkdir -p "$proj/bin" "$proj/vendor/tree-sitter"
+  cp bin/nvim-config "$proj/bin/nvim-config"
+  printf '0.0.0\n' > "$proj/VERSION"
+  printf '#!/usr/bin/env bash\nexit 1\n' > "$proj/vendor/tree-sitter/tree-sitter"
+  chmod +x "$proj/vendor/tree-sitter/tree-sitter"
+
+  PATH="$(_fake_curl_dir api-ok-download-fails):$PATH" run "$proj/bin/nvim-config" --dry-run update tree-sitter
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Updating tree-sitter none → 9.9.9"* ]]
+}
+
+@test "uninstall nvim does not abort silently when 'mise current' fails (the failing pipeline sits in a plain assignment)" {
+  run grep -n 'nvim_version="$(mise current neovim.*)" || nvim_version=""' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
