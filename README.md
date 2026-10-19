@@ -274,9 +274,13 @@ other tools may also rely on — nvim-config never runs `apt remove` on your
 behalf. `uninstall all` follows the same policy and leaves them untouched.
 
 `uninstall nvim` and `uninstall mise` each ask for confirmation before removing
-anything — like every interactive prompt in this CLI, they auto-decline under
-`--dry-run`, `--quiet`, or outside a TTY, so automated runs never hang or
-remove something unexpectedly.
+anything. Without a TTY or under `--quiet` they decline, so automated runs never
+hang or remove something unexpectedly. `--dry-run` skips the prompt (nothing runs,
+so there is nothing to consent to) and prints the plan instead — for example
+`mise unuse -g neovim` then `mise uninstall neovim@<version>`, `sudo snap remove nvim`
+or `sudo apt remove -y neovim`, depending on how Neovim was installed. The other
+prompts of this CLI (`install`) offer alternatives rather than ask for consent, so
+they still decline under `--dry-run`.
 
 ## Project Profiles
 

@@ -899,6 +899,18 @@ _confirm() {
   [[ "${reply}" =~ ^[Yy]$ ]]
 }
 
+# Consent prompt for a destructive action. A dry-run executes nothing, so there
+# is nothing to consent to: skip the prompt and let run_command print the plan.
+# The other prompts (install) stay declined under --dry-run because they choose
+# between alternatives, where declining still leads somewhere informative. A
+# real run without a TTY, or with --quiet, still declines.
+_confirm_unless_dry_run() {
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    return 0
+  fi
+  _confirm "$1"
+}
+
 _install_nvim_via() {
   local pkg_manager="$1"
   case "${pkg_manager}" in
@@ -1548,7 +1560,7 @@ run_uninstall_nvim() {
   fi
 
   if command -v mise > /dev/null 2>&1 && mise which nvim > /dev/null 2>&1; then
-    if ! _confirm "Remove Neovim installed via mise (mise unuse -g neovim + mise uninstall)? [y/N] "; then
+    if ! _confirm_unless_dry_run "Remove Neovim installed via mise (mise unuse -g neovim + mise uninstall)? [y/N] "; then
       log_message "INFO" "Skipped — nvim left installed"
       return 0
     fi
@@ -1562,13 +1574,13 @@ run_uninstall_nvim() {
       log_message "WARN" "Could not determine the installed neovim version — run 'mise uninstall neovim@<version>' manually if needed"
     fi
   elif snap list nvim > /dev/null 2>&1; then
-    if ! _confirm "Remove Neovim installed via snap (sudo snap remove nvim)? [y/N] "; then
+    if ! _confirm_unless_dry_run "Remove Neovim installed via snap (sudo snap remove nvim)? [y/N] "; then
       log_message "INFO" "Skipped — nvim left installed"
       return 0
     fi
     run_command sudo snap remove nvim
   else
-    if ! _confirm "Remove Neovim installed via apt (sudo apt remove neovim)? [y/N] "; then
+    if ! _confirm_unless_dry_run "Remove Neovim installed via apt (sudo apt remove neovim)? [y/N] "; then
       log_message "INFO" "Skipped — nvim left installed"
       return 0
     fi
@@ -1611,7 +1623,7 @@ run_uninstall_mise() {
     return 0
   fi
 
-  if ! _confirm "Remove the mise binary and its shell activation lines added by 'install mise'? [y/N] "; then
+  if ! _confirm_unless_dry_run "Remove the mise binary and its shell activation lines added by 'install mise'? [y/N] "; then
     log_message "INFO" "Skipped — mise left installed"
     return 0
   fi

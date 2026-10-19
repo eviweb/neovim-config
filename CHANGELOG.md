@@ -46,6 +46,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `lua/config/treesitter.lua` keymaps were documented anywhere before
 
 ### Changed
+- `uninstall nvim` / `uninstall mise` with `--dry-run` now print the removal plan (the
+  `mise unuse` / `mise uninstall`, `snap remove` or `apt remove` command, the binary and the
+  shell rc cleanup) instead of "Skipped — … left installed". A dry-run executes nothing, so the
+  consent prompt is skipped there; without a TTY or with `--quiet` a real run still declines.
+  `install`'s prompts are unchanged: they choose between alternatives, so declining still
+  leads somewhere informative. Previously this logic could only be checked by reading the
+  source; fake `mise`/`snap` tests now cover each detection path
 - **Commenting now uses Neovim's native `gc`/`gcc`** instead of `Comment.nvim`
   (removed: `lua/plugins/comment.lua`). `gc` (visual/operator), `gcc` and counts
   keep working; `gb`/`gbc` (block comments) and `gco`/`gcO`/`gcA` are gone — none

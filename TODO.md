@@ -372,6 +372,8 @@
 - [x] tree-sitter download checked step by step (no more "updated" message after a failed
   download); a vendored binary that cannot run is replaced instead of aborting; `uninstall nvim`
   no longer aborts silently when `mise current` fails
+- [x] `uninstall nvim|mise --dry-run` prints the removal plan instead of "Skipped" (the consent
+  prompt is skipped in dry-run only); covered by tests with fake `mise`/`snap`/`nvim`
 
 ---
 
