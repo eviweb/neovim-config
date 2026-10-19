@@ -1411,3 +1411,29 @@ RCEOF
   [[ "$output" == *"[ok]  actionlint"* ]]
   [[ "$output" == *"[!!]  hadolint"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# test runner
+# ---------------------------------------------------------------------------
+
+@test "tests/run scrubs XDG_* so a local run behaves like CI (a developer machine often points XDG_CONFIG_HOME at the installed config)" {
+  # Runs a copy of the runner against a throwaway project holding one test.
+  local proj="$BATS_TEST_TMPDIR/proj"
+  mkdir -p "$proj/tests"
+  cp tests/run "$proj/tests/run"
+  # Built with printf: a literal `@test` line inside this test body would be
+  # picked up (and rewritten) by bats' own preprocessor.
+  printf '%s\n' \
+    '@test "XDG variables are unset inside the suite" {' \
+    '  [ -z "${XDG_CONFIG_HOME:-}" ]' \
+    '  [ -z "${XDG_DATA_HOME:-}" ]' \
+    '  [ -z "${XDG_STATE_HOME:-}" ]' \
+    '  [ -z "${XDG_CACHE_HOME:-}" ]' \
+    '}' > "$proj/tests/env.bats"
+  # The inner bats must not inherit this run's BATS_* variables (filter, tmp
+  # dirs...), or it sees no test at all.
+  XDG_CONFIG_HOME=/leak XDG_DATA_HOME=/leak XDG_STATE_HOME=/leak XDG_CACHE_HOME=/leak \
+    run bash -c 'for v in $(compgen -v BATS_); do unset "$v"; done; exec bash "$1"' _ "$proj/tests/run"
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Passing: 1"* ]]
+}

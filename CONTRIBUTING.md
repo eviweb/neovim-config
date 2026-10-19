@@ -28,6 +28,9 @@ that's fine.
    ```bash
    ./tests/run
    ```
+   The runner clears `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and
+   `XDG_CACHE_HOME` so that it behaves like CI; a test must not rely on your own
+   installed config (`~/.config/nvim`).
 5. Run [ShellCheck](https://www.shellcheck.net/) on `bin/nvim-config` if you
    touched it:
    ```bash

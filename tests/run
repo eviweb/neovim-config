@@ -3,6 +3,13 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
+# Run like CI does. A developer machine usually exports XDG_CONFIG_HOME & co,
+# and ~/.config/nvim there is a symlink to this repository (`install config`),
+# so tests that quietly depend on the installed config pass locally and fail on
+# a clean runner. Without these variables Neovim falls back to $HOME, which
+# the tests point at an empty temp directory.
+unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
+
 _pass=0
 _fail=0
 declare -A _failures   # stem → newline-separated failing test names
