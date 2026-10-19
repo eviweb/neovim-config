@@ -1417,23 +1417,26 @@ RCEOF
 # ---------------------------------------------------------------------------
 
 @test "tests/run scrubs XDG_* so a local run behaves like CI (a developer machine often points XDG_CONFIG_HOME at the installed config)" {
-  # Runs a copy of the runner against a throwaway project holding one test.
-  local proj="$BATS_TEST_TMPDIR/proj"
-  mkdir -p "$proj/tests"
+  # Runs a copy of the runner against a throwaway project, with a stand-in for
+  # `bats` that records which of the four user-directory XDG variables reach it
+  # (XDG_RUNTIME_DIR, XDG_DATA_DIRS... are system-wide and legitimately set). The real bats is not
+  # nested inside this test: that depended on the BATS_* variables of the outer
+  # run and failed on CI for a reason that could not be reproduced locally.
+  local proj="$BATS_TEST_TMPDIR/proj" fake="$BATS_TEST_TMPDIR/fake_bin" record="$BATS_TEST_TMPDIR/xdg_seen"
+  mkdir -p "$proj/tests" "$fake"
   cp tests/run "$proj/tests/run"
-  # Built with printf: a literal `@test` line inside this test body would be
-  # picked up (and rewritten) by bats' own preprocessor.
-  printf '%s\n' \
-    '@test "XDG variables are unset inside the suite" {' \
-    '  [ -z "${XDG_CONFIG_HOME:-}" ]' \
-    '  [ -z "${XDG_DATA_HOME:-}" ]' \
-    '  [ -z "${XDG_STATE_HOME:-}" ]' \
-    '  [ -z "${XDG_CACHE_HOME:-}" ]' \
-    '}' > "$proj/tests/env.bats"
-  # The inner bats must not inherit this run's BATS_* variables (filter, tmp
-  # dirs...), or it sees no test at all.
+  : > "$proj/tests/stub.bats"
+  cat > "$fake/bats" <<'FAKEEOF'
+#!/usr/bin/env bash
+env | grep -E '^XDG_(CONFIG_HOME|DATA_HOME|STATE_HOME|CACHE_HOME)=' > "${RECORD_FILE}" || true
+printf '1..1\nok 1 stub\n'
+FAKEEOF
+  chmod +x "$fake/bats"
+
   XDG_CONFIG_HOME=/leak XDG_DATA_HOME=/leak XDG_STATE_HOME=/leak XDG_CACHE_HOME=/leak \
-    run bash -c 'for v in $(compgen -v BATS_); do unset "$v"; done; exec bash "$1"' _ "$proj/tests/run"
-  [ "$status" -eq 0 ]
-  [[ "$output" == *"Passing: 1"* ]]
+    RECORD_FILE="$record" PATH="$fake:$PATH" run bash "$proj/tests/run"
+
+  [ "$status" -eq 0 ] || { printf '# runner exited %s\n' "$status" >&3; printf '# %s\n' "$output" >&3; return 1; }
+  [ -e "$record" ] || { printf '# the stand-in bats never ran\n' >&3; printf '# %s\n' "$output" >&3; return 1; }
+  [ ! -s "$record" ] || { printf '# XDG variables reached bats: %s\n' "$(tr '\n' ' ' < "$record")" >&3; return 1; }
 }
