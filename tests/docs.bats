@@ -150,7 +150,7 @@ setup() {
 }
 
 @test "Cheat command reads from docs/cheatsheets directory" {
-  run grep -n "cheatsheets" lua/commands.lua
+  run grep -n "docs/cheatsheets" lua/cheatsheets.lua
   [ "$status" -eq 0 ]
 }
 
@@ -169,7 +169,7 @@ setup() {
 }
 
 @test "Cheat command discovers topics dynamically from cheatsheets directory" {
-  run grep -n "cheatsheets" lua/commands.lua
+  run grep -n "fs_scandir" lua/cheatsheets.lua
   [ "$status" -eq 0 ]
 }
 
@@ -272,5 +272,14 @@ _profile_names() {
   run grep -n "yaml.github" README.md
   [ "$status" -eq 0 ]
   run grep -n "mason_packages" README.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents where :Cheat finds sheets: built-in, profile, user directory and NVIM_CHEATSHEET_DIRS" {
+  run grep -n "NVIM_CHEATSHEET_DIRS" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "nvim-cheatsheets" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "profile-cheatsheets" README.md
   [ "$status" -eq 0 ]
 }

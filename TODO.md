@@ -420,13 +420,11 @@ Order agreed with the maintainer; each item is its own branch and PR.
 - [x] `tests/full-startup` + CI job `Startup` (oldest supported Neovim and the Test job's version): the only
   end-to-end test of the real config; the suite alone passes on Neovim 0.10.4 where the config cannot start
 - [x] Neovim version guard in `init.lua` (`lua/minimum_version.lua`): clear message and stop on Neovim < 0.11
-- [ ] `:Cheat` extension points: a configurable user directory, and a `cheatsheets` field a profile
-  can declare (the `shell` profile would ship its own sheet when active)
+- [x] `:Cheat` extension points: user directories (`~/.config/nvim-cheatsheets`, `$NVIM_CHEATSHEET_DIRS`)
+  and a `cheatsheets` field a profile can declare; the `shell` and `devops` profiles ship a sheet each
 - [ ] Yazi: plugin loaded only when the `yazi` binary is present, dedicated keymap next to
   `<Leader>n`, listed by `doctor`; no automatic install. A real yazi/neo-tree switch would come later
 - [ ] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"
-- [ ] GARM/Incus CI profile: a `ci-garm.yml` workflow on `[self-hosted, linux, x64, incus]` like
-  `shell/dotfiles`, triggered by `ci/garm*` branches and on demand, never by pull requests
 
 ---
 

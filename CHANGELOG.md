@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`:Cheat` extension points** (`lua/cheatsheets.lua`). Topics now come from the built-in
+  `docs/cheatsheets/`, from the `cheatsheets` directories declared by the **active profiles**, and from
+  your own directories: `~/.config/nvim-cheatsheets/` and every directory of `$NVIM_CHEATSHEET_DIRS`
+  (colon-separated). On a name clash the later source wins (user over profile over built-in), so a built-in
+  sheet can be replaced. Computed on each call, so a profile switched on with `:NvimProfile` shows its sheets
+  at once. The `shell` and `devops` profiles each ship a sheet (`docs/profile-cheatsheets/`), visible only
+  while they are active
 - **`tests/full-startup`**: starts the real configuration with all its plugins (cloned at the commits pinned
   in `lazy-lock.json`, in a throwaway directory) and fails on any error, or if the config was not actually
   read. Not part of `tests/run` (network, about 200 MB). Checked to pass on real 0.11.0 and 0.12.5 and to
@@ -40,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
 
 ### Fixed
+- `:Cheat <topic>` built the file name from what you typed, so `:Cheat ../../notes` read any `.md` file
+  reachable from the cheatsheet directory. Topics are now looked up in the index of known sheets and
+  anything else answers "Cheatsheet not found"
 - **The documented minimum Neovim version was wrong.** The 0.9.0 release notes and the README said
   0.10+, a figure derived only from native commenting. The LSP setup uses `vim.lsp.config` and
   `vim.lsp.enable`, which arrived in 0.11, so on 0.10 the configuration fails at startup (`attempt to

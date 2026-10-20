@@ -66,22 +66,10 @@ end, {
     desc = 'Activate a project profile or open the profile picker',
 })
 
--- :Cheat [topic] — open a cheatsheet in a centered floating window
+-- :Cheat [topic] — open a cheatsheet in a centered floating window.
+-- Topics come from several directories, see lua/cheatsheets.lua.
 local function get_cheat_topics()
-    local dir = vim.fn.stdpath('config') .. '/docs/cheatsheets'
-    local topics = {}
-    local handle = vim.loop.fs_scandir(dir)
-    if handle then
-        while true do
-            local fname, ftype = vim.loop.fs_scandir_next(handle)
-            if not fname then break end
-            if ftype == 'file' and fname:match('%.md$') then
-                table.insert(topics, fname:sub(1, -4))
-            end
-        end
-    end
-    table.sort(topics)
-    return topics
+    return require('cheatsheets').topics()
 end
 
 local function open_cheatsheet(topic)
@@ -93,8 +81,8 @@ local function open_cheatsheet(topic)
         return
     end
 
-    local path = vim.fn.stdpath('config') .. '/docs/cheatsheets/' .. topic .. '.md'
-    if vim.fn.filereadable(path) == 0 then
+    local path = require('cheatsheets').path(topic)
+    if path == nil or vim.fn.filereadable(path) == 0 then
         vim.notify('Cheatsheet not found: ' .. topic, vim.log.levels.ERROR)
         return
     end
