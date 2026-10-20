@@ -283,3 +283,19 @@ _profile_names() {
   run grep -n "profile-cheatsheets" README.md
   [ "$status" -eq 0 ]
 }
+
+@test "plugins cheatsheet documents yazi: the key, that it needs the binary, and that it is picked up at startup" {
+  run grep -n -i "yazi" docs/cheatsheets/plugins.md
+  [ "$status" -eq 0 ]
+  run grep -n "<Leader>-" docs/cheatsheets/plugins.md
+  [ "$status" -eq 0 ]
+  run grep -n -i "checkhealth yazi" docs/cheatsheets/plugins.md
+  [ "$status" -eq 0 ]
+}
+
+@test "readme documents the yazi integration and its conditional loading" {
+  run grep -n -i "yazi" README.md
+  [ "$status" -eq 0 ]
+  run grep -n "yazi.nvim" README.md
+  [ "$status" -eq 0 ]
+}

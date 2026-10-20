@@ -512,6 +512,16 @@ Requires Node.js / npm. Use `install deps --with-node` if not already installed.
 - [Plugin quick-reference](docs/cheatsheets/plugins.md) — concise tables per plugin
 - [Cheatsheets](docs/cheatsheets/) — basics, editing, git, LSP, profiles
 
+### Yazi
+
+[yazi](https://yazi-rs.github.io) (terminal file manager with image, video and PDF previews) opens in a
+floating window through [yazi.nvim](https://github.com/mikavilpas/yazi.nvim): `<Leader>-` at the current
+file, `:Yazi cwd` in the working directory. It complements neo-tree (`<Leader>n`) and oil (`-`), which keep
+opening directories. The plugin is **loaded only when the `yazi` binary is on `PATH`**, checked once at
+startup: install yazi (for example `mise use -g yazi@latest`, or follow the
+[official instructions](https://yazi-rs.github.io/docs/installation)) and restart Neovim; nothing installs it
+for you. `:checkhealth yazi` verifies the versions, `nvim-config doctor` lists it as an optional tool.
+
 ### Cheatsheets in Neovim: `:Cheat`
 
 `:Cheat` opens a sheet in a floating window (`<Leader>hc` for the picker; `q` or `<Esc>` closes). A topic

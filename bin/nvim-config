@@ -303,7 +303,7 @@ run_doctor() {
       _check_bin "${bin}" || all_ok=0
     done
     log_message "INFO" "=== Optional tools ==="
-    for bin in lazygit tmux mise claude codex gemini; do
+    for bin in lazygit tmux mise yazi claude codex gemini; do
       _check_bin "${bin}" || true
     done
     log_message "INFO" "=== Build tools ==="
@@ -315,7 +315,7 @@ run_doctor() {
       _check_bin "${bin}" || all_ok=0
     done
     log_message "INFO" "=== Optional tools ==="
-    for bin in lazygit tmux mise claude codex gemini; do
+    for bin in lazygit tmux mise yazi claude codex gemini; do
       _check_bin "${bin}" || true
     done
     log_message "INFO" "=== Python tools (optional) ==="

@@ -31,6 +31,7 @@ local base_plugins = {
     -- File browser + directory editor
     require('plugins.neo-tree'),
     require('plugins.oil'),
+    require('plugins.yazi'),
 
     -- Parsers
     require('plugins.treesitter'),
