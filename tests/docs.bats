@@ -331,13 +331,24 @@ _profile_names() {
   [ -z "$missing" ] || { echo "not in docs/usage.md:$missing"; return 1; }
 }
 
-@test "usage guide does not credit todo-comments or neotest with ]t / [t (Neovim binds them to :tnext / :tprevious; this config defines no such mapping)" {
+@test "]t / [t are documented only for todo-comments, which defines them, and never for neotest" {
+  run grep -n "Navigate with" docs/usage.md
+  [[ "$output" != *']t'* ]]
   run grep -nE '^\| `\]t`' docs/usage.md
-  [ "$status" -eq 1 ]
-  run bash -c "grep -n 'Navigate with' docs/usage.md | grep -F ']t'"
-  [ "$status" -eq 1 ]
-  run grep -rn "'\]t'\|'\[t'" lua/
-  [ "$status" -eq 1 ]
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"TODO"* || "$output" == *"tagged comment"* ]]
+  run grep -n "jump_next" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "the docs say ]t / [t replace Neovim's tag-stack motions" {
+  run grep -n -i ":tnext\|tag stack\|tag-stack" docs/usage.md
+  [ "$status" -eq 0 ]
+}
+
+@test "the keymaps reference lists ]t / [t" {
+  run grep -n '`\]t`' docs/keymaps.md
+  [ "$status" -eq 0 ]
 }
 
 @test "usage guide documents the real todo-comments commands" {

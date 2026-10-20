@@ -25,6 +25,8 @@ wk.add({
     { '<Leader>gv', desc  = 'Diff view' },
     { '<Leader>gH', desc  = 'File history' },
     { '<Leader>ft', desc  = 'Browse TODOs' },
+    { ']t',         desc  = 'Next TODO comment' },
+    { '[t',         desc  = 'Previous TODO comment' },
     { '<Leader>h',  group = 'Help/Harpoon' },
     { '<Leader>ha', desc  = 'Harpoon: add file' },
     { '<Leader>hh', desc  = 'Harpoon: toggle menu' },

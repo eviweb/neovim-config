@@ -1148,3 +1148,17 @@ _yazi_cond() {
   [ "$status" -eq 0 ]
   [[ "$output" == *"yazi"* ]]
 }
+
+@test "todo-comments maps ]t and [t in normal mode to its jump functions, through lazy keys (so the plugin loads on first use)" {
+  run grep -n "keys *= *{" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+  run grep -nE "'\]t', *function\(\) *require\('todo-comments'\)\.jump_next\(\)" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+  run grep -nE "'\[t', *function\(\) *require\('todo-comments'\)\.jump_prev\(\)" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key describes ]t and [t" {
+  run grep -n "'\]t'\|'\[t'" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+}

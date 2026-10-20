@@ -427,6 +427,7 @@ Order agreed with the maintainer; each item is its own branch and PR.
 - [x] Docs / code consistency audit before 0.10.0: wrong `]t` / `[t` claims, `install all` description,
   debugpy, shellcheck command, logging docs, zsh completion locals; findings that are behaviour rather than docs
   (log directory ignores `XDG_STATE_HOME`, the daily log is overwritten at each run) recorded under Deferred
+- [x] `]t` / `[t` navigation between TODO comments (todo-comments), replacing the unused tag-stack motions
 - [x] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"; found on the way that
   `--install-completion --dry-run` really wrote the file (fixed), and a sweep test now guards every mutating
   command

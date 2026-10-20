@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`]t` / `[t` jump to the next / previous TODO / FIXME / HACK / NOTE comment** (todo-comments, declared as lazy
+  keys so the first press loads the plugin). They replace Neovim's built-in tag-stack motions (`:tnext` /
+  `:tprevious`), which this config does not use; documented in the usage guide and the keymaps reference, described
+  in which-key. Checked with the real plugin on a sample file: `]t` visits the tags in order and stops on the last
+  one with the plugin's own message, `[t` goes back
 - **yazi integration** (`lua/plugins/yazi.lua`, yazi.nvim v14.0.2 pinned in `lazy-lock.json`): `<Leader>-`
   opens yazi, with image / video / PDF previews, at the current file in a floating window (`:Yazi cwd` for
   the working directory). It complements neo-tree and oil, which keep opening directories
@@ -64,9 +69,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Docs / code consistency audit (CLI surface, profile tables, 68 documented `<Leader>` keys and 66 defined
   ones, referenced paths, apt packages, env vars). Fixed what disagreed:
-  - `docs/usage.md` credited `todo-comments` (and neotest) with `]t` / `[t`. This config defines no such
-    mapping, and in Neovim 0.11+ those keys are the built-in tag-stack motions (`:tnext` / `:tprevious`).
-    The table now lists the real commands (`:TodoQuickFix`, `:TodoLocList`) and says so
+  - `docs/usage.md` credited `todo-comments` (and, in the neotest section, "if configured") with `]t` / `[t`
+    that did not exist: in Neovim 0.11+ those keys are the built-in tag-stack motions (`:tnext` /
+    `:tprevious`). The mapping now exists for real, see Added; the table also lists `:TodoQuickFix` and
+    `:TodoLocList`, and the neotest sentence points at the summary panel
   - the swap keys `]a` / `[a` shadow Neovim's built-in argument-list motions (`:next` / `:previous`); I had
     described those keys as free. The editing cheatsheet now says what they replace
   - `install all` also fetches the tree-sitter CLI, but `--help`, the zsh and fish completion descriptions and

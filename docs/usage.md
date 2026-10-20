@@ -593,10 +593,11 @@ todo-comments.nvim highlights `TODO`, `FIXME`, `HACK`, `NOTE`, `WARN`, and
 | Key / Command | Action |
 |---------------|--------|
 | `<Leader>ft` | List all tagged comments in the project via Telescope |
+| `]t` / `[t` | Jump to the next / previous tagged comment |
 | `:TodoQuickFix` | Put all tagged comments in the quickfix list |
 | `:TodoLocList` | Put the tagged comments of the current file in the location list |
 
 Tags are case-insensitive and recognised in any comment syntax.
 
-This config defines no key to jump from one tagged comment to the next. `]t` / `[t` are Neovim's own
-tag-stack motions (`:tnext` / `:tprevious`), unrelated to todo-comments.
+`]t` / `[t` replace Neovim's own tag-stack motions (`:tnext` / `:tprevious`), which this config does not use.
+The plugin loads on the first press.
