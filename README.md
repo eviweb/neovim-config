@@ -152,7 +152,9 @@ Minimum required version: **0.11+**. The LSP setup uses `vim.lsp.config` / `vim.
 do not exist in 0.10 — there the configuration fails at startup. Verified by starting it, with its
 plugins, on 0.10.4 (fails), 0.11.0, 0.11.7 and 0.12.0 (clean start, parsers and highlighting work).
 0.12 is recommended: the `main` branch of nvim-treesitter, which this config uses, officially
-requires it, so 0.11 works but is not a combination upstream supports. Check with `nvim --version`.
+requires it, so 0.11 works but is not a combination upstream supports. On an older Neovim the configuration now stops at once with a one-line message
+(`This configuration requires Neovim 0.11 or newer (found 0.10.4)`) instead of a Lua error.
+Check with `nvim --version`.
 
 Alternatively, via apt (version depends on the Ubuntu release):
 

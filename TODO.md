@@ -416,12 +416,12 @@ Order agreed with the maintainer; each item is its own branch and PR.
 - [x] Documented minimum Neovim corrected from 0.10 to 0.11 (README + a test tying it to the APIs `lua/`
   uses). Found by starting the real config on 0.10.4 / 0.11.0 / 0.11.7 / 0.12.0
 - [ ] CI: verify the Neovim tarball checksum before extracting it with `sudo`, pin bats-core by commit
-  SHA instead of a tag (`rules/ci.md`: verify downloaded binaries, pin by SHA). **Open question:** the
-  whole bats suite passes on Neovim 0.10.4 even though the config cannot start there, so a CI matrix on
-  the minimum version would not catch a mismatch unless a test starts the real config (which needs the
-  plugins installed: a network clone of ~200 MB, or a cached plugin directory). Options: a version guard
-  in `init.lua` with a clear message plus a test of that guard on the minimum version, or a nightly
-  full-startup job
+  SHA instead of a tag (`rules/ci.md`: verify downloaded binaries, pin by SHA). The suite passes on
+  Neovim 0.10.4 even though the config cannot start there, so a CI matrix on the minimum version would not
+  catch a mismatch by itself. Mitigated by the version guard in `init.lua` (clear message, tested on
+  simulated versions and verified on real 0.10.4 / 0.11.0); a full-startup job (plugins installed: a
+  ~200 MB network clone or a cached plugin directory) remains the only real end-to-end test, not done
+- [x] Neovim version guard in `init.lua` (`lua/minimum_version.lua`): clear message and stop on Neovim < 0.11
 - [ ] `:Cheat` extension points: a configurable user directory, and a `cheatsheets` field a profile
   can declare (the `shell` profile would ship its own sheet when active)
 - [ ] Yazi: plugin loaded only when the `yazi` binary is present, dedicated keymap next to

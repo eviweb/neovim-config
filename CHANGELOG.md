@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Neovim version guard: `init.lua` now starts with `lua/minimum_version.lua` and, on a Neovim older than
+  0.11, prints `This configuration requires Neovim 0.11 or newer (found 0.10.4)` and stops before loading
+  anything, instead of failing with a Lua error from the LSP setup. Verified on real 0.10.4 (message,
+  nothing loaded) and 0.11.0 (normal start). The minimum lives in one place and a test checks it agrees
+  with the README
+
 ### Changed
 - CI no longer runs twice on the same commit: `push` is limited to `main`, and a topic branch is
   tested through its pull request (on the result of merging it into `main`). Before, the branch
