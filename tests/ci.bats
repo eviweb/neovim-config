@@ -34,3 +34,112 @@ _trigger_branches() {
   run grep -n "^    name: Test$" .github/workflows/ci.yml
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Verified downloads in CI
+# ---------------------------------------------------------------------------
+
+# A fake `curl` that "downloads" a tarball containing bin/nvim, and the sha256
+# of that tarball. Prints "<fake_bin_dir> <sha256>".
+_fake_nvim_release() {
+  local dir="$BATS_TEST_TMPDIR/fake_release" src="$BATS_TEST_TMPDIR/nvim-linux-x86_64"
+  mkdir -p "$dir" "$src/bin"
+  printf '#!/usr/bin/env bash\necho "NVIM fake"\n' > "$src/bin/nvim"
+  chmod +x "$src/bin/nvim"
+  tar -czf "$dir/nvim-linux-x86_64.tar.gz" -C "$BATS_TEST_TMPDIR" nvim-linux-x86_64
+  cat > "$dir/curl" <<'CURLEOF'
+#!/usr/bin/env bash
+# usage seen by the script: curl ... -o <file> <url>  -> copy the fake tarball
+out=""
+while [ "$#" -gt 0 ]; do
+  case "$1" in -o) out="$2"; shift 2 ;; *) shift ;; esac
+done
+cp "$(dirname "$0")/nvim-linux-x86_64.tar.gz" "$out"
+CURLEOF
+  chmod +x "$dir/curl"
+  printf '%s %s\n' "$dir" "$(sha256sum "$dir/nvim-linux-x86_64.tar.gz" | cut -d' ' -f1)"
+}
+
+@test "install-neovim installs the release when the sha256 matches" {
+  local fake sha prefix="$BATS_TEST_TMPDIR/prefix"
+  read -r fake sha < <(_fake_nvim_release)
+  PATH="$fake:$PATH" run scripts/ci-install-neovim v9.9.9 "$sha" "$prefix"
+  [ "$status" -eq 0 ]
+  [ -x "$prefix/bin/nvim" ]
+}
+
+@test "install-neovim refuses a tarball whose sha256 differs, and extracts nothing" {
+  local fake sha prefix="$BATS_TEST_TMPDIR/prefix"
+  read -r fake sha < <(_fake_nvim_release)
+  PATH="$fake:$PATH" run scripts/ci-install-neovim v9.9.9 "0000000000000000000000000000000000000000000000000000000000000000" "$prefix"
+  [ "$status" -ne 0 ]
+  [[ "$output" == *"checksum"* ]]
+  [ ! -e "$prefix/bin/nvim" ]
+}
+
+@test "install-neovim rejects a moving ref such as stable, and a malformed sha256" {
+  run scripts/ci-install-neovim stable "$(printf 'a%.0s' {1..64})" "$BATS_TEST_TMPDIR/p"
+  [ "$status" -eq 2 ]
+  run scripts/ci-install-neovim v0.12.5 "abc" "$BATS_TEST_TMPDIR/p"
+  [ "$status" -eq 2 ]
+}
+
+@test "ci does not install neovim from the moving 'stable' release" {
+  run grep -n "releases/download/stable\|neovim.*stable" .github/workflows/ci.yml
+  [ "$status" -eq 1 ]
+}
+
+@test "ci installs neovim only through the checksum-verifying script, with a pinned version and a 64-hex sha256" {
+  run grep -c "scripts/ci-install-neovim" .github/workflows/ci.yml
+  [ "$output" -ge 2 ]
+  run grep -E "ci-install-neovim +v[0-9]+\.[0-9]+\.[0-9]+ +[0-9a-f]{64}( |$)" .github/workflows/ci.yml
+  [ "$status" -eq 0 ]
+  run grep -n "tar -xzf /tmp/nvim.tar.gz" .github/workflows/ci.yml
+  [ "$status" -eq 1 ]
+}
+
+@test "ci pins bats-core to a full commit SHA, not to a tag (a tag can be moved)" {
+  run grep -n "git clone --branch" .github/workflows/ci.yml
+  [ "$status" -eq 1 ]
+  run grep -E "bats-core.*[0-9a-f]{40}|[0-9a-f]{40}.*bats-core" .github/workflows/ci.yml
+  [ "$status" -eq 0 ]
+}
+
+@test "every neovim version and sha256 pinned in the startup matrix is well formed" {
+  run awk '/matrix:/{m=1} m && /version: /{v++} m && /sha256: /{h++} END{print v, h}' .github/workflows/ci.yml
+  [ "$output" = "2 2" ]
+  run grep -cE "^ +- version: v[0-9]+\.[0-9]+\.[0-9]+$" .github/workflows/ci.yml
+  [ "$output" -eq 2 ]
+  run grep -cE "^ +sha256: [0-9a-f]{64}$" .github/workflows/ci.yml
+  [ "$output" -eq 2 ]
+}
+
+@test "the oldest neovim in the startup matrix is the minimum the init guard enforces" {
+  local oldest guard
+  oldest="$(grep -oP '^ +- version: v0\.\K[0-9]+' .github/workflows/ci.yml | sort -n | head -1)"
+  guard="$(grep -oP 'minor *= *\K[0-9]+' lua/minimum_version.lua | head -1)"
+  [ -n "$oldest" ]
+  [ "$oldest" = "$guard" ]
+}
+
+@test "the startup job is not one of the checks the main ruleset requires (a network incident must not block a merge)" {
+  run grep -n "^    name: Startup" .github/workflows/ci.yml
+  [ "$status" -eq 0 ]
+  run grep -nE "^    name: (Lint|Test)$" .github/workflows/ci.yml
+  [ "${#lines[@]}" -eq 2 ]
+}
+
+@test "the full-startup script unsets VIMINIT (when set, Neovim skips init.lua and the check would silently test nothing) and is excluded from tests/run" {
+  run grep -n "unset VIMINIT" tests/full-startup
+  [ "$status" -eq 0 ]
+  [ -x tests/full-startup ]
+  run bash -c 'ls tests/*.bats | grep -c full-startup'
+  [ "$output" = "0" ]
+}
+
+@test "full-startup runs on a copy of the repository, never on the repository itself (lazy.nvim rewrites lazy-lock.json in the config directory)" {
+  run grep -n 'ln -s "\${repo}"' tests/full-startup
+  [ "$status" -eq 1 ]
+  run grep -n -- "--exclude=./.git" tests/full-startup
+  [ "$status" -eq 0 ]
+}

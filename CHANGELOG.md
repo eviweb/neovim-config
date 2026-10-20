@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`tests/full-startup`**: starts the real configuration with all its plugins (cloned at the commits pinned
+  in `lazy-lock.json`, in a throwaway directory) and fails on any error, or if the config was not actually
+  read. Not part of `tests/run` (network, about 200 MB). Checked to pass on real 0.11.0 and 0.12.5 and to
+  fail on 0.10.4 and on an injected error in a plugin config. CI runs it as the `Startup` job on the oldest
+  supported Neovim (0.11.0) and on 0.12.5; it is deliberately not a required check
+- `scripts/ci-install-neovim`: installs an official Neovim release for CI after verifying its SHA-256, and
+  refuses moving refs such as `stable` and anything whose checksum differs
 - Neovim version guard: `init.lua` now starts with `lua/minimum_version.lua` and, on a Neovim older than
   0.11, prints `This configuration requires Neovim 0.11 or newer (found 0.10.4)` and stops before loading
   anything, instead of failing with a Lua error from the LSP setup. Verified on real 0.10.4 (message,
@@ -15,6 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with the README
 
 ### Changed
+- CI no longer installs Neovim `stable` with an unverified `sudo tar`: the `Test` job uses v0.12.5 with its
+  pinned SHA-256, and bats-core is fetched by commit (`6636e2c`, v1.9.0) rather than by a tag that can be
+  moved. The trade-off is that CI no longer follows new stable releases by itself: moving the pin is a
+  deliberate pull request (procedure in CONTRIBUTING.md). `shellcheck` in the `Lint` job also covers the new
+  scripts. `tests/ci.bats` guards all of it, including that the oldest Startup version equals the minimum
+  enforced by `init.lua`
 - CI no longer runs twice on the same commit: `push` is limited to `main`, and a topic branch is
   tested through its pull request (on the result of merging it into `main`). Before, the branch
   prefixes under `push` plus `pull_request` started two identical runs a few seconds apart. `main`

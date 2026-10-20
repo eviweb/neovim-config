@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# Starts the real configuration, with all its plugins, and fails if it reports
+# an error. Not part of tests/run on purpose: it needs the network (it clones
+# every plugin at the commit pinned in lazy-lock.json, about 200 MB) and a few
+# minutes, whereas tests/run stays offline and takes under a minute.
+#
+# Everything happens in a throwaway directory: your own ~/.config/nvim and
+# ~/.local/share/nvim are neither read nor modified. Usage:
+#   tests/full-startup                  # uses `nvim` from PATH
+#   NVIM=/path/to/nvim tests/full-startup
+set -euo pipefail
+
+repo="$(cd "$(dirname "$0")/.." && pwd)"
+nvim_bin="${NVIM:-nvim}"
+command -v "${nvim_bin}" > /dev/null 2>&1 || { echo "Error: ${nvim_bin} not found" >&2; exit 2; }
+
+work="$(mktemp -d)"
+trap 'rm -rf "${work}"' EXIT
+
+export HOME="${work}/home"
+export XDG_CONFIG_HOME="${work}/config"
+export XDG_DATA_HOME="${work}/data"
+export XDG_STATE_HOME="${work}/state"
+export XDG_CACHE_HOME="${work}/cache"
+# A VIMINIT/EXINIT in the caller's environment makes Neovim skip init.lua
+# entirely, which would turn this check into a silent no-op.
+unset VIMINIT EXINIT
+mkdir -p "${HOME}" "${XDG_CONFIG_HOME}" "${XDG_DATA_HOME}" "${XDG_STATE_HOME}" "${XDG_CACHE_HOME}"
+# A copy, not a symlink: lazy.nvim rewrites lazy-lock.json in its config
+# directory, which through a symlink would modify the repository under test.
+mkdir -p "${XDG_CONFIG_HOME}/nvim"
+tar -C "${repo}" --exclude=./.git --exclude=./.private --exclude=./vendor -cf - . \
+  | tar -C "${XDG_CONFIG_HOME}/nvim" -xf -
+
+echo "Neovim: $("${nvim_bin}" --version | head -1)"
+
+# 1. First start: plugins.lua bootstraps lazy.nvim, then `Lazy! restore` installs
+#    every plugin at its locked commit. Errors here are expected (the config
+#    runs before its plugins exist), so this run's output is not checked.
+echo "Installing plugins at their locked commits..."
+"${nvim_bin}" --headless "+Lazy! restore" +qa > "${work}/restore.log" 2>&1 || true
+
+# 2. Second start, with everything installed: this is the one that is checked.
+probe="${work}/probe.lua"
+cat > "${probe}" <<'LUAEOF'
+vim.defer_fn(function()
+  local problems = {}
+  local ok, lazy = pcall(require, 'lazy')
+  local stats = ok and lazy.stats() or { count = 0, loaded = 0 }
+
+  -- Guards against a start that never read the config.
+  if vim.g.mapleader ~= ' ' then
+    problems[#problems + 1] = 'config not loaded: mapleader is [' .. tostring(vim.g.mapleader) .. '], expected a space'
+  end
+  if stats.count < 20 or stats.loaded < 5 then
+    problems[#problems + 1] = ('too few plugins: %d installed, %d loaded'):format(stats.count, stats.loaded)
+  end
+
+  local messages = vim.api.nvim_exec2('messages', { output = true }).output
+  for line in vim.gsplit(messages, '\n', { plain = true }) do
+    if line:match('E%d%d%d+:') or line:match('stack traceback') or line:match('Failed to run')
+      or line:match('Error executing') or line:match('Error detected') or line:match('attempt to') then
+      problems[#problems + 1] = 'message: ' .. line
+    end
+  end
+  if vim.v.errmsg ~= '' then problems[#problems + 1] = 'v:errmsg: ' .. vim.v.errmsg end
+
+  io.stdout:write(('plugins: %d installed, %d loaded\n'):format(stats.count, stats.loaded))
+  if #problems > 0 then
+    io.stdout:write('PROBLEMS:\n  ' .. table.concat(problems, '\n  ') .. '\n')
+    io.stdout:write('--- full :messages ---\n' .. messages .. '\n')
+    vim.cmd('cquit 1')
+  end
+  io.stdout:write('OK: the configuration started without errors\n')
+  vim.cmd('qa!')
+end, 8000)
+LUAEOF
+
+"${nvim_bin}" --headless "+luafile ${probe}" 2>&1

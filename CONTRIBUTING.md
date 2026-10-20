@@ -39,6 +39,28 @@ that's fine.
 6. Update `README.md` and `CHANGELOG.md` (`[Unreleased]` section) alongside
    any user-facing change, in the same PR.
 
+## Updating the pinned Neovim
+
+CI never installs a moving release such as `stable`: `.github/workflows/ci.yml` pins an exact version
+and its SHA-256, and `scripts/ci-install-neovim` refuses to extract anything whose checksum differs.
+The `Test` job and the newest entry of the `Startup` matrix use the same version; the oldest `Startup`
+entry is the minimum Neovim the config supports (`lua/minimum_version.lua`, the README and a test keep
+them in agreement). To move to a new version:
+
+1. Get the checksum. Recent releases expose it through the API (the `digest` field):
+   ```bash
+   gh api repos/neovim/neovim/releases/tags/v0.12.6 \
+     --jq '.assets[] | select(.name=="nvim-linux-x86_64.tar.gz") | .digest'
+   ```
+   Older releases have no digest but publish a `shasum.txt` asset instead.
+2. Replace the version and the 64-character hash in `ci.yml` (`Test` job and `Startup` matrix).
+3. Run the suite locally with that version first: `PATH=/path/to/new/nvim/bin:$PATH tests/run`, and
+   `NVIM=/path/to/new/nvim tests/full-startup`. The pull request's CI runs both again.
+4. If the minimum changes, update `lua/minimum_version.lua`, the README ("Supported Platforms") and the
+   oldest `Startup` entry together.
+
+bats-core is pinned by commit (`6636e2c`, v1.9.0), not by tag. Nothing here is bumped automatically.
+
 ## Reporting bugs
 
 Open an issue with:

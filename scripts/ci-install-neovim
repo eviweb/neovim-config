@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Installs an official Neovim release for CI, after checking its SHA-256.
+#   scripts/ci-install-neovim <version> <sha256> [prefix]
+#   scripts/ci-install-neovim v0.12.5 bce0f56e... /usr/local
+# The version must be a release tag (vX.Y.Z), not a moving ref such as `stable`
+# or `nightly`, and the checksum must be the full 64 hex characters: a download
+# URL alone does not authenticate the artifact. Nothing is extracted when the
+# checksum differs. See "Updating the pinned Neovim" in CONTRIBUTING.md.
+set -euo pipefail
+
+version="${1:-}"
+sha256="${2:-}"
+prefix="${3:-/usr/local}"
+
+if [[ ! "${version}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Error: version must be a release tag like v0.12.5, got '${version}'" >&2
+  exit 2
+fi
+if [[ ! "${sha256}" =~ ^[0-9a-f]{64}$ ]]; then
+  echo "Error: sha256 must be 64 lowercase hex characters, got '${sha256}'" >&2
+  exit 2
+fi
+
+work="$(mktemp -d)"
+trap 'rm -rf "${work}"' EXIT
+
+archive="${work}/nvim-linux-x86_64.tar.gz"
+url="https://github.com/neovim/neovim/releases/download/${version}/nvim-linux-x86_64.tar.gz"
+curl -sSL --fail -o "${archive}" "${url}"
+
+actual="$(sha256sum "${archive}" | cut -d' ' -f1)"
+if [ "${actual}" != "${sha256}" ]; then
+  echo "Error: checksum mismatch for Neovim ${version}: expected ${sha256}, got ${actual}" >&2
+  exit 1
+fi
+
+# Use sudo only when the prefix is not writable (the default /usr/local on a runner).
+mkdir -p "${prefix}" 2> /dev/null || sudo mkdir -p "${prefix}"
+if [ -w "${prefix}" ]; then
+  tar -xzf "${archive}" -C "${prefix}" --strip-components=1
+else
+  sudo tar -xzf "${archive}" -C "${prefix}" --strip-components=1
+fi
+echo "Installed Neovim ${version} into ${prefix}"
