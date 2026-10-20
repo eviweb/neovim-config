@@ -3,6 +3,8 @@
 setup() {
   export HOME="$BATS_TEST_TMPDIR/home"
   mkdir -p "$HOME"
+  unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
+  unset NVM_DIR
 }
 
 @test "help prints usage" {
@@ -241,7 +243,7 @@ setup() {
   export SHELL="/usr/bin/zsh"
   run ./bin/nvim-config --install-completion zsh
   [ "$status" -eq 0 ]
-  [ -f "$HOME/.zfunc/_nvim-config" ]
+  [ -f "$HOME/.local/share/zsh/completions/_nvim-config" ]
 }
 
 @test "help documents zsh in completion options" {
@@ -1551,5 +1553,199 @@ LIST
   [ -z "$claimed" ] || { echo "past-tense claim under --dry-run:${claimed}"; return 1; }
   [ "$(cd "$proj" && find . -type f | sort | xargs md5sum | md5sum)" = "$before" ]
   [ -L "${HOME}/.config/nvim" ]
-  [ ! -e "${HOME}/.tmux.conf" ] && [ ! -e "${HOME}/.local/share/bash-completion" ] && [ ! -e "${HOME}/.zfunc" ]
+  [ ! -e "${HOME}/.tmux.conf" ] && [ ! -e "${HOME}/.local/share/bash-completion" ] && [ ! -e "${HOME}/.local/share/zsh" ]
+}
+
+# ---------------------------------------------------------------------------
+# Consistency between what install all does and what is said about it
+# ---------------------------------------------------------------------------
+
+@test "help, zsh and fish describe install all as also fetching the tree-sitter CLI (the code runs update tree-sitter at the end)" {
+  run bash -c './bin/nvim-config --help | grep "all    — nvim, deps"'
+  [[ "$output" == *"tree-sitter"* ]]
+  run bash -c "./bin/nvim-config --show-completion zsh | grep \"'all:Install nvim\""
+  [[ "$output" == *"tree-sitter"* ]]
+  run bash -c "./bin/nvim-config --show-completion fish | grep \"seen_subcommand_from install' -a all\""
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
+@test "every array the zsh completion assigns is declared local (otherwise it leaks into the user's shell)" {
+  local script declared assigned missing="" name
+  script="$(./bin/nvim-config --show-completion zsh)"
+  declared="$(printf '%s\n' "$script" | grep 'local -a' | sed 's/.*local -a //' | tr '\n' ' ')"
+  for name in $(printf '%s\n' "$script" | grep -oP '^  \K[a-z_]+(?==\()' | sort -u); do
+    [[ " $declared " == *" $name "* ]] || missing="$missing $name"
+  done
+  [ -z "$missing" ] || { echo "assigned but not local:$missing"; return 1; }
+}
+
+@test "the zsh completion assigns its commands array once (an earlier assignment was dead code)" {
+  run bash -c "./bin/nvim-config --show-completion zsh | grep -c '^  commands=('"
+  [ "$output" = "1" ]
+}
+
+# ---------------------------------------------------------------------------
+# The CLI follows the XDG base directories (compatibility.md), and logs by appending
+# ---------------------------------------------------------------------------
+
+_logfile_in() { ls "$1"/nvim-config-*.log 2> /dev/null | head -1; }
+
+@test "the log directory follows XDG_STATE_HOME" {
+  local state="$BATS_TEST_TMPDIR/state"
+  XDG_STATE_HOME="$state" run ./bin/nvim-config --dry-run uninstall deps
+  [ "$status" -eq 0 ]
+  [ -n "$(_logfile_in "$state/nvim-config/logs")" ]
+  [ ! -e "$HOME/.local/state" ]
+}
+
+@test "without XDG_STATE_HOME the log directory is ~/.local/state/nvim-config/logs" {
+  run ./bin/nvim-config --dry-run uninstall deps
+  [ -n "$(_logfile_in "$HOME/.local/state/nvim-config/logs")" ]
+}
+
+@test "NVIM_CONFIG_LOG_DIR and --log-dir take precedence over XDG_STATE_HOME" {
+  local state="$BATS_TEST_TMPDIR/state" envdir="$BATS_TEST_TMPDIR/envlogs" flagdir="$BATS_TEST_TMPDIR/flaglogs"
+  XDG_STATE_HOME="$state" NVIM_CONFIG_LOG_DIR="$envdir" run ./bin/nvim-config --dry-run uninstall deps
+  [ -n "$(_logfile_in "$envdir")" ]
+  [ ! -e "$state" ]
+  XDG_STATE_HOME="$state" NVIM_CONFIG_LOG_DIR="$envdir" run ./bin/nvim-config --log-dir "$flagdir" --dry-run uninstall deps
+  [ -n "$(_logfile_in "$flagdir")" ]
+}
+
+@test "the daily log is appended to, not overwritten, by the next run" {
+  local dir="$BATS_TEST_TMPDIR/logs" file first
+  NVIM_CONFIG_LOG_DIR="$dir" run ./bin/nvim-config --dry-run uninstall deps
+  file="$(_logfile_in "$dir")"; first="$(wc -l < "$file")"
+  [ "$first" -ge 2 ]
+  NVIM_CONFIG_LOG_DIR="$dir" run ./bin/nvim-config --dry-run uninstall config
+  [ "$(wc -l < "$file")" -gt "$first" ]
+  [ "$(grep -c "uninstall deps" "$file")" -ge 1 ]
+  [ "$(grep -c "uninstall config" "$file")" -ge 1 ]
+}
+
+@test "each run starts with a header line in the log file (version and arguments), which is not printed on the terminal" {
+  local dir="$BATS_TEST_TMPDIR/logs" file
+  NVIM_CONFIG_LOG_DIR="$dir" run ./bin/nvim-config --dry-run uninstall deps
+  file="$(_logfile_in "$dir")"
+  [[ "$output" != *"Run: "* ]]
+  run head -1 "$file"
+  [[ "$output" == *"[INFO] Run: nvim-config $(cat VERSION | tr -d '\n') --dry-run uninstall deps"* ]]
+}
+
+@test "install config links inside XDG_CONFIG_HOME, which is where Neovim reads its config" {
+  local xdg="$BATS_TEST_TMPDIR/xdgconf"
+  XDG_CONFIG_HOME="$xdg" run ./bin/nvim-config --no-log install config
+  [ "$status" -eq 0 ]
+  [ -L "$xdg/nvim" ]
+  [ ! -e "$HOME/.config/nvim" ]
+  [[ "$output" == *"Linked $xdg/nvim"* ]]
+}
+
+@test "uninstall config removes the link from XDG_CONFIG_HOME" {
+  local xdg="$BATS_TEST_TMPDIR/xdgconf" project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "$xdg"; ln -s "$project_dir" "$xdg/nvim"
+  XDG_CONFIG_HOME="$xdg" run ./bin/nvim-config --no-log uninstall config
+  [ "$status" -eq 0 ]
+  [ ! -e "$xdg/nvim" ]
+}
+
+@test "install config --dry-run names the XDG_CONFIG_HOME path" {
+  local xdg="$BATS_TEST_TMPDIR/xdgconf"
+  XDG_CONFIG_HOME="$xdg" run ./bin/nvim-config --no-log --dry-run install config
+  [[ "$output" == *"Would link $xdg/nvim"* ]]
+}
+
+@test "bash completion goes to XDG_DATA_HOME/bash-completion/completions" {
+  local xdg="$BATS_TEST_TMPDIR/xdgdata"
+  XDG_DATA_HOME="$xdg" run ./bin/nvim-config --no-log --install-completion bash
+  [ -s "$xdg/bash-completion/completions/nvim-config" ]
+  [ ! -e "$HOME/.local/share" ]
+}
+
+@test "zsh completion goes to XDG_DATA_HOME/zsh/completions, the directory the dotfiles put on fpath" {
+  local xdg="$BATS_TEST_TMPDIR/xdgdata"
+  XDG_DATA_HOME="$xdg" run ./bin/nvim-config --no-log --install-completion zsh
+  [ -s "$xdg/zsh/completions/_nvim-config" ]
+  [ ! -e "$HOME/.zfunc" ]
+}
+
+@test "zsh completion warns about a leftover ~/.zfunc/_nvim-config, which nothing loads any more" {
+  mkdir -p "$HOME/.zfunc"; : > "$HOME/.zfunc/_nvim-config"
+  run ./bin/nvim-config --no-log --install-completion zsh
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"$HOME/.zfunc/_nvim-config"* ]]
+  [[ "$output" == *"remove"* ]]
+}
+
+@test "fish completion goes to XDG_CONFIG_HOME/fish/completions" {
+  local xdg="$BATS_TEST_TMPDIR/xdgconf"
+  XDG_CONFIG_HOME="$xdg" run ./bin/nvim-config --no-log --install-completion fish
+  [ -s "$xdg/fish/completions/nvim-config.fish" ]
+  [ ! -e "$HOME/.config" ]
+}
+
+@test "the fish rc file used for mise activation follows XDG_CONFIG_HOME (fish reads it from there)" {
+  run grep -n 'fish) printf .%s. "${XDG_CONFIG_DIR}/fish/config.fish"' bin/nvim-config
+  [ "$status" -eq 0 ]
+}
+
+@test "install deps --with-node hands the same NVM_DIR to the nvm installer and to the later nvm.sh (nvm installs under XDG_CONFIG_HOME/nvm when that is set, not ~/.nvm)" {
+  local xdg="$BATS_TEST_TMPDIR/xdgconf"
+  XDG_CONFIG_HOME="$xdg" run ./bin/nvim-config --no-log --dry-run install deps --with-node
+  [[ "$output" == *"env NVM_DIR=$xdg/nvm bash -c"*"install.sh"* ]]
+  [[ "$output" == *". $xdg/nvm/nvm.sh"* ]]
+}
+
+@test "an existing ~/.nvm is kept rather than installing a second nvm under XDG_CONFIG_HOME" {
+  mkdir -p "$HOME/.nvm"
+  XDG_CONFIG_HOME="$BATS_TEST_TMPDIR/xdgconf" run ./bin/nvim-config --no-log --dry-run install deps --with-node
+  [[ "$output" == *"nvm already installed at $HOME/.nvm"* ]]
+}
+
+@test "an exported NVM_DIR wins, and nvm falls back to ~/.nvm when XDG_CONFIG_HOME is unset" {
+  NVM_DIR="$BATS_TEST_TMPDIR/mynvm" run ./bin/nvim-config --no-log --dry-run install deps --with-node
+  [[ "$output" == *"env NVM_DIR=$BATS_TEST_TMPDIR/mynvm bash -c"* ]]
+  run ./bin/nvim-config --no-log --dry-run install deps --with-node
+  [[ "$output" == *"env NVM_DIR=$HOME/.nvm bash -c"* ]]
+}
+
+# ---- install tmux must not write through a symlink -------------------------
+
+@test "install tmux refuses to write through a symlinked ~/.tmux.conf and leaves its target untouched" {
+  local target="$BATS_TEST_TMPDIR/otherrepo/.tmux.conf"
+  mkdir -p "$(dirname "$target")"; printf 'set -g mouse on\n' > "$target"
+  ln -s "$target" "$HOME/.tmux.conf"
+  run ./bin/nvim-config --no-log install tmux
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"symlink"* ]]
+  [[ "$output" == *"source-file "* ]]
+  [ "$(cat "$target")" = "set -g mouse on" ]
+}
+
+@test "install tmux --dry-run reports the same refusal" {
+  local target="$BATS_TEST_TMPDIR/otherrepo/.tmux.conf"
+  mkdir -p "$(dirname "$target")"; : > "$target"
+  ln -s "$target" "$HOME/.tmux.conf"
+  run ./bin/nvim-config --no-log --dry-run install tmux
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"symlink"* ]]
+}
+
+@test "install tmux still recognises a symlinked config that already sources this repository" {
+  local target="$BATS_TEST_TMPDIR/otherrepo/.tmux.conf" project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "$(dirname "$target")"; printf 'source-file %s/.tmux.conf\n' "$project_dir" > "$target"
+  ln -s "$target" "$HOME/.tmux.conf"
+  run ./bin/nvim-config --no-log install tmux
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"already sources"* ]]
+}
+
+@test "install tmux still appends to a regular ~/.tmux.conf" {
+  printf 'set -g mouse on\n' > "$HOME/.tmux.conf"
+  run ./bin/nvim-config --no-log install tmux
+  [ "$status" -eq 0 ]
+  run grep -c "source-file" "$HOME/.tmux.conf"
+  [ "$output" -eq 1 ]
 }

@@ -31,10 +31,10 @@ that's fine.
    The runner clears `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and
    `XDG_CACHE_HOME` so that it behaves like CI; a test must not rely on your own
    installed config (`~/.config/nvim`).
-5. Run [ShellCheck](https://www.shellcheck.net/) on `bin/nvim-config` if you
-   touched it:
+5. Run [ShellCheck](https://www.shellcheck.net/) on the shell scripts you
+   touched (CI checks all three):
    ```bash
-   shellcheck bin/nvim-config
+   shellcheck bin/nvim-config scripts/ci-install-neovim tests/full-startup
    ```
 6. Update `README.md` and `CHANGELOG.md` (`[Unreleased]` section) alongside
    any user-facing change, in the same PR.

@@ -3,6 +3,7 @@
 setup() {
   export HOME="$BATS_TEST_TMPDIR/home"
   mkdir -p "$HOME"
+  unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
 }
 
 @test "plugin declarations do not use the legacy kyazdani42 namespace" {
@@ -1147,4 +1148,18 @@ _yazi_cond() {
   run grep -n "'<Leader>-'" lua/config/which-key.lua
   [ "$status" -eq 0 ]
   [[ "$output" == *"yazi"* ]]
+}
+
+@test "todo-comments maps ]t and [t in normal mode to its jump functions, through lazy keys (so the plugin loads on first use)" {
+  run grep -n "keys *= *{" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+  run grep -nE "'\]t', *function\(\) *require\('todo-comments'\)\.jump_next\(\)" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+  run grep -nE "'\[t', *function\(\) *require\('todo-comments'\)\.jump_prev\(\)" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key describes ]t and [t" {
+  run grep -n "'\]t'\|'\[t'" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
 }

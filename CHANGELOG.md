@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **`]t` / `[t` jump to the next / previous TODO / FIXME / HACK / NOTE comment** (todo-comments, declared as lazy
+  keys so the first press loads the plugin). They replace Neovim's built-in tag-stack motions (`:tnext` /
+  `:tprevious`), which this config does not use; documented in the usage guide and the keymaps reference, described
+  in which-key. Checked with the real plugin on a sample file: `]t` visits the tags in order and stops on the last
+  one with the plugin's own message, `[t` goes back
 - **yazi integration** (`lua/plugins/yazi.lua`, yazi.nvim v14.0.2 pinned in `lazy-lock.json`): `<Leader>-`
   opens yazi, with image / video / PDF previews, at the current file in a floating window (`:Yazi cwd` for
   the working directory). It complements neo-tree and oil, which keep opening directories
@@ -38,6 +43,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with the README
 
 ### Changed
+- **The CLI follows the XDG base directories** (`compatibility.md`). Before, it wrote under `$HOME` whatever
+  `XDG_*` said. Now: the log directory is `${XDG_STATE_HOME:-~/.local/state}/nvim-config/logs`; `install config`
+  and `uninstall config` use `${XDG_CONFIG_HOME:-~/.config}/nvim`, which is where Neovim reads its configuration
+  (with `XDG_CONFIG_HOME` set, the link in `~/.config/nvim` was never used); completions go to
+  `${XDG_DATA_HOME:-~/.local/share}/bash-completion/completions` (bash), `${XDG_CONFIG_HOME:-~/.config}/fish/completions`
+  (fish) and `${XDG_DATA_HOME:-~/.local/share}/zsh/completions` (zsh); the fish file offered for mise activation is
+  `${XDG_CONFIG_HOME:-~/.config}/fish/config.fish`. With no `XDG_*` variable set, bash, fish, the log directory and
+  the config link keep their previous paths. `NVIM_CONFIG_LOG_DIR` and `--log-dir` still win over `XDG_STATE_HOME`
+- **Migration, zsh completion:** it is no longer installed in `~/.zfunc`, a directory nothing of this configuration
+  puts on `fpath`, but in `${XDG_DATA_HOME:-~/.local/share}/zsh/completions`. Run `nvim-config --install-completion zsh`
+  again and put that directory on your `fpath` (README, Shell Completion). `--install-completion zsh` warns when
+  a leftover `~/.zfunc/_nvim-config` exists; remove it
+- **The daily log file is appended to instead of overwritten.** `nvim-config-YYYY-MM-DD.log` used to keep only the
+  last run of the day. It now keeps them all, and each run starts with a line `Run: nvim-config <version>
+  <arguments>`, written to the file only (never on the terminal), so the runs can be told apart
 - `--dry-run` no longer talks about the simulated action in the past tense. `install config` says
   `Would link ...` instead of `Linked ...`, `uninstall config` says `Would remove ...` instead of
   `Removed ...`, and `uninstall mise` ends with `Would remove the mise binary ...` instead of `mise binary
@@ -62,6 +82,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
 
 ### Fixed
+- `install tmux` no longer writes through a symlinked `~/.tmux.conf`. With the file managed by a dotfiles
+  repository, the `source-file` line was appended to that repository's file behind its back. It now stops with an
+  error (also under `--dry-run`) that names the target and gives the line to add by hand. A symlink whose target
+  already sources this repository is still recognised, and a regular file is appended to as before
+- `install deps --with-node` checked `~/.nvm` while nvm's installer installs into `$XDG_CONFIG_HOME/nvm` when that
+  variable is set, so a second nvm could be installed, or the later `nvm.sh` not be found. The directory is now
+  worked out once (an exported `NVM_DIR`, else an existing `~/.nvm`, else the one nvm itself would choose) and
+  handed to the installer
+- Docs / code consistency audit (CLI surface, profile tables, 68 documented `<Leader>` keys and 66 defined
+  ones, referenced paths, apt packages, env vars). Fixed what disagreed:
+  - `docs/usage.md` credited `todo-comments` (and, in the neotest section, "if configured") with `]t` / `[t`
+    that did not exist: in Neovim 0.11+ those keys are the built-in tag-stack motions (`:tnext` /
+    `:tprevious`). The mapping now exists for real, see Added; the table also lists `:TodoQuickFix` and
+    `:TodoLocList`, and the neotest sentence points at the summary panel
+  - the swap keys `]a` / `[a` shadow Neovim's built-in argument-list motions (`:next` / `:previous`); I had
+    described those keys as free. The editing cheatsheet now says what they replace
+  - `install all` also fetches the tree-sitter CLI, but `--help`, the zsh and fish completion descriptions and
+    the README only said "nvim, deps, then config"
+  - the usage guide listed the debug adapters of web, php and rust but not python's `debugpy`
+  - CONTRIBUTING asked to run shellcheck on `bin/nvim-config` only, while CI checks three files
+  - the README did not document the log file (location, one file per day),
+    `--log-dir`, `--no-log`, `NVIM_CONFIG_LOG_DIR` or `NO_COLOR`
+  New tests keep these aligned: every profile debug package must appear in the usage guide, CONTRIBUTING's
+  shellcheck command must cover the CI lint files, and the help / completion descriptions are checked
+- The zsh completion assigned `update_subcmds`, `profile_subcmds`, `ui_subcmds` and `theme_subcmds` without
+  declaring them `local`, leaking four variables into the user's shell, and assigned `commands` twice (the first
+  assignment was dead code). A test checks every array it assigns is local
 - `--install-completion <shell> --dry-run` created the completion directory and wrote the file
   even though `--dry-run` promises to change nothing, and then said `Installed ...`. It now prints
   `Would install <shell> completion to ...` and touches nothing

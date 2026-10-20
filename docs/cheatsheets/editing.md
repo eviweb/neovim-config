@@ -35,6 +35,8 @@ Swap:
 | `]a` | Swap parameter with the next one     |
 | `[a` | Swap parameter with the previous one |
 
+`]a` / `[a` replace Neovim's own `:next` / `:previous` (argument list) mappings, which this config leaves unused.
+
 ## Commenting (native Neovim, no plugin)
 
 | Key            | Action                                                   |

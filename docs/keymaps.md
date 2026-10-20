@@ -123,6 +123,7 @@ The list is persisted per directory alongside the session.
 | `<Leader>fh` | Search help tags |
 | `<Leader>fp` | Browse profiles (activate with `<CR>`) |
 | `<Leader>ft` | Browse all TODO/FIXME/HACK/NOTE in the project |
+| `]t` / `[t` | Jump to the next / previous TODO/FIXME/HACK/NOTE comment (replaces the tag-stack motions `:tnext` / `:tprevious`) |
 | `<Leader>?` | Browse all keymaps (live search) |
 
 ### Trouble (diagnostics)

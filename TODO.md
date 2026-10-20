@@ -424,9 +424,18 @@ Order agreed with the maintainer; each item is its own branch and PR.
   and a `cheatsheets` field a profile can declare; the `shell` and `devops` profiles ship a sheet each
 - [x] Yazi: yazi.nvim loaded only when the `yazi` binary is present, `<Leader>-`, listed by `doctor`;
   no automatic install. A real yazi/neo-tree switch (like `.nvim-ui`) would come later, see Deferred
+- [x] Docs / code consistency audit before 0.10.0: wrong `]t` / `[t` claims, `install all` description,
+  debugpy, shellcheck command, logging docs, zsh completion locals; the findings that are behaviour rather than
+  docs (CLI paths ignoring `XDG_*`, daily log overwritten at each run) are the next item
+- [x] `]t` / `[t` navigation between TODO comments (todo-comments), replacing the unused tag-stack motions
 - [x] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"; found on the way that
   `--install-completion --dry-run` really wrote the file (fixed), and a sweep test now guards every mutating
   command
+- [x] XDG compliance of the CLI's own paths (log directory, config link, completions, fish rc file, nvm) and
+  the zsh completion in `${XDG_DATA_HOME:-~/.local/share}/zsh/completions` (the directory the maintainer's
+  dotfiles put on `fpath`), with a warning about a leftover `~/.zfunc` copy
+- [x] The daily log is appended to, with a file-only `Run:` header line per run
+- [x] `install tmux` refuses to write through a symlinked `~/.tmux.conf` (dotfiles-managed) and says which line to add
 
 ---
 

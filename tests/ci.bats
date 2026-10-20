@@ -143,3 +143,17 @@ CURLEOF
   run grep -n -- "--exclude=./.git" tests/full-startup
   [ "$status" -eq 0 ]
 }
+
+@test "every bats file that points HOME at a temp directory also clears XDG_* in setup (otherwise a test that writes under XDG_CONFIG_HOME writes into the developer's real config)" {
+  local f missing=""
+  for f in tests/*.bats; do
+    grep -q 'export HOME="\$BATS_TEST_TMPDIR/home"' "$f" || continue
+    awk '/^setup\(\) \{/,/^}/' "$f" | grep -q 'unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME' || missing="$missing $f"
+  done
+  [ -z "$missing" ] || { echo "setup() does not unset XDG_* in:$missing"; return 1; }
+}
+
+@test "cli.bats clears NVM_DIR in setup (the CLI honours an exported NVM_DIR on purpose, and GitHub's runners and many developer shells export one)" {
+  run bash -c "awk '/^setup\\(\\) \\{/,/^}/' tests/cli.bats | grep -q 'unset NVM_DIR'"
+  [ "$status" -eq 0 ]
+}

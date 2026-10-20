@@ -3,6 +3,7 @@
 setup() {
   export HOME="$BATS_TEST_TMPDIR/home"
   mkdir -p "$HOME"
+  unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
 }
 
 @test "readme has a getting started section" {
@@ -298,4 +299,78 @@ _profile_names() {
   [ "$status" -eq 0 ]
   run grep -n "yazi.nvim" README.md
   [ "$status" -eq 0 ]
+}
+
+# ---------------------------------------------------------------------------
+# Docs vs code audit
+# ---------------------------------------------------------------------------
+
+@test "README describes install all as including the tree-sitter CLI" {
+  run grep -n "install all --with-node" README.md
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
+@test "CONTRIBUTING's shellcheck command covers every file the CI lint job checks" {
+  local ci_files doc_cmd f missing=""
+  ci_files="$(grep -oP 'run: shellcheck \K.*' .github/workflows/ci.yml)"
+  doc_cmd="$(grep -oP '^\s+shellcheck \K.*' CONTRIBUTING.md)"
+  [ -n "$ci_files" ]
+  [ -n "$doc_cmd" ]
+  for f in $ci_files; do
+    [[ " $doc_cmd " == *" $f "* ]] || missing="$missing $f"
+  done
+  [ -z "$missing" ] || { echo "not in the shellcheck command of CONTRIBUTING:$missing"; return 1; }
+}
+
+@test "usage guide mentions every debug adapter package a profile declares" {
+  local pkgs pkg missing=""
+  pkgs="$(grep -ohP "dap_mason_packages *= *\{[^}]+\}" lua/profiles/*.lua | grep -oP "'\K[^']+")"
+  [ -n "$pkgs" ]
+  for pkg in $pkgs; do
+    grep -qF "$pkg" docs/usage.md || missing="$missing $pkg"
+  done
+  [ -z "$missing" ] || { echo "not in docs/usage.md:$missing"; return 1; }
+}
+
+@test "]t / [t are documented only for todo-comments, which defines them, and never for neotest" {
+  run grep -n "Navigate with" docs/usage.md
+  [[ "$output" != *']t'* ]]
+  run grep -nE '^\| `\]t`' docs/usage.md
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"TODO"* || "$output" == *"tagged comment"* ]]
+  run grep -n "jump_next" lua/plugins/todo-comments.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "the docs say ]t / [t replace Neovim's tag-stack motions" {
+  run grep -n -i ":tnext\|tag stack\|tag-stack" docs/usage.md
+  [ "$status" -eq 0 ]
+}
+
+@test "the keymaps reference lists ]t / [t" {
+  run grep -n '`\]t`' docs/keymaps.md
+  [ "$status" -eq 0 ]
+}
+
+@test "usage guide documents the real todo-comments commands" {
+  run grep -n "TodoQuickFix" docs/usage.md
+  [ "$status" -eq 0 ]
+}
+
+@test "editing cheatsheet says the swap keys replace Neovim's argument-list motions" {
+  run grep -n -i "argument list\|arglist\|:next" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+}
+
+@test "README documents logging and colors: --log-dir, --no-log, NVIM_CONFIG_LOG_DIR, the log location and NO_COLOR" {
+  run grep -n -- "--log-dir" README.md;            [ "$status" -eq 0 ]
+  run grep -n -- "--no-log" README.md;             [ "$status" -eq 0 ]
+  run grep -n "NVIM_CONFIG_LOG_DIR" README.md;     [ "$status" -eq 0 ]
+  run grep -nF 'XDG_STATE_HOME:-~/.local/state}/nvim-config/logs' README.md; [ "$status" -eq 0 ]
+  run grep -n "NO_COLOR" README.md;                [ "$status" -eq 0 ]
+}
+
+@test "README says the daily log is appended to and never claims it is overwritten" {
+  run grep -n "appended" README.md;     [ "$status" -eq 0 ]
+  run grep -n "overwritten" README.md;  [ "$status" -ne 0 ]
 }

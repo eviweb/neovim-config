@@ -51,11 +51,13 @@ To install nvm and Node LTS automatically as part of the bootstrap:
 
 ```bash
 ./bin/nvim-config install deps --with-node
-./bin/nvim-config install all --with-node   # deps + config symlink
+./bin/nvim-config install all --with-node   # nvim, deps, config symlink, tree-sitter CLI
 ```
 
 The `--with-node` flag installs nvm `v0.39.7` then runs `nvm install --lts`.
-It is a no-op if nvm is already present at `~/.nvm`.
+nvm goes where its own installer puts it: `~/.nvm`, or `$XDG_CONFIG_HOME/nvm` when
+`XDG_CONFIG_HOME` is set. An exported `NVM_DIR` wins, and an existing `~/.nvm` is kept. The install is skipped
+when nvm is already there.
 
 ### tmux / byobu integration
 
@@ -80,6 +82,10 @@ To activate this configuration, inject a `source-file` entry into `~/.tmux.conf`
 This appends `source-file /path/to/neovim-config/.tmux.conf` to your existing
 `~/.tmux.conf` (creating it if absent) and is idempotent — running it multiple
 times has no effect. Your existing tmux configuration is preserved.
+
+If `~/.tmux.conf` is a symlink (typically into a dotfiles repository), the command stops with an error and
+leaves the target alone: it would otherwise edit a file that belongs to another repository. The message
+gives the `source-file` line to add to the file the link points to.
 
 ### Neovim plugins
 
@@ -129,7 +135,7 @@ for itself and any mise-managed tool (like `nvim`) to be found on `PATH` —
 see [mise's shell-specific activation
 docs](https://mise.jdx.dev/installing-mise.html#shell-specific-installation-activation).
 The CLI detects whether the activation line is already present and, if
-not, offers to add it to `~/.bashrc` / `~/.zshrc` / `~/.config/fish/config.fish`
+not, offers to add it to `~/.bashrc` / `~/.zshrc` / `${XDG_CONFIG_HOME:-~/.config}/fish/config.fish`
 (based on `$SHELL`) and tells you to reload your shell afterwards. Two
 flags bypass this prompt for automated/non-interactive installs, where
 the default prompt already silently declines (no TTY) but an automation
@@ -188,7 +194,8 @@ ESLint, and other Node-based LSP servers):
 ./bin/nvim-config install config
 ```
 
-This creates a symlink `~/.config/nvim → /path/to/neovim-config`.
+This creates a symlink `${XDG_CONFIG_HOME:-~/.config}/nvim → /path/to/neovim-config`, the directory Neovim reads
+its configuration from.
 
 ### 5. tmux / byobu integration (optional)
 
@@ -266,7 +273,7 @@ your plugin state across machines.
 ## Uninstalling
 
 ```bash
-./bin/nvim-config uninstall config   # remove the ~/.config/nvim symlink (only if it points here)
+./bin/nvim-config uninstall config   # remove the nvim config symlink (only if it points here)
 ./bin/nvim-config uninstall nvim     # remove Neovim (detects mise/snap/apt, asks for confirmation)
 ./bin/nvim-config uninstall mise     # remove the mise binary + its shell activation lines
 ./bin/nvim-config uninstall deps     # never removes apt packages — prints the manual command instead
@@ -547,6 +554,17 @@ Missing directories, subdirectories and non-markdown files are ignored. A profil
 ./bin/nvim-config --dry-run install
 ```
 
+### Logging and colors
+
+Every run also writes what it prints to a log file, without colors:
+`${XDG_STATE_HOME:-~/.local/state}/nvim-config/logs/nvim-config-YYYY-MM-DD.log`. There is one file per day and
+every run is **appended** to it; a first line `Run: nvim-config <version> <arguments>` (file only, never printed)
+marks where each run starts. Change the directory with `--log-dir <path>` or the `NVIM_CONFIG_LOG_DIR`
+environment variable (both win over `XDG_STATE_HOME`); `--no-log` turns the file off.
+
+Colors appear only on a terminal. `--no-color`, or a non-empty `NO_COLOR` environment variable
+(<https://no-color.org>), turns them off. Errors always go to stderr, even with `--quiet`.
+
 `--dry-run` shows what a command would do and changes nothing: no file written, no link created,
 no package installed. What it prints is phrased as a plan ("Would link ...", "Would install bash
 completion to ..."), never as a finished action.
@@ -575,18 +593,21 @@ Installed paths:
 
 | Shell | Path |
 |-------|------|
-| bash | `~/.local/share/bash-completion/completions/nvim-config` |
-| zsh | `~/.zfunc/_nvim-config` |
-| fish | `~/.config/fish/completions/nvim-config.fish` |
+| bash | `${XDG_DATA_HOME:-~/.local/share}/bash-completion/completions/nvim-config` |
+| zsh | `${XDG_DATA_HOME:-~/.local/share}/zsh/completions/_nvim-config` |
+| fish | `${XDG_CONFIG_HOME:-~/.config}/fish/completions/nvim-config.fish` |
 
-For zsh, add `~/.zfunc` to your `fpath` before calling `compinit`:
+For zsh, add that directory to your `fpath` before calling `compinit`:
 
 ```zsh
-fpath=(~/.zfunc $fpath)
+fpath=("${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions" $fpath)
 autoload -Uz compinit && compinit
 ```
 
-Fish picks up completions from `~/.config/fish/completions/` automatically — no extra setup required.
+Earlier versions installed the zsh completion in `~/.zfunc`. If a `~/.zfunc/_nvim-config` is still there, the
+install warns about it: nothing loads it any more, remove it.
+
+Fish picks up completions from `$XDG_CONFIG_HOME/fish/completions/` automatically — no extra setup required.
 
 ## Tests
 

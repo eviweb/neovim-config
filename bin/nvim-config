@@ -45,10 +45,27 @@ VALID_THEMES=(
   tokyonight-moon tokyonight-night tokyonight-storm
 )
 
-NVM_VERSION="0.39.7"
-NVM_DIR="${HOME}/.nvm"
+# XDG Base Directory specification: every file this script writes outside the
+# project goes under one of these, never straight under $HOME.
+XDG_CONFIG_DIR="${XDG_CONFIG_HOME:-${HOME}/.config}"
+XDG_DATA_DIR="${XDG_DATA_HOME:-${HOME}/.local/share}"
+XDG_STATE_DIR="${XDG_STATE_HOME:-${HOME}/.local/state}"
 
-LOG_DIR_DEFAULT="${NVIM_CONFIG_LOG_DIR:-${HOME}/.local/state/${SCRIPT_NAME}/logs}"
+# nvm's own installer picks ~/.nvm, or $XDG_CONFIG_HOME/nvm when that variable
+# is set; mirror it so the directory checked here is the one it installs into.
+# An already existing ~/.nvm is kept, and an exported NVM_DIR always wins.
+_default_nvm_dir() {
+  if [ -d "${HOME}/.nvm" ] || [ -z "${XDG_CONFIG_HOME:-}" ]; then
+    printf '%s' "${HOME}/.nvm"
+  else
+    printf '%s' "${XDG_CONFIG_HOME}/nvm"
+  fi
+}
+
+NVM_VERSION="0.39.7"
+NVM_DIR="${NVM_DIR:-$(_default_nvm_dir)}"
+
+LOG_DIR_DEFAULT="${NVIM_CONFIG_LOG_DIR:-${XDG_STATE_DIR}/${SCRIPT_NAME}/logs}"
 LOG_DIR="${LOG_DIR_DEFAULT}"
 LOG_FILE=""
 
@@ -63,17 +80,17 @@ Commands:
   install [deps|config|all|tmux|nvim|mise|claude|codex|gemini] [--with-node] [--snap|--apt|--mise] [--activate|--no-activate]
                         Install system dependencies and/or config symlinks
                           deps   — install apt packages only
-                          config — symlink ~/.config/nvim to this repository
+                          config — symlink $XDG_CONFIG_HOME/nvim (~/.config/nvim) to this repository
                           tmux   — inject source-file entry into ~/.tmux.conf
                           nvim   — install Neovim (prefers mise when present on PATH, snap otherwise)
                           mise   — install the mise version manager (curl + GPG-verified installer)
                           claude — install Claude Code CLI (requires Node.js)
                           codex  — install OpenAI Codex CLI (requires Node.js)
                           gemini — install Gemini CLI (requires Node.js)
-                          all    — nvim, deps, then config
+                          all    — nvim, deps, config, then the tree-sitter CLI
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
-                               Skipped if nvm is already present at ~/.nvm.
+                               Skipped if nvm is already present (~/.nvm, or $XDG_CONFIG_HOME/nvm).
                         --snap  Force Neovim install via snap (installs snapd first if missing)
                         --apt   Force Neovim install via apt
                         --mise  Force Neovim install via mise (installs mise + missing
@@ -87,7 +104,7 @@ Commands:
 
   uninstall [config|nvim|mise|deps|all]
                         Reverse the corresponding install subcommand(s)
-                          config — remove the ~/.config/nvim symlink (only if it points here)
+                          config — remove the $XDG_CONFIG_HOME/nvim (~/.config/nvim) symlink (only if it points here)
                           nvim   — remove Neovim (detects mise/snap/apt, asks for confirmation)
                           mise   — remove the mise binary and its shell activation lines
                                    (asks for confirmation; tools it managed are left untouched)
@@ -156,7 +173,14 @@ setup_logging() {
   if [ "${NO_LOG}" -eq 0 ]; then
     mkdir -p "${LOG_DIR}"
     LOG_FILE="${LOG_DIR}/${SCRIPT_NAME}-$(date +%F).log"
-    : > "${LOG_FILE}"
+    # The daily file is appended to: several runs a day must all stay in it.
+    # The header line separates the runs; it goes to the file only.
+    local run_arguments=""
+    if [ "$#" -gt 0 ]; then
+      printf -v run_arguments ' %q' "$@"
+    fi
+    printf '[%s] [INFO] Run: %s %s%s\n' "$(date '+%Y-%m-%d %H:%M:%S')" \
+      "${SCRIPT_NAME}" "$(read_version)" "${run_arguments}" >> "${LOG_FILE}"
   fi
 }
 
@@ -438,7 +462,8 @@ _show_completion_zsh() {
 #compdef nvim-config
 
 _nvim_config() {
-  local -a commands global_opts install_subcmds uninstall_subcmds
+  local -a commands global_opts install_subcmds uninstall_subcmds update_subcmds
+  local -a profile_subcmds ui_subcmds theme_subcmds
 
   global_opts=(
     '--help[Display usage and exit]'
@@ -454,15 +479,10 @@ _nvim_config() {
     '--install-completion[Install completion for the current user]:shell:(bash zsh fish)'
   )
 
-  commands=(
-    'install:Install system dependencies and/or config symlinks'
-    'update:Update Neovim and/or plugins'
-  )
-
   install_subcmds=(
     'deps:Install apt packages only'
-    'config:Symlink ~/.config/nvim to this repository'
-    'all:Install nvim, deps, then config'
+    'config:Symlink the Neovim config directory to this repository'
+    'all:Install nvim, deps, config, then the tree-sitter CLI'
     'tmux:Inject source-file entry into ~/.tmux.conf'
     'nvim:Install Neovim (prefers mise when present, snap otherwise)'
     'mise:Install the mise version manager (curl + GPG-verified installer)'
@@ -478,7 +498,7 @@ _nvim_config() {
   )
 
   uninstall_subcmds=(
-    'config:Remove the ~/.config/nvim symlink (only if it points here)'
+    'config:Remove the Neovim config directory symlink (only if it points here)'
     'nvim:Remove Neovim (detects mise/snap/apt, asks for confirmation)'
     'mise:Remove the mise binary and its shell activation lines'
     'deps:Never removes apt packages; prints the manual removal command instead'
@@ -608,8 +628,8 @@ complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall up
 
 # install subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a deps    -d 'Install apt packages only'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -a config  -d 'Symlink ~/.config/nvim to this repository'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, then config'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a config  -d 'Symlink the Neovim config directory to this repository'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, config, then the tree-sitter CLI'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a tmux    -d 'Inject source-file entry into ~/.tmux.conf'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a nvim    -d 'Install Neovim (prefers mise when present, snap otherwise)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a mise    -d 'Install the mise version manager (curl + GPG-verified installer)'
@@ -624,7 +644,7 @@ complete -c nvim-config -n '__fish_seen_subcommand_from install' -l activate -d 
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -l no-activate -d 'Skip the mise shell-activation step, no prompt'
 
 # uninstall subcommands
-complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a config -d 'Remove the ~/.config/nvim symlink (only if it points here)'
+complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a config -d 'Remove the Neovim config directory symlink (only if it points here)'
 complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a nvim   -d 'Remove Neovim (detects mise/snap/apt, asks for confirmation)'
 complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a mise   -d 'Remove the mise binary and its shell activation lines'
 complete -c nvim-config -n '__fish_seen_subcommand_from uninstall' -a deps   -d 'Never removes apt packages; prints the manual removal command instead'
@@ -687,15 +707,15 @@ install_completion() {
 
   case "${shell_name}" in
     bash)
-      completion_dir="${HOME}/.local/share/bash-completion/completions"
+      completion_dir="${XDG_DATA_DIR}/bash-completion/completions"
       completion_file="${completion_dir}/${SCRIPT_NAME}"
       ;;
     zsh)
-      completion_dir="${HOME}/.zfunc"
+      completion_dir="${XDG_DATA_DIR}/zsh/completions"
       completion_file="${completion_dir}/_${SCRIPT_NAME}"
       ;;
     fish)
-      completion_dir="${HOME}/.config/fish/completions"
+      completion_dir="${XDG_CONFIG_DIR}/fish/completions"
       completion_file="${completion_dir}/${SCRIPT_NAME}.fish"
       ;;
     *)
@@ -703,6 +723,12 @@ install_completion() {
       return 1
       ;;
   esac
+
+  # Earlier versions installed the zsh completion in ~/.zfunc, a directory
+  # nothing puts on fpath any more: a leftover copy is dead weight.
+  if [ "${shell_name}" = "zsh" ] && [ -e "${HOME}/.zfunc/_${SCRIPT_NAME}" ]; then
+    log_message "WARN" "${HOME}/.zfunc/_${SCRIPT_NAME} is a leftover of an earlier version and is no longer used — remove it"
+  fi
 
   if [ "${DRY_RUN}" -eq 1 ]; then
     log_message "INFO" "Would install ${shell_name} completion to ${completion_file}"
@@ -833,7 +859,7 @@ run_install_mise() {
 _mise_shell_rc_file() {
   case "$(basename "${SHELL:-bash}")" in
     zsh)  printf '%s' "${ZDOTDIR:-$HOME}/.zshrc" ;;
-    fish) printf '%s' "${HOME}/.config/fish/config.fish" ;;
+    fish) printf '%s' "${XDG_CONFIG_DIR}/fish/config.fish" ;;
     *)    printf '%s' "${HOME}/.bashrc" ;;
   esac
 }
@@ -1515,6 +1541,13 @@ run_install_tmux() {
     return 0
   fi
 
+  # A symlinked ~/.tmux.conf belongs to something else (a dotfiles repository):
+  # appending through it would edit that repository's file behind its back.
+  if [ -L "${tmux_conf}" ]; then
+    log_message "ERROR" "${tmux_conf} is a symlink to $(readlink -f "${tmux_conf}") — not writing through it; add this line to the file it points to: ${source_line}"
+    return 1
+  fi
+
   if [ "${DRY_RUN}" -eq 1 ]; then
     log_message "INFO" "printf '\\n%s\\n' '${source_line}' >> ${tmux_conf}"
     return 0
@@ -1528,7 +1561,7 @@ run_install_node() {
   if [ -d "${NVM_DIR}" ]; then
     log_message "INFO" "nvm already installed at ${NVM_DIR} — skipping nvm install"
   else
-    run_command bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash"
+    run_command env NVM_DIR="${NVM_DIR}" bash -c "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/install.sh | bash"
   fi
   run_command bash -c ". ${NVM_DIR}/nvm.sh && nvm install --lts"
 }
@@ -1547,7 +1580,7 @@ run_install_deps() {
 }
 
 run_install_config() {
-  local nvim_config_dir="${HOME}/.config/nvim"
+  local nvim_config_dir="${XDG_CONFIG_DIR}/nvim"
 
   if [ -L "${nvim_config_dir}" ]; then
     local current_target
@@ -1565,13 +1598,13 @@ run_install_config() {
     return 1
   fi
 
-  run_command mkdir -p "${HOME}/.config"
+  run_command mkdir -p "${XDG_CONFIG_DIR}"
   run_command ln -s "${PROJECT_DIR}" "${nvim_config_dir}"
   _report_done "Linked ${nvim_config_dir} → ${PROJECT_DIR}" "Would link ${nvim_config_dir} → ${PROJECT_DIR}"
 }
 
 run_uninstall_config() {
-  local nvim_config_dir="${HOME}/.config/nvim"
+  local nvim_config_dir="${XDG_CONFIG_DIR}/nvim"
 
   if [ ! -e "${nvim_config_dir}" ] && [ ! -L "${nvim_config_dir}" ]; then
     log_message "INFO" "${nvim_config_dir} does not exist — nothing to uninstall"
@@ -1770,6 +1803,8 @@ run_install() {
   esac
 }
 
+RUN_ARGUMENTS=("$@")
+
 while [ "$#" -gt 0 ]; do
   case "$1" in
     -h|--help)
@@ -1925,7 +1960,7 @@ if [ "${DEBUG}" -eq 1 ]; then
   set -x
 fi
 
-setup_logging
+setup_logging "${RUN_ARGUMENTS[@]}"
 
 case "${COMMAND}" in
   show-completion)
