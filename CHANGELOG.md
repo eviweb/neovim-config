@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.10.0] - 2026-10-20
+
 ### Added
 - **`]t` / `[t` jump to the next / previous TODO / FIXME / HACK / NOTE comment** (todo-comments, declared as lazy
   keys so the first press loads the plugin). They replace Neovim's built-in tag-stack motions (`:tnext` /
@@ -96,8 +98,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     that did not exist: in Neovim 0.11+ those keys are the built-in tag-stack motions (`:tnext` /
     `:tprevious`). The mapping now exists for real, see Added; the table also lists `:TodoQuickFix` and
     `:TodoLocList`, and the neotest sentence points at the summary panel
-  - the swap keys `]a` / `[a` shadow Neovim's built-in argument-list motions (`:next` / `:previous`); I had
-    described those keys as free. The editing cheatsheet now says what they replace
+  - the swap keys `]a` / `[a` shadow Neovim's built-in argument-list motions (`:next` / `:previous`); they had
+    been described as free. The editing cheatsheet now says what they replace
   - `install all` also fetches the tree-sitter CLI, but `--help`, the zsh and fish completion descriptions and
     the README only said "nvim, deps, then config"
   - the usage guide listed the debug adapters of web, php and rust but not python's `debugpy`
@@ -552,7 +554,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Exploratory Lua files that were not part of the runtime config
 
-[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.9.0...HEAD
+[Unreleased]: https://github.com/eviweb/neovim-config/compare/0.10.0...HEAD
+[0.10.0]: https://github.com/eviweb/neovim-config/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/eviweb/neovim-config/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/eviweb/neovim-config/compare/0.7.1...0.8.0
 [0.7.1]: https://github.com/eviweb/neovim-config/compare/0.7.0...0.7.1

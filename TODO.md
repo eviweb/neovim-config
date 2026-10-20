@@ -406,7 +406,7 @@
 
 ---
 
-## Phase 30 — CI and dev loop, usability (target 0.10.0)
+## Phase 30 — CI and dev loop, usability (0.10.0)
 
 Order agreed with the maintainer; each item is its own branch and PR.
 
