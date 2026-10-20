@@ -194,6 +194,21 @@ function M.get_treesitter_parsers()
     return parsers
 end
 
+-- Return the cheatsheet directories declared by active profiles (see
+-- lua/cheatsheets.lua), as written: relative to the config root, or absolute.
+function M.get_cheatsheet_dirs()
+    local dirs = {}
+    for _, name in ipairs(M.active_profiles()) do
+        local ok, profile = pcall(require, 'profiles.' .. name)
+        if ok and profile.cheatsheets then
+            for _, dir in ipairs(profile.cheatsheets) do
+                table.insert(dirs, dir)
+            end
+        end
+    end
+    return dirs
+end
+
 -- Return Mason package names (linters, formatters... that are not in apt)
 -- required by active profiles. DAP adapters have their own field below.
 function M.get_mason_packages()

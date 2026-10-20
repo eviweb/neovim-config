@@ -512,6 +512,23 @@ Requires Node.js / npm. Use `install deps --with-node` if not already installed.
 - [Plugin quick-reference](docs/cheatsheets/plugins.md) — concise tables per plugin
 - [Cheatsheets](docs/cheatsheets/) — basics, editing, git, LSP, profiles
 
+### Cheatsheets in Neovim: `:Cheat`
+
+`:Cheat` opens a sheet in a floating window (`<Leader>hc` for the picker; `q` or `<Esc>` closes). A topic
+is a `<name>.md` file found in these places, from lowest to highest precedence — on a name clash the last
+one wins, so you can replace a built-in sheet with your own:
+
+| Source | Where | Appears |
+|--------|-------|---------|
+| Built-in | `docs/cheatsheets/` | always |
+| Profile | the `cheatsheets` directories a profile declares, e.g. `docs/profile-cheatsheets/shell/` | only while that profile is active (also after `:NvimProfile`) |
+| Your own | `~/.config/nvim-cheatsheets/` (next to the nvim config directory, `XDG_CONFIG_HOME` aware) | always |
+| Extra | each directory of `$NVIM_CHEATSHEET_DIRS`, colon-separated like `PATH` | always |
+
+Missing directories, subdirectories and non-markdown files are ignored. A profile declares its sheets with
+`cheatsheets = { 'docs/profile-cheatsheets/<name>' }` (relative to the config root, or absolute); the
+`shell` and `devops` profiles each ship one.
+
 ## Usage
 
 ```bash
@@ -571,6 +588,7 @@ Domain-specific bats files contain grep-based tests that verify structural invar
 | `tests/docs.bats` | README and keymaps cheatsheet coverage |
 | `tests/profiles.bats` | Profile system, CLI profile commands, NvimProfile switcher |
 | `tests/ci.bats` | CI workflow guards (triggers, pinned and verified downloads) |
+| `tests/cheatsheets.bats` | `:Cheat` sources: built-in, profile, user directories, precedence |
 
 ### Structural integrity tests
 

@@ -29,6 +29,9 @@ return {
 
     plugins = {},
 
+    -- A cheatsheet that :Cheat only offers while this profile is active.
+    cheatsheets = { 'docs/profile-cheatsheets/devops' },
+
     lint_linters = function()
         return {
             dockerfile = { 'hadolint' },

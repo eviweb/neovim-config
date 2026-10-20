@@ -24,6 +24,9 @@ return {
 
     plugins = {},
 
+    -- A cheatsheet that :Cheat only offers while this profile is active.
+    cheatsheets = { 'docs/profile-cheatsheets/shell' },
+
     conform_formatters = function()
         return { sh = { 'shfmt' } }
     end,
