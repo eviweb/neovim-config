@@ -424,7 +424,9 @@ Order agreed with the maintainer; each item is its own branch and PR.
   and a `cheatsheets` field a profile can declare; the `shell` and `devops` profiles ship a sheet each
 - [x] Yazi: yazi.nvim loaded only when the `yazi` binary is present, `<Leader>-`, listed by `doctor`;
   no automatic install. A real yazi/neo-tree switch (like `.nvim-ui`) would come later, see Deferred
-- [ ] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"
+- [x] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"; found on the way that
+  `--install-completion --dry-run` really wrote the file (fixed), and a sweep test now guards every mutating
+  command
 
 ---
 

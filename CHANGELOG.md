@@ -38,6 +38,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with the README
 
 ### Changed
+- `--dry-run` no longer talks about the simulated action in the past tense. `install config` says
+  `Would link ...` instead of `Linked ...`, `uninstall config` says `Would remove ...` instead of
+  `Removed ...`, and `uninstall mise` ends with `Would remove the mise binary ...` instead of `mise binary
+  removed ...`. A real run keeps its past-tense messages. A sweep test runs every mutating command under
+  `--dry-run` on a throwaway copy of the project, checks none claims a finished action and that no file
+  changed
 - CI no longer installs Neovim `stable` with an unverified `sudo tar`: the `Test` job uses v0.12.5 with its
   pinned SHA-256, and bats-core is fetched by commit (`6636e2c`, v1.9.0) rather than by a tag that can be
   moved. The trade-off is that CI no longer follows new stable releases by itself: moving the pin is a
@@ -56,6 +62,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
 
 ### Fixed
+- `--install-completion <shell> --dry-run` created the completion directory and wrote the file
+  even though `--dry-run` promises to change nothing, and then said `Installed ...`. It now prints
+  `Would install <shell> completion to ...` and touches nothing
 - `:Cheat <topic>` built the file name from what you typed, so `:Cheat ../../notes` read any `.md` file
   reachable from the cheatsheet directory. Topics are now looked up in the index of known sheets and
   anything else answers "Cheatsheet not found"

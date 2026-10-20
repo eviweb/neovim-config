@@ -209,6 +209,17 @@ run_command() {
   "$@"
 }
 
+# Confirmation of an action: the past tense when it was done, the conditional
+# when --dry-run only simulated it. A dry-run that says "Removed" or "Linked"
+# about something it did not do is misleading.
+_report_done() {
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "$2"
+  else
+    log_message "INFO" "$1"
+  fi
+}
+
 _read_active_theme() {
   local theme_file="${PROJECT_DIR}/.nvim-theme"
   if [ -f "${theme_file}" ]; then
@@ -692,6 +703,11 @@ install_completion() {
       return 1
       ;;
   esac
+
+  if [ "${DRY_RUN}" -eq 1 ]; then
+    log_message "INFO" "Would install ${shell_name} completion to ${completion_file}"
+    return 0
+  fi
 
   mkdir -p "${completion_dir}"
   show_completion "${shell_name}" > "${completion_file}"
@@ -1551,7 +1567,7 @@ run_install_config() {
 
   run_command mkdir -p "${HOME}/.config"
   run_command ln -s "${PROJECT_DIR}" "${nvim_config_dir}"
-  log_message "INFO" "Linked ${nvim_config_dir} → ${PROJECT_DIR}"
+  _report_done "Linked ${nvim_config_dir} → ${PROJECT_DIR}" "Would link ${nvim_config_dir} → ${PROJECT_DIR}"
 }
 
 run_uninstall_config() {
@@ -1575,7 +1591,7 @@ run_uninstall_config() {
   fi
 
   run_command rm "${nvim_config_dir}"
-  log_message "INFO" "Removed ${nvim_config_dir}"
+  _report_done "Removed ${nvim_config_dir}" "Would remove ${nvim_config_dir}"
 }
 
 # apt packages installed by 'install deps' (git, make, gcc, curl, ripgrep,
@@ -1669,7 +1685,9 @@ run_uninstall_mise() {
   run_command rm -f "${mise_bin}"
   _remove_mise_activation
 
-  log_message "INFO" "mise binary removed — any tools it managed (e.g. under ~/.config/mise) are left untouched"
+  _report_done \
+    "mise binary removed — any tools it managed (e.g. under ~/.config/mise) are left untouched" \
+    "Would remove the mise binary — any tools it manages (e.g. under ~/.config/mise) would be left untouched"
 }
 
 run_uninstall() {

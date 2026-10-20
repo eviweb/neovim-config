@@ -547,6 +547,10 @@ Missing directories, subdirectories and non-markdown files are ignored. A profil
 ./bin/nvim-config --dry-run install
 ```
 
+`--dry-run` shows what a command would do and changes nothing: no file written, no link created,
+no package installed. What it prints is phrased as a plan ("Would link ...", "Would install bash
+completion to ..."), never as a finished action.
+
 ## Shell Completion
 
 Supported shells: **bash**, **zsh**, **fish**
