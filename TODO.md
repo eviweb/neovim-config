@@ -422,8 +422,8 @@ Order agreed with the maintainer; each item is its own branch and PR.
 - [x] Neovim version guard in `init.lua` (`lua/minimum_version.lua`): clear message and stop on Neovim < 0.11
 - [x] `:Cheat` extension points: user directories (`~/.config/nvim-cheatsheets`, `$NVIM_CHEATSHEET_DIRS`)
   and a `cheatsheets` field a profile can declare; the `shell` and `devops` profiles ship a sheet each
-- [ ] Yazi: plugin loaded only when the `yazi` binary is present, dedicated keymap next to
-  `<Leader>n`, listed by `doctor`; no automatic install. A real yazi/neo-tree switch would come later
+- [x] Yazi: yazi.nvim loaded only when the `yazi` binary is present, `<Leader>-`, listed by `doctor`;
+  no automatic install. A real yazi/neo-tree switch (like `.nvim-ui`) would come later, see Deferred
 - [ ] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"
 
 ---
@@ -466,12 +466,10 @@ Order agreed with the maintainer; each item is its own branch and PR.
 
 ### File explorer
 
-- [ ] `yazi.nvim` (mikavilpas) — floating-window file picker backed by the `yazi` terminal file
-  manager, with rich media preview (images, video, PDF); designed to coexist with neo-tree.nvim
-  and oil.nvim rather than replace either (different interaction model — modal picker, not a
-  sidebar); requires the `yazi` binary (official GPG-verified apt repo)
-  → https://yazi-rs.github.io
-  → https://github.com/mikavilpas/yazi.nvim
+- [ ] yazi / neo-tree switch: let a setting (like `.nvim-ui`) make yazi the file explorer instead of neo-tree
+  (`open_for_directories = true`, `<Leader>n` opening yazi). The coexisting integration shipped in Phase 30;
+  this only matters if neo-tree stops being wanted
+  → https://yazi-rs.github.io  → https://github.com/mikavilpas/yazi.nvim
 
 ### Treesitter
 

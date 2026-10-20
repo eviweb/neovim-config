@@ -31,6 +31,22 @@ Inside neo-tree: `a` new · `d` delete · `r` rename · `y` copy · `x` cut · `
 
 Rename, move, or delete files by editing the buffer normally, then `:w` to apply. Hidden files are visible by default.
 
+## Yazi (file manager with previews)
+| Key / Command  | Action                                                  |
+|----------------|---------------------------------------------------------|
+| `<Leader>-`    | Open yazi at the current file (normal and visual mode)   |
+| `:Yazi cwd`    | Open yazi in Neovim's working directory                   |
+| `:Yazi toggle` | Resume the last yazi session                              |
+
+Inside yazi: `<F1>` help · `<C-v>` / `<C-x>` / `<C-t>` open in a vsplit / split / tab · `<C-q>` send to the
+quickfix list · `<C-s>` live grep in the directory (Telescope) · `<C-y>` copy the relative path · `<Tab>`
+jump to the buffers open in Neovim.
+
+Images, videos and PDFs are previewed, which neo-tree and oil do not do; it complements them, they keep
+opening directories. **Only available when the `yazi` binary is on `PATH`**, checked once at startup: install
+it (`mise use -g yazi@latest`, or see yazi-rs.github.io/docs/installation) and restart Neovim. `:checkhealth yazi`
+reports a yazi that is too old. `nvim-config doctor` lists it.
+
 ## Noice.nvim (UI)
 | Command           | Action                          |
 |-------------------|---------------------------------|

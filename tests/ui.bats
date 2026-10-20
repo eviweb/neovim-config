@@ -1100,3 +1100,51 @@ setup() {
   [[ "$output" == *"ACTION=yaml"* ]]
   [[ "$output" != *"ACTION=yaml.github"* ]]
 }
+
+# ---------------------------------------------------------------------------
+# yazi.nvim: loaded only when the yazi binary exists
+# ---------------------------------------------------------------------------
+
+# Prints the result of the yazi spec's `cond`, with vim.fn.executable('yazi')
+# forced to $1 (0 or 1). No plugin and no installed config needed.
+_yazi_cond() {
+  nvim --headless --noplugin -u NONE --cmd "set rtp+=$(pwd)" \
+    -c "lua local real = vim.fn.executable; vim.fn.executable = function(n) if n == 'yazi' then return $1 end return real(n) end; local spec = dofile('lua/plugins/yazi.lua'); io.stdout:write('COND=' .. tostring(spec.cond()))" \
+    -c "qa!" 2>&1
+}
+
+@test "yazi plugin spec exists and is loaded by plugins.lua" {
+  [ -f lua/plugins/yazi.lua ]
+  run grep -n "plugins.yazi" lua/plugins.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "yazi.nvim is only enabled when the yazi binary is on PATH (cond is true with it, false without)" {
+  run _yazi_cond 1
+  [[ "$output" == *"COND=true"* ]]
+  run _yazi_cond 0
+  [[ "$output" == *"COND=false"* ]]
+}
+
+@test "yazi opens at the current file with Leader-minus, in normal and visual mode" {
+  run grep -n "'<Leader>-'" lua/plugins/yazi.lua
+  [ "$status" -eq 0 ]
+  run grep -n "mode *= *{ *'n', *'v' *}" lua/plugins/yazi.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "yazi does not take the keys the plugin suggests but this config already uses (Leader-c is the CodeCompanion group, C-Up resizes windows)" {
+  run grep -n "'<Leader>cw'\|'<c-up>'\|'<C-Up>'" lua/plugins/yazi.lua
+  [ "$status" -eq 1 ]
+}
+
+@test "yazi does not replace the directory handlers (oil and neo-tree keep opening directories)" {
+  run grep -n "open_for_directories *= *false" lua/plugins/yazi.lua
+  [ "$status" -eq 0 ]
+}
+
+@test "which-key describes the yazi key" {
+  run grep -n "'<Leader>-'" lua/config/which-key.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"yazi"* ]]
+}

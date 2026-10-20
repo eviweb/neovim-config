@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **yazi integration** (`lua/plugins/yazi.lua`, yazi.nvim v14.0.2 pinned in `lazy-lock.json`): `<Leader>-`
+  opens yazi, with image / video / PDF previews, at the current file in a floating window (`:Yazi cwd` for
+  the working directory). It complements neo-tree and oil, which keep opening directories
+  (`open_for_directories = false`). **Loaded only when the `yazi` binary is on `PATH`**, tested once at
+  startup, and never installed for you. The plugin's suggested `<Leader>cw` and `<C-Up>` are not used here
+  (the first is the CodeCompanion group, the second resizes windows). Verified with the real plugin: without
+  yazi there is no `:Yazi`, no mapping and no message; with yazi 26.9.1 both are present and the plugin's own
+  `:checkhealth yazi` is green. `nvim-config doctor` lists yazi among the optional tools. lazy.nvim clones the
+  plugin even when yazi is absent (`cond` only prevents loading it)
 - **`:Cheat` extension points** (`lua/cheatsheets.lua`). Topics now come from the built-in
   `docs/cheatsheets/`, from the `cheatsheets` directories declared by the **active profiles**, and from
   your own directories: `~/.config/nvim-cheatsheets/` and every directory of `$NVIM_CHEATSHEET_DIRS`

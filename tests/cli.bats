@@ -1440,3 +1440,9 @@ FAKEEOF
   [ -e "$record" ] || { printf '# the stand-in bats never ran\n' >&3; printf '# %s\n' "$output" >&3; return 1; }
   [ ! -s "$record" ] || { printf '# XDG variables reached bats: %s\n' "$(tr '\n' ' ' < "$record")" >&3; return 1; }
 }
+
+@test "doctor lists yazi among the optional tools (it only enables the yazi.nvim integration)" {
+  run grep -n "for bin in lazygit tmux mise yazi claude codex gemini" bin/nvim-config
+  [ "$status" -eq 0 ]
+  [ "${#lines[@]}" -eq 2 ]
+}
