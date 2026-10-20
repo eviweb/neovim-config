@@ -62,6 +62,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
 
 ### Fixed
+- Docs / code consistency audit (CLI surface, profile tables, 68 documented `<Leader>` keys and 66 defined
+  ones, referenced paths, apt packages, env vars). Fixed what disagreed:
+  - `docs/usage.md` credited `todo-comments` (and neotest) with `]t` / `[t`. This config defines no such
+    mapping, and in Neovim 0.11+ those keys are the built-in tag-stack motions (`:tnext` / `:tprevious`).
+    The table now lists the real commands (`:TodoQuickFix`, `:TodoLocList`) and says so
+  - the swap keys `]a` / `[a` shadow Neovim's built-in argument-list motions (`:next` / `:previous`); I had
+    described those keys as free. The editing cheatsheet now says what they replace
+  - `install all` also fetches the tree-sitter CLI, but `--help`, the zsh and fish completion descriptions and
+    the README only said "nvim, deps, then config"
+  - the usage guide listed the debug adapters of web, php and rust but not python's `debugpy`
+  - CONTRIBUTING asked to run shellcheck on `bin/nvim-config` only, while CI checks three files
+  - the README did not document the log file (location, one file per day, overwritten at each run),
+    `--log-dir`, `--no-log`, `NVIM_CONFIG_LOG_DIR` or `NO_COLOR`
+  New tests keep these aligned: every profile debug package must appear in the usage guide, CONTRIBUTING's
+  shellcheck command must cover the CI lint files, and the help / completion descriptions are checked
+- The zsh completion assigned `update_subcmds`, `profile_subcmds`, `ui_subcmds` and `theme_subcmds` without
+  declaring them `local`, leaking four variables into the user's shell, and assigned `commands` twice (the first
+  assignment was dead code). A test checks every array it assigns is local
 - `--install-completion <shell> --dry-run` created the completion directory and wrote the file
   even though `--dry-run` promises to change nothing, and then said `Installed ...`. It now prints
   `Would install <shell> completion to ...` and touches nothing

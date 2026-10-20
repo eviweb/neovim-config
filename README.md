@@ -51,7 +51,7 @@ To install nvm and Node LTS automatically as part of the bootstrap:
 
 ```bash
 ./bin/nvim-config install deps --with-node
-./bin/nvim-config install all --with-node   # deps + config symlink
+./bin/nvim-config install all --with-node   # nvim, deps, config symlink, tree-sitter CLI
 ```
 
 The `--with-node` flag installs nvm `v0.39.7` then runs `nvm install --lts`.
@@ -546,6 +546,17 @@ Missing directories, subdirectories and non-markdown files are ignored. A profil
 ./bin/nvim-config --version
 ./bin/nvim-config --dry-run install
 ```
+
+### Logging and colors
+
+Every run also writes what it prints to a log file, without colors:
+`~/.local/state/nvim-config/logs/nvim-config-YYYY-MM-DD.log`. There is one file per day and it is **overwritten
+at the start of each run**, so it holds the last run of the day only. The directory is fixed under `$HOME`
+(`XDG_STATE_HOME` is not consulted). Change it with `--log-dir <path>` or the `NVIM_CONFIG_LOG_DIR` environment
+variable; `--no-log` turns the file off.
+
+Colors appear only on a terminal. `--no-color`, or a non-empty `NO_COLOR` environment variable
+(<https://no-color.org>), turns them off. Errors always go to stderr, even with `--quiet`.
 
 `--dry-run` shows what a command would do and changes nothing: no file written, no link created,
 no package installed. What it prints is phrased as a plan ("Would link ...", "Would install bash

@@ -70,7 +70,7 @@ Commands:
                           claude — install Claude Code CLI (requires Node.js)
                           codex  — install OpenAI Codex CLI (requires Node.js)
                           gemini — install Gemini CLI (requires Node.js)
-                          all    — nvim, deps, then config
+                          all    — nvim, deps, config, then the tree-sitter CLI
                         --with-node
                                Also install nvm and Node.js LTS (opt-in).
                                Skipped if nvm is already present at ~/.nvm.
@@ -438,7 +438,8 @@ _show_completion_zsh() {
 #compdef nvim-config
 
 _nvim_config() {
-  local -a commands global_opts install_subcmds uninstall_subcmds
+  local -a commands global_opts install_subcmds uninstall_subcmds update_subcmds
+  local -a profile_subcmds ui_subcmds theme_subcmds
 
   global_opts=(
     '--help[Display usage and exit]'
@@ -454,15 +455,10 @@ _nvim_config() {
     '--install-completion[Install completion for the current user]:shell:(bash zsh fish)'
   )
 
-  commands=(
-    'install:Install system dependencies and/or config symlinks'
-    'update:Update Neovim and/or plugins'
-  )
-
   install_subcmds=(
     'deps:Install apt packages only'
     'config:Symlink ~/.config/nvim to this repository'
-    'all:Install nvim, deps, then config'
+    'all:Install nvim, deps, config, then the tree-sitter CLI'
     'tmux:Inject source-file entry into ~/.tmux.conf'
     'nvim:Install Neovim (prefers mise when present, snap otherwise)'
     'mise:Install the mise version manager (curl + GPG-verified installer)'
@@ -609,7 +605,7 @@ complete -c nvim-config -n 'not __fish_seen_subcommand_from install uninstall up
 # install subcommands
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a deps    -d 'Install apt packages only'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a config  -d 'Symlink ~/.config/nvim to this repository'
-complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, then config'
+complete -c nvim-config -n '__fish_seen_subcommand_from install' -a all     -d 'Install nvim, deps, config, then the tree-sitter CLI'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a tmux    -d 'Inject source-file entry into ~/.tmux.conf'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a nvim    -d 'Install Neovim (prefers mise when present, snap otherwise)'
 complete -c nvim-config -n '__fish_seen_subcommand_from install' -a mise    -d 'Install the mise version manager (curl + GPG-verified installer)'

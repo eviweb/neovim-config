@@ -485,8 +485,8 @@ Active adapters:
 - **neotest-phpunit** — loaded by the `php` and `laravel` profiles
 - **neotest-rust** — loaded by the `rust` profile
 
-Pass/fail icons appear in the sign column after a run. Navigate with `]t` / `[t`
-(if configured) or use the summary panel to jump.
+Pass/fail icons appear in the sign column after a run. Use the summary panel
+(`<Leader>Ts`) to jump to a result; no key is mapped for stepping through results.
 
 ---
 
@@ -526,6 +526,7 @@ Active adapters per profile:
 - **web** — `pwa-node` (JS/TS) via Mason `js-debug-adapter`
 - **php / laravel** — Xdebug on port 9003 via Mason `php-debug-adapter`
 - **rust** — codelldb via Mason `codelldb`
+- **python** — debugpy via Mason `debugpy`
 - **core** — Lua adapter built-in (`one-small-step-for-vimkind`)
 
 Run `nvim-config update dap-adapters` to install the Mason packages for the
@@ -592,6 +593,10 @@ todo-comments.nvim highlights `TODO`, `FIXME`, `HACK`, `NOTE`, `WARN`, and
 | Key / Command | Action |
 |---------------|--------|
 | `<Leader>ft` | List all tagged comments in the project via Telescope |
-| `]t` / `[t` | Jump to next / previous tagged comment |
+| `:TodoQuickFix` | Put all tagged comments in the quickfix list |
+| `:TodoLocList` | Put the tagged comments of the current file in the location list |
 
 Tags are case-insensitive and recognised in any comment syntax.
+
+This config defines no key to jump from one tagged comment to the next. `]t` / `[t` are Neovim's own
+tag-stack motions (`:tnext` / `:tprevious`), unrelated to todo-comments.

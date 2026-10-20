@@ -299,3 +299,61 @@ _profile_names() {
   run grep -n "yazi.nvim" README.md
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Docs vs code audit
+# ---------------------------------------------------------------------------
+
+@test "README describes install all as including the tree-sitter CLI" {
+  run grep -n "install all --with-node" README.md
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
+@test "CONTRIBUTING's shellcheck command covers every file the CI lint job checks" {
+  local ci_files doc_cmd f missing=""
+  ci_files="$(grep -oP 'run: shellcheck \K.*' .github/workflows/ci.yml)"
+  doc_cmd="$(grep -oP '^\s+shellcheck \K.*' CONTRIBUTING.md)"
+  [ -n "$ci_files" ]
+  [ -n "$doc_cmd" ]
+  for f in $ci_files; do
+    [[ " $doc_cmd " == *" $f "* ]] || missing="$missing $f"
+  done
+  [ -z "$missing" ] || { echo "not in the shellcheck command of CONTRIBUTING:$missing"; return 1; }
+}
+
+@test "usage guide mentions every debug adapter package a profile declares" {
+  local pkgs pkg missing=""
+  pkgs="$(grep -ohP "dap_mason_packages *= *\{[^}]+\}" lua/profiles/*.lua | grep -oP "'\K[^']+")"
+  [ -n "$pkgs" ]
+  for pkg in $pkgs; do
+    grep -qF "$pkg" docs/usage.md || missing="$missing $pkg"
+  done
+  [ -z "$missing" ] || { echo "not in docs/usage.md:$missing"; return 1; }
+}
+
+@test "usage guide does not credit todo-comments or neotest with ]t / [t (Neovim binds them to :tnext / :tprevious; this config defines no such mapping)" {
+  run grep -nE '^\| `\]t`' docs/usage.md
+  [ "$status" -eq 1 ]
+  run bash -c "grep -n 'Navigate with' docs/usage.md | grep -F ']t'"
+  [ "$status" -eq 1 ]
+  run grep -rn "'\]t'\|'\[t'" lua/
+  [ "$status" -eq 1 ]
+}
+
+@test "usage guide documents the real todo-comments commands" {
+  run grep -n "TodoQuickFix" docs/usage.md
+  [ "$status" -eq 0 ]
+}
+
+@test "editing cheatsheet says the swap keys replace Neovim's argument-list motions" {
+  run grep -n -i "argument list\|arglist\|:next" docs/cheatsheets/editing.md
+  [ "$status" -eq 0 ]
+}
+
+@test "README documents logging and colors: --log-dir, --no-log, NVIM_CONFIG_LOG_DIR, the log location and NO_COLOR" {
+  run grep -n -- "--log-dir" README.md;            [ "$status" -eq 0 ]
+  run grep -n -- "--no-log" README.md;             [ "$status" -eq 0 ]
+  run grep -n "NVIM_CONFIG_LOG_DIR" README.md;     [ "$status" -eq 0 ]
+  run grep -n ".local/state/nvim-config" README.md; [ "$status" -eq 0 ]
+  run grep -n "NO_COLOR" README.md;                [ "$status" -eq 0 ]
+}

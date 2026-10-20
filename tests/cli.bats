@@ -1553,3 +1553,31 @@ LIST
   [ -L "${HOME}/.config/nvim" ]
   [ ! -e "${HOME}/.tmux.conf" ] && [ ! -e "${HOME}/.local/share/bash-completion" ] && [ ! -e "${HOME}/.zfunc" ]
 }
+
+# ---------------------------------------------------------------------------
+# Consistency between what install all does and what is said about it
+# ---------------------------------------------------------------------------
+
+@test "help, zsh and fish describe install all as also fetching the tree-sitter CLI (the code runs update tree-sitter at the end)" {
+  run bash -c './bin/nvim-config --help | grep "all    — nvim, deps"'
+  [[ "$output" == *"tree-sitter"* ]]
+  run bash -c "./bin/nvim-config --show-completion zsh | grep \"'all:Install nvim\""
+  [[ "$output" == *"tree-sitter"* ]]
+  run bash -c "./bin/nvim-config --show-completion fish | grep \"seen_subcommand_from install' -a all\""
+  [[ "$output" == *"tree-sitter"* ]]
+}
+
+@test "every array the zsh completion assigns is declared local (otherwise it leaks into the user's shell)" {
+  local script declared assigned missing="" name
+  script="$(./bin/nvim-config --show-completion zsh)"
+  declared="$(printf '%s\n' "$script" | grep 'local -a' | sed 's/.*local -a //' | tr '\n' ' ')"
+  for name in $(printf '%s\n' "$script" | grep -oP '^  \K[a-z_]+(?==\()' | sort -u); do
+    [[ " $declared " == *" $name "* ]] || missing="$missing $name"
+  done
+  [ -z "$missing" ] || { echo "assigned but not local:$missing"; return 1; }
+}
+
+@test "the zsh completion assigns its commands array once (an earlier assignment was dead code)" {
+  run bash -c "./bin/nvim-config --show-completion zsh | grep -c '^  commands=('"
+  [ "$output" = "1" ]
+}
