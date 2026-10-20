@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
+- CI no longer runs twice on the same commit: `push` is limited to `main`, and a topic branch is
+  tested through its pull request (on the result of merging it into `main`). Before, the branch
+  prefixes under `push` plus `pull_request` started two identical runs a few seconds apart. `main`
+  is still tested after every merge, `workflow_dispatch` stays, and the `Lint` / `Test` job names
+  required by the `main` ruleset are unchanged. A branch pushed without a pull request is no longer
+  tested. New `tests/ci.bats` guards the triggers and those job names
 - `tests/run` clears `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and `XDG_CACHE_HOME`
   before running bats, so a local run behaves like CI. On a developer machine they usually point at
   the installed config (`~/.config/nvim` is a symlink to this repository), which let a test pass

@@ -411,6 +411,8 @@
 Order agreed with the maintainer; each item is its own branch and PR.
 
 - [x] `tests/run` clears `XDG_*` so a local run behaves like CI
+- [x] CI runs once per commit: `push` limited to `main`, topic branches tested through their pull
+  request (it used to run for the push and again for the PR); `tests/ci.bats` guards the triggers
 - [ ] CI: verify the Neovim tarball checksum before extracting it with `sudo`, pin bats-core by commit
   SHA instead of a tag (`rules/ci.md`: verify downloaded binaries, pin by SHA)
 - [ ] `:Cheat` extension points: a configurable user directory, and a `cheatsheets` field a profile

@@ -1,17 +1,13 @@
 name: CI
 
+# One run per commit: a topic branch is tested through its pull request (on the
+# result of merging it into main), and main is tested after each merge. Listing
+# the branch prefixes under `push` as well ran CI twice on the same commit, once
+# for the push and once for the pull request. Tags never trigger CI.
 on:
   push:
     branches:
       - main
-      - develop
-      - 'feat/**'
-      - 'fix/**'
-      - 'chore/**'
-      - 'docs/**'
-      - 'test/**'
-      - 'release/**'
-      - 'hotfix/**'
   pull_request:
     branches:
       - main
