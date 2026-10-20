@@ -152,3 +152,8 @@ CURLEOF
   done
   [ -z "$missing" ] || { echo "setup() does not unset XDG_* in:$missing"; return 1; }
 }
+
+@test "cli.bats clears NVM_DIR in setup (the CLI honours an exported NVM_DIR on purpose, and GitHub's runners and many developer shells export one)" {
+  run bash -c "awk '/^setup\\(\\) \\{/,/^}/' tests/cli.bats | grep -q 'unset NVM_DIR'"
+  [ "$status" -eq 0 ]
+}
