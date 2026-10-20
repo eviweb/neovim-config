@@ -3,6 +3,7 @@
 setup() {
   export HOME="$BATS_TEST_TMPDIR/home"
   mkdir -p "$HOME"
+  unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
 }
 
 @test "plugin declarations do not use the legacy kyazdani42 namespace" {

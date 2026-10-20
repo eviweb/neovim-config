@@ -3,6 +3,7 @@
 setup() {
   export HOME="$BATS_TEST_TMPDIR/home"
   mkdir -p "$HOME"
+  unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
 }
 
 @test "readme has a getting started section" {
@@ -365,6 +366,11 @@ _profile_names() {
   run grep -n -- "--log-dir" README.md;            [ "$status" -eq 0 ]
   run grep -n -- "--no-log" README.md;             [ "$status" -eq 0 ]
   run grep -n "NVIM_CONFIG_LOG_DIR" README.md;     [ "$status" -eq 0 ]
-  run grep -n ".local/state/nvim-config" README.md; [ "$status" -eq 0 ]
+  run grep -nF 'XDG_STATE_HOME:-~/.local/state}/nvim-config/logs' README.md; [ "$status" -eq 0 ]
   run grep -n "NO_COLOR" README.md;                [ "$status" -eq 0 ]
+}
+
+@test "README says the daily log is appended to and never claims it is overwritten" {
+  run grep -n "appended" README.md;     [ "$status" -eq 0 ]
+  run grep -n "overwritten" README.md;  [ "$status" -ne 0 ]
 }

@@ -7,6 +7,7 @@
 setup() {
   export HOME="$BATS_TEST_TMPDIR/home"
   mkdir -p "$HOME"
+  unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
   export ROOT="$BATS_TEST_TMPDIR/root"
   mkdir -p "$ROOT/docs/cheatsheets" "$ROOT/docs/profile-cheatsheets/demo"
   : > "$ROOT/docs/cheatsheets/builtin.md"

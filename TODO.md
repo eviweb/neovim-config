@@ -425,12 +425,17 @@ Order agreed with the maintainer; each item is its own branch and PR.
 - [x] Yazi: yazi.nvim loaded only when the `yazi` binary is present, `<Leader>-`, listed by `doctor`;
   no automatic install. A real yazi/neo-tree switch (like `.nvim-ui`) would come later, see Deferred
 - [x] Docs / code consistency audit before 0.10.0: wrong `]t` / `[t` claims, `install all` description,
-  debugpy, shellcheck command, logging docs, zsh completion locals; findings that are behaviour rather than docs
-  (log directory ignores `XDG_STATE_HOME`, the daily log is overwritten at each run) recorded under Deferred
+  debugpy, shellcheck command, logging docs, zsh completion locals; the findings that are behaviour rather than
+  docs (CLI paths ignoring `XDG_*`, daily log overwritten at each run) are the next item
 - [x] `]t` / `[t` navigation between TODO comments (todo-comments), replacing the unused tag-stack motions
 - [x] Dry-run wording: "Removed" / "Linked" become "would remove" / "would link"; found on the way that
   `--install-completion --dry-run` really wrote the file (fixed), and a sweep test now guards every mutating
   command
+- [x] XDG compliance of the CLI's own paths (log directory, config link, completions, fish rc file, nvm) and
+  the zsh completion in `${XDG_DATA_HOME:-~/.local/share}/zsh/completions` (the directory the maintainer's
+  dotfiles put on `fpath`), with a warning about a leftover `~/.zfunc` copy
+- [x] The daily log is appended to, with a file-only `Run:` header line per run
+- [x] `install tmux` refuses to write through a symlinked `~/.tmux.conf` (dotfiles-managed) and says which line to add
 
 ---
 
@@ -520,15 +525,6 @@ Order agreed with the maintainer; each item is its own branch and PR.
   current manual registry approach); evaluate if the current approach proves insufficient
 
 ### CLI
-
-- [ ] XDG compliance of the CLI's own paths (found by the 0.10.0 audit; `compatibility.md` asks for it): the log
-  directory is `$HOME/.local/state/nvim-config/logs` and ignores `XDG_STATE_HOME`; completion files go under
-  `$HOME/.local/share`, `$HOME/.zfunc` and `$HOME/.config/fish` and the config link to `$HOME/.config/nvim`,
-  ignoring `XDG_DATA_HOME` / `XDG_CONFIG_HOME`. Tests assume `$HOME`-based paths, so changing them is its own PR
-
-- [ ] The daily log file is truncated at the start of each run (`: > "$LOG_FILE"` in `setup_logging`), so
-  `nvim-config-YYYY-MM-DD.log` keeps only the last run of the day. Appending would keep a day's history
-  (`quality.md`, auditability: "log commands and their outcomes"); a behaviour change, hence not folded into a docs fix
 
 - [ ] `uninstall` command is missing counterparts for `install tmux|claude|codex|gemini` —
   scoped out of the 0.8.0 uninstall work (`config|nvim|mise|deps|all` only, matching the
