@@ -38,6 +38,15 @@ that's fine.
    ```
 6. Update `README.md` and `CHANGELOG.md` (`[Unreleased]` section) alongside
    any user-facing change, in the same PR.
+7. Open the PR, then follow its checks. CI runs only on pull requests (and on `main` after a
+   merge), so no check exists for the first moments after the PR is created; wait a few seconds
+   before watching them:
+   ```bash
+   gh pr create --base main --title "..." --body-file ...
+   sleep 15
+   gh pr checks <number> --watch
+   ```
+   `Lint` and `Test` are required by the `main` ruleset; the `Startup` jobs are not.
 
 ## Updating the pinned Neovim
 

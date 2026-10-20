@@ -1446,3 +1446,110 @@ FAKEEOF
   [ "$status" -eq 0 ]
   [ "${#lines[@]}" -eq 2 ]
 }
+
+# ---------------------------------------------------------------------------
+# --dry-run must not claim it did something, nor do it
+# ---------------------------------------------------------------------------
+
+@test "install config --dry-run says it would link, and links nothing" {
+  run ./bin/nvim-config --no-log --dry-run install config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Would link ${HOME}/.config/nvim"* ]]
+  [[ "$output" != *"] Linked "* ]]
+  [ ! -e "${HOME}/.config/nvim" ]
+}
+
+@test "install config really links and still says Linked" {
+  run ./bin/nvim-config --no-log install config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Linked ${HOME}/.config/nvim"* ]]
+  [ -L "${HOME}/.config/nvim" ]
+}
+
+@test "uninstall config --dry-run says it would remove the link, and keeps it" {
+  local project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}/.config"; ln -s "${project_dir}" "${HOME}/.config/nvim"
+  run ./bin/nvim-config --no-log --dry-run uninstall config
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Would remove ${HOME}/.config/nvim"* ]]
+  [[ "$output" != *"] Removed "* ]]
+  [ -L "${HOME}/.config/nvim" ]
+}
+
+@test "uninstall config really removes the link and still says Removed" {
+  local project_dir
+  project_dir="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  mkdir -p "${HOME}/.config"; ln -s "${project_dir}" "${HOME}/.config/nvim"
+  run ./bin/nvim-config --no-log uninstall config
+  [[ "$output" == *"] Removed ${HOME}/.config/nvim"* ]]
+  [ ! -e "${HOME}/.config/nvim" ]
+}
+
+@test "uninstall mise --dry-run says it would remove the binary instead of claiming it did" {
+  local fake="$BATS_TEST_TMPDIR/fake_mise_bin"
+  mkdir -p "$fake"; printf '#!/usr/bin/env bash\nexit 0\n' > "$fake/mise"; chmod +x "$fake/mise"
+  SHELL=/bin/bash PATH="$fake:$PATH" run ./bin/nvim-config --no-log --dry-run uninstall mise
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Would remove the mise binary"* ]]
+  [[ "$output" != *"mise binary removed"* ]]
+  [ -x "$fake/mise" ]
+}
+
+@test "--install-completion --dry-run writes nothing and says it would install" {
+  local sh
+  for sh in bash zsh fish; do
+    run ./bin/nvim-config --no-log --dry-run --install-completion "$sh"
+    [ "$status" -eq 0 ]
+    [[ "$output" == *"Would install ${sh} completion to ${HOME}"* ]]
+    [[ "$output" != *"] Installed "* ]]
+  done
+  run find "$HOME" -type f
+  [ -z "$output" ]
+  run find "$HOME" -mindepth 1 -type d
+  [ -z "$output" ]
+}
+
+@test "--install-completion without --dry-run still writes the file and says Installed" {
+  run ./bin/nvim-config --no-log --install-completion bash
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Installed bash completion to ${HOME}"* ]]
+  [ -s "${HOME}/.local/share/bash-completion/completions/nvim-config" ]
+}
+
+@test "no mutating command claims a finished action under --dry-run, and none changes anything (sweep)" {
+  # A throwaway copy of the project: if a dry-run ever writes, it writes there and
+  # not into this repository (ui set, theme set and profile create write next to bin/).
+  local proj="$BATS_TEST_TMPDIR/proj" fake="$BATS_TEST_TMPDIR/fake_mise_bin" cmd claimed=""
+  mkdir -p "$proj/bin" "$proj/lua/profiles" "$fake" "${HOME}/.config"
+  cp bin/nvim-config "$proj/bin/"; cp VERSION "$proj/"; cp lua/profiles/*.lua "$proj/lua/profiles/"
+  printf '#!/usr/bin/env bash\nexit 0\n' > "$fake/mise"; chmod +x "$fake/mise"
+  : > "$proj/.nvim-ui"; printf 'nordfox\n' > "$proj/.nvim-theme"
+  ln -s "$proj" "${HOME}/.config/nvim"
+  local before; before="$(cd "$proj" && find . -type f | sort | xargs md5sum | md5sum)"
+  while IFS= read -r cmd; do
+    run env SHELL=/bin/bash PATH="$fake:$PATH" "$proj/bin/nvim-config" --no-log --dry-run $cmd
+    if printf '%s\n' "$output" | grep -qE '\[INFO\] (Removed|Linked|Installed|Added|Created|Wrote|mise binary removed) '; then
+      claimed="${claimed} [${cmd}]"
+    fi
+  done <<'LIST'
+install config
+install tmux
+uninstall config
+uninstall mise
+ui set modern
+ui unset
+theme set nordfox
+theme unset
+profile set web
+profile unset
+profile create zz-dry-run-sweep
+--install-completion bash
+--install-completion zsh
+--install-completion fish
+LIST
+  [ -z "$claimed" ] || { echo "past-tense claim under --dry-run:${claimed}"; return 1; }
+  [ "$(cd "$proj" && find . -type f | sort | xargs md5sum | md5sum)" = "$before" ]
+  [ -L "${HOME}/.config/nvim" ]
+  [ ! -e "${HOME}/.tmux.conf" ] && [ ! -e "${HOME}/.local/share/bash-completion" ] && [ ! -e "${HOME}/.zfunc" ]
+}
