@@ -19,6 +19,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the installed config (`~/.config/nvim` is a symlink to this repository), which let a test pass
   locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
 
+### Fixed
+- **The documented minimum Neovim version was wrong.** The 0.9.0 release notes and the README said
+  0.10+, a figure derived only from native commenting. The LSP setup uses `vim.lsp.config` and
+  `vim.lsp.enable`, which arrived in 0.11, so on 0.10 the configuration fails at startup (`attempt to
+  call field 'config' (a nil value)`). Checked by starting the real config, with its plugins, on
+  0.10.4 (fails), 0.11.0, 0.11.7 and 0.12.0 (clean start). The README now says 0.11+ with 0.12
+  recommended: the `main` branch of nvim-treesitter officially requires 0.12. The test suite itself
+  passes on 0.10.4, so it cannot catch this kind of mismatch; a test now ties the stated minimum to
+  the APIs `lua/` uses
+
 ## [0.9.0] - 2026-10-19
 
 ### Added

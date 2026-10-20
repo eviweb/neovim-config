@@ -8,7 +8,7 @@ Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
 - **OS**: Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
 - **Shell**: Bash 5+
-- **Neovim**: 0.10+
+- **Neovim**: 0.11+ (0.12 recommended)
 
 ## Dependencies
 
@@ -148,7 +148,11 @@ restrictions):
 sudo snap install nvim --classic
 ```
 
-Minimum required version: **0.10+** (native `gc`/`gcc` commenting; see `docs/cheatsheets/editing.md`). Check with `nvim --version`.
+Minimum required version: **0.11+**. The LSP setup uses `vim.lsp.config` / `vim.lsp.enable`, which
+do not exist in 0.10 — there the configuration fails at startup. Verified by starting it, with its
+plugins, on 0.10.4 (fails), 0.11.0, 0.11.7 and 0.12.0 (clean start, parsers and highlighting work).
+0.12 is recommended: the `main` branch of nvim-treesitter, which this config uses, officially
+requires it, so 0.11 works but is not a combination upstream supports. Check with `nvim --version`.
 
 Alternatively, via apt (version depends on the Ubuntu release):
 
