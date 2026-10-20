@@ -173,11 +173,18 @@ setup() {
   [ "$status" -eq 0 ]
 }
 
-@test "readme states Neovim 0.10+ as the minimum (native gc/gcc commenting needs it)" {
-  run grep -n "Neovim\*\*: 0.10+\|Minimum required version: \*\*0.10+\*\*" README.md
+@test "readme states Neovim 0.11+ as the minimum (vim.lsp.config, used by the LSP setup, does not exist in 0.10)" {
+  run grep -n "Neovim\*\*: 0.11+\|Minimum required version: \*\*0.11+\*\*" README.md
   [ "$status" -eq 0 ]
-  run grep -n "0\.9+" README.md
+  run grep -n "0\.9+\|0\.10+" README.md
   [ "$status" -eq 1 ]
+}
+
+@test "the neovim minimum stated in the readme is not lower than what lua/ needs (vim.lsp.config and vim.lsp.enable arrived in 0.11)" {
+  run grep -rln "vim\.lsp\.config\|vim\.lsp\.enable" lua/
+  [ "$status" -eq 0 ]
+  run grep -n "Neovim\*\*: 0\.1[1-9]+" README.md
+  [ "$status" -eq 0 ]
 }
 
 @test "editing cheatsheet documents native commenting, including count and motions" {

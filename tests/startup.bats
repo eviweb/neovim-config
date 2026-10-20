@@ -124,3 +124,60 @@ _is_snap_nvim_restricted() {
     +qa
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# Minimum Neovim version guard
+# ---------------------------------------------------------------------------
+
+# Runs init.lua as if the running Neovim were version $1 (major.minor.patch).
+# The repo is put on the runtimepath explicitly: init.lua finds its modules
+# through it, i.e. through ~/.config/nvim, which does not exist on CI.
+_init_as_version() {
+  local major minor patch
+  IFS=. read -r major minor patch <<< "$1"
+  nvim --headless --noplugin -u NORC --cmd "set rtp+=$(pwd)" \
+    --cmd "lua vim.version = function() return { major = ${major}, minor = ${minor}, patch = ${patch} } end" \
+    +"luafile init.lua" +"qa!" 2>&1
+}
+
+@test "init.lua checks the minimum Neovim version before loading anything else" {
+  run grep -n -m1 "^require\|^local .*require" init.lua
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"minimum_version"* ]]
+}
+
+@test "on Neovim 0.10.4 the config stops with a clear message instead of a raw Lua error" {
+  run _init_as_version 0.10.4
+  [[ "$output" == *"requires Neovim 0.11"* ]]
+  [[ "$output" == *"0.10.4"* ]]
+  [[ "$output" != *"attempt to"* ]]
+  [[ "$output" != *"stack traceback"* ]]
+}
+
+@test "on Neovim 0.10.4 nothing after the guard runs (no options, no plugins bootstrap)" {
+  run nvim --headless --noplugin -u NORC --cmd "set rtp+=$(pwd)" \
+    --cmd "lua vim.version = function() return { major = 0, minor = 10, patch = 4 } end" \
+    +"luafile init.lua" +"lua io.stdout:write('LEADER=[' .. tostring(vim.g.mapleader) .. ']')" +"qa!"
+  [[ "$output" == *"LEADER=[nil]"* ]]
+}
+
+@test "on Neovim 0.11.0 the guard reports the version as satisfied" {
+  run nvim --headless --noplugin -u NORC --cmd "set rtp+=$(pwd)" \
+    --cmd "lua vim.version = function() return { major = 0, minor = 11, patch = 0 } end" \
+    +"luafile lua/options.lua" +"lua local ok = require('minimum_version').satisfied(); io.stdout:write('SATISFIED=' .. tostring(ok))" +"qa!"
+  [[ "$output" == *"SATISFIED=true"* ]]
+}
+
+@test "the guard accepts later minor versions and a later major version" {
+  run nvim --headless --noplugin -u NORC --cmd "set rtp+=$(pwd)" \
+    +"lua local m = require('minimum_version'); local function t(v) vim.version = function() return v end; return tostring(m.satisfied()) end; io.stdout:write(t({major=0,minor=12,patch=5}) .. ' ' .. t({major=1,minor=0,patch=0}) .. ' ' .. t({major=0,minor=11,patch=0}) .. ' ' .. t({major=0,minor=10,patch=9}))" +"qa!"
+  [ "$output" = "true true true false" ]
+}
+
+@test "the minimum enforced by the guard matches the one the readme states" {
+  local guard readme
+  guard="$(grep -oP 'minor *= *\K[0-9]+' lua/minimum_version.lua | head -1)"
+  readme="$(grep -oP 'Neovim\*\*: 0\.\K[0-9]+' README.md | head -1)"
+  [ -n "$guard" ]
+  [ "$guard" = "$readme" ]
+}

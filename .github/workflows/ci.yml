@@ -79,7 +79,7 @@ jobs:
           persist-credentials: false
 
       - name: shellcheck
-        run: shellcheck bin/nvim-config
+        run: shellcheck bin/nvim-config scripts/ci-install-neovim tests/full-startup
 
   test:
     name: Test
@@ -92,18 +92,47 @@ jobs:
         with:
           persist-credentials: false
 
+      # Pinned by commit: v1.9.0 is an annotated tag and a tag can be moved.
       - name: Install bats-core
         run: |
           set -euo pipefail
-          git clone --branch v1.9.0 --depth 1 https://github.com/bats-core/bats-core.git /tmp/bats-core
+          git init -q /tmp/bats-core
+          git -C /tmp/bats-core fetch --depth 1 https://github.com/bats-core/bats-core.git 6636e2c2ef5ffe361535cb45fc61682c5ef46b71
+          git -C /tmp/bats-core checkout -q FETCH_HEAD
           sudo /tmp/bats-core/install.sh /usr/local
 
-      - name: Install Neovim stable
-        run: |
-          set -euo pipefail
-          curl -sLo /tmp/nvim.tar.gz --fail \
-            https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz
-          sudo tar -xzf /tmp/nvim.tar.gz -C /usr/local --strip-components=1
+      # Version and SHA-256 are pinned; see "Updating the pinned Neovim" in CONTRIBUTING.md.
+      - name: Install Neovim v0.12.5
+        run: scripts/ci-install-neovim v0.12.5 bce0f56eda1f1b1db6eee8f4133d7a38813ea07933837dd1777411ca384c6875
 
       - name: Run tests
         run: tests/run
+
+  # Starts the real configuration with all its plugins, on the oldest supported
+  # Neovim and on the one used by the Test job. Not part of the required checks
+  # of the main ruleset (Lint, Test): it clones about 200 MB of plugins, so a
+  # network incident must not block a merge.
+  startup:
+    name: Startup ${{ matrix.nvim.version }}
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs-only != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        nvim:
+          - version: v0.11.0
+            sha256: fe0a5bc79e64c5e4d9f844cd96157ebd3919ef1343b329e9ebc3f455924cc7d6
+          - version: v0.12.5
+            sha256: bce0f56eda1f1b1db6eee8f4133d7a38813ea07933837dd1777411ca384c6875
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+
+      - name: Install Neovim ${{ matrix.nvim.version }}
+        run: scripts/ci-install-neovim "${{ matrix.nvim.version }}" "${{ matrix.nvim.sha256 }}"
+
+      - name: Start the configuration
+        run: tests/full-startup

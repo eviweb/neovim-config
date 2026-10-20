@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`tests/full-startup`**: starts the real configuration with all its plugins (cloned at the commits pinned
+  in `lazy-lock.json`, in a throwaway directory) and fails on any error, or if the config was not actually
+  read. Not part of `tests/run` (network, about 200 MB). Checked to pass on real 0.11.0 and 0.12.5 and to
+  fail on 0.10.4 and on an injected error in a plugin config. CI runs it as the `Startup` job on the oldest
+  supported Neovim (0.11.0) and on 0.12.5; it is deliberately not a required check
+- `scripts/ci-install-neovim`: installs an official Neovim release for CI after verifying its SHA-256, and
+  refuses moving refs such as `stable` and anything whose checksum differs
+- Neovim version guard: `init.lua` now starts with `lua/minimum_version.lua` and, on a Neovim older than
+  0.11, prints `This configuration requires Neovim 0.11 or newer (found 0.10.4)` and stops before loading
+  anything, instead of failing with a Lua error from the LSP setup. Verified on real 0.10.4 (message,
+  nothing loaded) and 0.11.0 (normal start). The minimum lives in one place and a test checks it agrees
+  with the README
+
 ### Changed
+- CI no longer installs Neovim `stable` with an unverified `sudo tar`: the `Test` job uses v0.12.5 with its
+  pinned SHA-256, and bats-core is fetched by commit (`6636e2c`, v1.9.0) rather than by a tag that can be
+  moved. The trade-off is that CI no longer follows new stable releases by itself: moving the pin is a
+  deliberate pull request (procedure in CONTRIBUTING.md). `shellcheck` in the `Lint` job also covers the new
+  scripts. `tests/ci.bats` guards all of it, including that the oldest Startup version equals the minimum
+  enforced by `init.lua`
 - CI no longer runs twice on the same commit: `push` is limited to `main`, and a topic branch is
   tested through its pull request (on the result of merging it into `main`). Before, the branch
   prefixes under `push` plus `pull_request` started two identical runs a few seconds apart. `main`
@@ -18,6 +38,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   before running bats, so a local run behaves like CI. On a developer machine they usually point at
   the installed config (`~/.config/nvim` is a symlink to this repository), which let a test pass
   locally and fail on a clean runner — what broke CI during 0.9.0. A test checks the runner does it
+
+### Fixed
+- **The documented minimum Neovim version was wrong.** The 0.9.0 release notes and the README said
+  0.10+, a figure derived only from native commenting. The LSP setup uses `vim.lsp.config` and
+  `vim.lsp.enable`, which arrived in 0.11, so on 0.10 the configuration fails at startup (`attempt to
+  call field 'config' (a nil value)`). Checked by starting the real config, with its plugins, on
+  0.10.4 (fails), 0.11.0, 0.11.7 and 0.12.0 (clean start). The README now says 0.11+ with 0.12
+  recommended: the `main` branch of nvim-treesitter officially requires 0.12. The test suite itself
+  passes on 0.10.4, so it cannot catch this kind of mismatch; a test now ties the stated minimum to
+  the APIs `lua/` uses
 
 ## [0.9.0] - 2026-10-19
 

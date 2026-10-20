@@ -8,7 +8,7 @@ Personal Neovim configuration with a small project CLI for bootstrap tasks.
 
 - **OS**: Ubuntu 22.04 LTS, Ubuntu 24.04 LTS
 - **Shell**: Bash 5+
-- **Neovim**: 0.10+
+- **Neovim**: 0.11+ (0.12 recommended)
 
 ## Dependencies
 
@@ -148,7 +148,13 @@ restrictions):
 sudo snap install nvim --classic
 ```
 
-Minimum required version: **0.10+** (native `gc`/`gcc` commenting; see `docs/cheatsheets/editing.md`). Check with `nvim --version`.
+Minimum required version: **0.11+**. The LSP setup uses `vim.lsp.config` / `vim.lsp.enable`, which
+do not exist in 0.10 — there the configuration fails at startup. Verified by starting it, with its
+plugins, on 0.10.4 (fails), 0.11.0, 0.11.7 and 0.12.0 (clean start, parsers and highlighting work).
+0.12 is recommended: the `main` branch of nvim-treesitter, which this config uses, officially
+requires it, so 0.11 works but is not a combination upstream supports. On an older Neovim the configuration now stops at once with a one-line message
+(`This configuration requires Neovim 0.11 or newer (found 0.10.4)`) instead of a Lua error.
+Check with `nvim --version`.
 
 Alternatively, via apt (version depends on the Ubuntu release):
 
@@ -564,6 +570,7 @@ Domain-specific bats files contain grep-based tests that verify structural invar
 | `tests/ui.bats` | UI plugins: telescope, neo-tree, lualine, trouble, which-key, bufferline, variant system |
 | `tests/docs.bats` | README and keymaps cheatsheet coverage |
 | `tests/profiles.bats` | Profile system, CLI profile commands, NvimProfile switcher |
+| `tests/ci.bats` | CI workflow guards (triggers, pinned and verified downloads) |
 
 ### Structural integrity tests
 
@@ -587,6 +594,21 @@ To force-enable or force-disable regardless of environment:
 NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run   # force enable
 NVIM_HEADLESS_TESTS_SKIP=1 bash tests/run   # force disable
 ```
+
+### Full startup check
+
+`tests/run` is offline and takes under a minute. `tests/full-startup` is the one test that starts the
+real configuration with every plugin: it clones them at the commits pinned in `lazy-lock.json` (about
+200 MB) into a throwaway directory, then fails if Neovim reports an error or if the config was not
+actually read. It never touches your own `~/.config/nvim` or `~/.local/share/nvim`.
+
+```bash
+tests/full-startup                       # uses nvim from PATH
+NVIM=/path/to/nvim tests/full-startup    # a specific version
+```
+
+CI runs it on the oldest supported Neovim and on the one used by the `Test` job (job `Startup`, not a
+required check, since it depends on the network).
 
 ## Environment Limitations
 
