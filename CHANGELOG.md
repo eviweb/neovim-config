@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Language servers for the `shell` and `devops` profiles**, which had none: `bash-language-server` (`bashls`)
+  for `shell`, and `yaml-language-server` (`yamlls`) and `dockerfile-language-server` (`dockerls`) for
+  `devops`. All three are npm packages, so they are requested only when `npm` is on `PATH`; without it the
+  profiles are exactly what they were (shellcheck and shfmt; hadolint and actionlint). Checked with the real
+  servers and this repository's `lsp.lua`:
+  - `bashls` runs with its shellcheck integration off (`bashIde.shellcheckPath = ''`). With it on, the server
+    reports the same `SC2086` that nvim-lint already reports; with it off it attaches and adds only completion,
+    hover, definitions and symbols
+  - `yamlls` takes its schemas from SchemaStore.nvim, not from its own catalogue. It attaches to `yaml` and
+    `yaml.docker-compose` buffers but not to workflow files (`yaml.github`), which stay with actionlint
+  - `dockerls` leaves to hadolint the three rules both check (several `CMD`, `ENTRYPOINT` or `HEALTHCHECK`) and
+    keeps its own, such as the case of instructions. Every rule is named in the settings because the server
+    treats one it is not told about as off: a partial block silenced it completely
 - `scripts/extract-changelog.sh <X.Y.Z> [changelog-file]` prints the CHANGELOG section of a released version
   without its heading, the starting point of the release notes (`gh release create 0.10.0 --notes-file
   <(scripts/extract-changelog.sh 0.10.0)`). It stops at the next version or at the closing block of link
@@ -22,6 +35,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cannot escape it
 
 ### Changed
+- **One mechanism decides which language servers are requested**, `lua/lsp_requirements.lua`: a server whose Mason
+  package is installed by npm is asked for only when `npm` is on `PATH`. It replaces the check that existed for
+  `jsonls` alone and now covers `ts_ls`, `vue_ls`, `svelte` (web), `intelephense` (php) and `pyright` (python) too,
+  which until now made Mason fail on every startup on a machine without Node.js. Switching a profile on with
+  `:NvimProfile` enables only the servers that can be installed and says which ones it left out. A test compares
+  the list with the Mason registry when it has been downloaded: every listed server must be an npm package and
+  every npm server of `lsp.lua` and of the profiles must be listed
 - `tests/run` hands bats a minimal environment (`env -i`) instead of the caller's. Only `PATH`, `HOME`, `TERM`,
   `TMPDIR` (when set) and the documented `NVIM_HEADLESS_TESTS_SKIP` (when set) get through, and the locale is
   `C.UTF-8`, as on a CI runner. Before, it only unset the four `XDG_*` variables, so anything else your shell

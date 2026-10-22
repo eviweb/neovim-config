@@ -44,6 +44,13 @@ clear error on startup until `install deps` (or `sudo apt install git`) is run.
 Required by Mason-managed LSP servers (TypeScript, ESLint, and others).
 **Not installed by `install deps` by default.**
 
+Without `npm` on `PATH`, Neovim does not ask Mason for the language servers that are npm
+packages (`jsonls`, `ts_ls`, `vue_ls`, `svelte`, `intelephense`, `pyright`, `bashls`,
+`yamlls`, `dockerls`) instead of failing to install them at every startup. It says nothing
+at startup; switching a profile on with `:NvimProfile` lists the servers it left out. The
+other servers (`lua_ls`, `rust_analyzer`) and the linters and formatters are not affected.
+The list lives in `lua/lsp_requirements.lua`.
+
 - Minimum version: **Node 18+**
 - Recommended: manage Node via [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) rather than via apt — the apt package is often outdated and may conflict with an existing Node setup.
 
@@ -226,7 +233,9 @@ needs it on `PATH` to build parsers; without it, parser installs fail with
   languages — `lua_ls` (Lua, standalone binary) is pre-configured and
   installed automatically; `jsonls` (JSON) is too, but only if `npm` is
   present, since `json-lsp` is an npm package (see [Node.js](#nodejs) —
-  Node.js is opt-in, run `install deps --with-node` first if you need it)
+  Node.js is opt-in, run `install deps --with-node` first if you need it).
+  The same goes for every language server that is an npm package, whichever
+  profile asks for it
 - Restart Neovim after Mason finishes
 
 ## Updating
@@ -331,8 +340,8 @@ codecompanion, codeium, mcphub) when you pin it with `profile set ai`.
 | `laravel` | via `php` | `blade` | via `php` |
 | `rust` | `rust_analyzer` | `rust`, `toml` | `codelldb` |
 | `python` | `pyright` | `python`, `toml` | `debugpy` |
-| `shell` | — (see below) | — (`bash` is global) | — |
-| `devops` | — (see below) | `dockerfile` | — |
+| `shell` | `bashls` (needs npm) | — (`bash` is global) | — |
+| `devops` | `yamlls`, `dockerls` (need npm) | `dockerfile` | — |
 | `termux` | `lua_ls` only | — | none (no DAP, no OAuth plugins) |
 | `ai` | — | — | — |
 
@@ -358,9 +367,13 @@ It applies to every buffer Neovim calls `sh`: `.sh`, `.bash`, `.bats` and script
 shell shebang. **shfmt runs on demand (`<Space>f`), not on save**, unlike every other
 formatter here: its defaults (tabs, its own redirect and alignment style) rewrite most of
 an existing script the first time it is saved — about half the lines of this repository's
-own `bin/nvim-config`. It reads `.editorconfig` when one covers the file. There is no
-language server on purpose (`bash-language-server` is an npm package and would duplicate
-shellcheck's diagnostics).
+own `bin/nvim-config`. It reads `.editorconfig` when one covers the file.
+
+With npm available it also brings `bash-language-server` (`bashls`): completion, hover, go
+to definition and symbols. The server runs shellcheck itself, which would show every
+diagnostic twice next to nvim-lint's, so that part of it is switched off
+(`bashIde.shellcheckPath = ''` in `lua/config/lsp.lua`). Without npm you have shellcheck and
+shfmt, as before.
 
 ### The `devops` profile
 
@@ -375,8 +388,15 @@ but not on your shell's, so `nvim-config doctor` looks there too.
 actionlint reports errors on any YAML that is not a workflow, so workflow files
 (`.github/workflows/*.yml|yaml`) get the compound filetype `yaml.github` (set in
 `lua/options.lua`). Neovim plugins split a compound filetype on the dot: `yaml` keeps its
-own linters and formatters and only `github` adds actionlint. There is no language server
-on purpose (`yaml-language-server` and `dockerfile-language-server` are npm packages).
+own linters and formatters and only `github` adds actionlint.
+
+With npm available it also brings two language servers. `yaml-language-server` (`yamlls`)
+validates YAML against the schemas of SchemaStore.nvim (Compose files and others); it does
+not attach to workflow files, whose filetype is `yaml.github`, so they stay with actionlint.
+`dockerfile-language-server` (`dockerls`) completes and checks Dockerfiles; the three rules
+hadolint also checks (several `CMD`, `ENTRYPOINT` or `HEALTHCHECK`) are left to hadolint, and
+it keeps its own, such as the case of instructions. Without npm you have hadolint and
+actionlint, as before.
 
 ### Manual override
 

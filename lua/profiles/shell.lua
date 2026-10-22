@@ -12,15 +12,19 @@
 --
 -- shfmt runs on demand (<Space>f), not on save: see lua/config/conform.lua.
 --
--- No language server on purpose: bash-language-server is an npm package (Node
--- is optional in this config) and runs shellcheck itself, which would double
--- every diagnostic. Tracked as deferred in TODO.md.
+-- Language server: bash-language-server (`bashls`), for completion, hover, go
+-- to definition and symbols. It is an npm package (Node is optional in this
+-- config), so it is requested only when npm is available (see
+-- lua/lsp_requirements.lua). It runs shellcheck itself, which would double
+-- every diagnostic from nvim-lint, so that integration is switched off in
+-- lua/config/lsp.lua. Without npm the profile is what it was before the server
+-- existed: shellcheck and shfmt.
 
 return {
     name = 'shell',
     extends = {},
 
-    lsp_servers = {},
+    lsp_servers = { 'bashls' },
 
     plugins = {},
 

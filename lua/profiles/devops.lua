@@ -13,15 +13,20 @@
 -- filetype on the dot, so `yaml` keeps its own linters and formatters and the
 -- `github` key below only adds actionlint.
 --
--- No language server on purpose: yaml-language-server and
--- dockerfile-language-server are npm packages (Node is optional in this
--- config), the same reasoning as the shell profile.
+-- Language servers: yaml-language-server (`yamlls`, schemas from SchemaStore.nvim)
+-- and dockerfile-language-server (`dockerls`). Both are npm packages (Node is
+-- optional in this config), so they are requested only when npm is available
+-- (see lua/lsp_requirements.lua); without it the profile is hadolint and
+-- actionlint alone. yamlls only attaches to the filetypes lspconfig gives it
+-- (`yaml`, `yaml.docker-compose`, `yaml.gitlab`, `yaml.helm-values`), not to
+-- `yaml.github`: workflow files stay with actionlint. dockerls leaves to
+-- hadolint the three rules both check (see lua/config/lsp.lua).
 
 return {
     name = 'devops',
     extends = {},
 
-    lsp_servers = {},
+    lsp_servers = { 'yamlls', 'dockerls' },
 
     treesitter_parsers = { 'dockerfile' },
 

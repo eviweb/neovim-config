@@ -456,9 +456,11 @@ _lua_detect() {
   [ "$status" -eq 0 ]
 }
 
-@test "shell profile declares no language server (bash-language-server is deferred: npm package, duplicates shellcheck diagnostics)" {
-  run grep -n "lsp_servers = {}" lua/profiles/shell.lua
+@test "shell profile declares bash-language-server, which keeps nvim-lint's shellcheck (the server's own shellcheck is switched off in lsp.lua)" {
+  run grep -n "lsp_servers = { 'bashls' }" lua/profiles/shell.lua
   [ "$status" -eq 0 ]
+  run grep -n "shellcheck" lua/profiles/shell.lua
+  [[ "$output" == *"lint_linters"* ]] || [[ "$output" == *"sh = { 'shellcheck' }"* ]]
 }
 
 @test "lua detection finds the shell profile from .shellcheckrc" {
@@ -549,8 +551,10 @@ _lua_detect() {
   [[ "$output" == *"'dockerfile'"* ]]
 }
 
-@test "devops profile declares no language server (yaml-language-server and dockerfile-language-server are npm packages)" {
-  run grep -n "lsp_servers = {}" lua/profiles/devops.lua
+@test "devops profile declares yaml-language-server and dockerfile-language-server, next to hadolint and actionlint" {
+  run grep -n "lsp_servers = { 'yamlls', 'dockerls' }" lua/profiles/devops.lua
+  [ "$status" -eq 0 ]
+  run grep -n "'hadolint'\|'actionlint'" lua/profiles/devops.lua
   [ "$status" -eq 0 ]
 }
 
@@ -619,4 +623,34 @@ _lua_detect() {
   local result
   result="$(printf '%s\n' "$output" | grep '^MISSING=')"
   [ "$result" = "MISSING=" ]
+}
+
+@test "lsp_requirements is exact against the Mason registry: every listed server is an npm package, and every npm server of lsp.lua and the profiles is listed" {
+  local real_home registry result
+  real_home="$(getent passwd "$(id -u)" | cut -d: -f6)"
+  registry="${XDG_DATA_HOME:-${real_home}/.local/share}/nvim/mason/registries/github/mason-org/mason-registry/registry.json"
+  [ -f "$registry" ] || skip "Mason registry not downloaded (CI does not install plugins)"
+  run nvim --headless -u NONE --noplugin --cmd "set rtp+=$(pwd)" -c "lua
+    local npm_servers = {}
+    for _, p in ipairs(vim.json.decode(table.concat(vim.fn.readfile('${registry}'), '\n'))) do
+      local lsp = p.neovim and p.neovim.lspconfig
+      if lsp and p.source and p.source.id:find('^pkg:npm/') then npm_servers[lsp] = true end
+    end
+    local requires = require('lsp_requirements').requires
+    local declared = { 'lua_ls', 'jsonls' }
+    for _, file in ipairs(vim.fn.glob('lua/profiles/*.lua', false, true)) do
+      local ok, profile = pcall(dofile, file)
+      if ok and type(profile) == 'table' and profile.lsp_servers then vim.list_extend(declared, profile.lsp_servers) end
+    end
+    local problems = {}
+    for _, server in ipairs(declared) do
+      if npm_servers[server] and requires[server] ~= 'npm' then table.insert(problems, server .. ' is an npm package but is not listed') end
+    end
+    for server in pairs(requires) do
+      if not npm_servers[server] then table.insert(problems, server .. ' is listed but is not an npm package in the registry') end
+    end
+    table.sort(problems)
+    io.stdout:write('PROBLEMS=' .. table.concat(problems, '; ') .. '\n')" -c "qa!"
+  result="$(printf '%s\n' "$output" | grep '^PROBLEMS=')"
+  [ "$result" = "PROBLEMS=" ] || { printf '# %s\n' "$result" >&3; return 1; }
 }
