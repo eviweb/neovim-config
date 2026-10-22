@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `NVM_DIR` (exported by GitHub's runners) each broke CI once. The whole suite passes under the minimal
   environment, so no test was relying on the machine. Tests check what the runner passes on and what it drops,
   and each rule was checked to fail when removed
+- CI pins brought up to date. `actions/checkout` goes from v4.4.0 to v7.0.1: the v4 line runs on Node 20, which
+  GitHub deprecates, and every run printed a warning (v5 and newer run on Node 24; the v7 change that blocks
+  checking out fork pull requests under `pull_request_target` does not concern this workflow, which only uses
+  `pull_request`). Neovim in the `Test` job and in the newest `Startup` entry goes from v0.12.5 to v0.12.6; its
+  SHA-256 was recomputed on the downloaded archive and matches the digest GitHub publishes for the release. Both
+  were run locally first: `tests/run` 679 passing on 0.12.6, and `tests/full-startup`. The oldest `Startup`
+  entry stays on v0.11.0, the minimum. New `tests/ci.bats` guards: every action is pinned to a full commit SHA with
+  its version in a comment, `actions/checkout` is v5 or newer, and the `Test` job and the newest `Startup` entry
+  pin the same Neovim, checksum and step name (the procedure asks to change them together; nothing checked it)
 
 ## [0.10.0] - 2026-10-20
 

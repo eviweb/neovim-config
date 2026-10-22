@@ -122,6 +122,34 @@ CURLEOF
   [ "$oldest" = "$guard" ]
 }
 
+@test "every action the workflow uses is pinned to a full commit SHA with its version in a trailing comment (rules/ci.md: a tag can be moved)" {
+  local total pinned
+  total="$(grep -cE '^ +(- )?uses: ' .github/workflows/ci.yml)"
+  pinned="$(grep -cE '^ +(- )?uses: [A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+@[0-9a-f]{40} # v[0-9]+\.[0-9]+\.[0-9]+$' .github/workflows/ci.yml)"
+  [ "$total" -ge 1 ]
+  [ "$total" -eq "$pinned" ]
+}
+
+@test "actions/checkout is pinned to a release that runs on Node 24, v5 or newer (GitHub deprecates Node 20, which the v4 line uses and which makes every run print a warning)" {
+  local majors major
+  majors="$(grep -oP 'uses: actions/checkout@[0-9a-f]{40} # v\K[0-9]+' .github/workflows/ci.yml)"
+  [ -n "$majors" ]
+  while read -r major; do
+    [ "$major" -ge 5 ] || { echo "actions/checkout v$major is still on Node 20"; return 1; }
+  done <<< "$majors"
+}
+
+@test "the Test job installs the same Neovim, with the same checksum, as the newest entry of the Startup matrix, and its step name says so (CONTRIBUTING: they move together)" {
+  local test_pin step_version matrix_version matrix_sha
+  test_pin="$(grep -oP 'scripts/ci-install-neovim \Kv[0-9.]+ [0-9a-f]{64}' .github/workflows/ci.yml | head -1)"
+  step_version="$(grep -oP 'name: Install Neovim \Kv[0-9.]+$' .github/workflows/ci.yml | head -1)"
+  matrix_version="$(grep -oP '^ +- version: \Kv[0-9.]+$' .github/workflows/ci.yml | sort -V | tail -1)"
+  matrix_sha="$(awk -v v="$matrix_version" '$0 ~ ("- version: " v "$") {getline; print $2}' .github/workflows/ci.yml)"
+  [ -n "$test_pin" ] && [ -n "$step_version" ] && [ -n "$matrix_version" ] && [ -n "$matrix_sha" ]
+  [ "$test_pin" = "$matrix_version $matrix_sha" ]
+  [ "$step_version" = "$matrix_version" ]
+}
+
 @test "the startup job is not one of the checks the main ruleset requires (a network incident must not block a merge)" {
   run grep -n "^    name: Startup" .github/workflows/ci.yml
   [ "$status" -eq 0 ]
