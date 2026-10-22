@@ -24,15 +24,30 @@ local parsers = {
     'typescript', 'vim', 'vimdoc', 'yaml',
 }
 
--- Install missing parsers once on startup (async, non-blocking), including
--- the ones declared by active profiles (e.g. php).
+-- The parsers installed at startup: the global list and the ones declared by
+-- active profiles (e.g. php).
+local function startup_parsers()
+    return vim.list_extend(vim.deepcopy(parsers), require('profiles').get_treesitter_parsers())
+end
+
+-- Install missing parsers once on startup (async, non-blocking).
 vim.api.nvim_create_autocmd('VimEnter', {
     once     = true,
     callback = function()
-        local wanted = vim.list_extend(vim.deepcopy(parsers), require('profiles').get_treesitter_parsers())
-        require('nvim-treesitter').install(wanted)
+        require('nvim-treesitter').install(startup_parsers())
     end,
     desc = 'Install missing treesitter parsers',
+})
+
+-- For any other language, ask before installing: see lua/treesitter_prompt.lua.
+-- The ones installed above are managed here and are not offered.
+local treesitter_prompt = require('treesitter_prompt')
+treesitter_prompt.managed = startup_parsers
+vim.api.nvim_create_autocmd('FileType', {
+    callback = function(ev)
+        treesitter_prompt.maybe_offer(ev.buf)
+    end,
+    desc = 'Offer to install a missing treesitter parser',
 })
 
 -- ---------------------------------------------------------------------------

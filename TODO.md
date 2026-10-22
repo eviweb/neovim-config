@@ -459,8 +459,10 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
 - [x] Language servers installed when a profile is switched on at runtime (`:NvimProfile`), not only at the next
   startup; found while doing the previous item. Checked with the real Mason
 - [x] `nvim-config doctor` lists the language servers left out because `npm` is missing (read from `lua/lsp_requirements.lua`)
-- [ ] Missing treesitter parsers installed on the fly, after a confirmation prompt (the matching entry under
-  Deferred > Treesitter lists the trade-offs)
+- [x] Missing treesitter parsers installed on the fly, after a confirmation prompt (`lua/treesitter_prompt.lua`:
+  Install / Not now / Never, "Never" kept in the state directory). Checked with the real nvim-treesitter, which
+  also showed that a parser installed in the session that creates `site` was not found until `runtimepath` is
+  assigned again
 
 ---
 
@@ -506,16 +508,6 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
   (`open_for_directories = true`, `<Leader>n` opening yazi). The coexisting integration shipped in Phase 30;
   this only matters if neo-tree stops being wanted
   → https://yazi-rs.github.io  → https://github.com/mikavilpas/yazi.nvim
-
-### Treesitter
-
-- [ ] Install a missing parser on the fly when a file of that filetype is opened (`FileType`
-  autocmd → `require('nvim-treesitter').install({ lang })`, async). Trade-offs to settle first:
-  it downloads and compiles third-party grammar code for any of the ~320 available parsers
-  without asking, needs network + `tree-sitter` CLI + `gcc` (fails noisily offline/Termux unless
-  attempts are remembered per session), and — now that commenting is native and works without
-  a parser — would only add highlighting. Alternatives: explicit lists (global + per profile,
-  already supported), or an allow-list / confirmation prompt
 
 ### Profiles
 

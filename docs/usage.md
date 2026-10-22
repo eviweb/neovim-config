@@ -300,6 +300,13 @@ highlighting, folds or textobjects (`af`, `]m`, `]a`…), though commenting with
 still works. The `ssh_config` parser is installed for everyone. The full table is in
 the README, under "Project Profiles".
 
+For a language outside those lists, opening a file shows a menu to install its parser
+(**Install / Not now / Never for <language>**). *Install* downloads and compiles the grammar
+and turns highlighting on in the open buffers; *Never* is remembered in
+`${XDG_STATE_HOME:-~/.local/state}/nvim/treesitter-declined` (delete the line to be asked
+again). It needs the `tree-sitter` CLI, a C compiler, `curl` and `tar`; without them nothing
+is asked.
+
 ---
 
 ## Bufferline
