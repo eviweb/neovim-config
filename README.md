@@ -648,6 +648,11 @@ NVIM_HEADLESS_TESTS_SKIP=0 bash tests/run   # force enable
 NVIM_HEADLESS_TESTS_SKIP=1 bash tests/run   # force disable
 ```
 
+`tests/run` hands bats a minimal environment, as a clean CI runner has: `PATH`, `HOME`, `TERM`, `TMPDIR`
+(when set), `NVIM_HEADLESS_TESTS_SKIP` (when set) and the `C.UTF-8` locale. Anything else your shell exports
+(`XDG_*`, `NVM_DIR`, `VIMINIT`, `SHELL`, `NO_COLOR`...) is dropped, so a test cannot pass here and fail in CI
+because of it.
+
 ### Full startup check
 
 `tests/run` is offline and takes under a minute. `tests/full-startup` is the one test that starts the

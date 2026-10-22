@@ -1418,29 +1418,73 @@ RCEOF
 # test runner
 # ---------------------------------------------------------------------------
 
-@test "tests/run scrubs XDG_* so a local run behaves like CI (a developer machine often points XDG_CONFIG_HOME at the installed config)" {
-  # Runs a copy of the runner against a throwaway project, with a stand-in for
-  # `bats` that records which of the four user-directory XDG variables reach it
-  # (XDG_RUNTIME_DIR, XDG_DATA_DIRS... are system-wide and legitimately set). The real bats is not
-  # nested inside this test: that depended on the BATS_* variables of the outer
-  # run and failed on CI for a reason that could not be reproduced locally.
-  local proj="$BATS_TEST_TMPDIR/proj" fake="$BATS_TEST_TMPDIR/fake_bin" record="$BATS_TEST_TMPDIR/xdg_seen"
+# Builds a throwaway project holding a copy of the runner and a stand-in for
+# `bats` that records the environment it receives. The real bats is not nested
+# inside a test: that depended on the BATS_* variables of the outer run and
+# failed on CI for a reason that could not be reproduced locally. The path of
+# the record is written into the stand-in, because the runner no longer passes
+# the caller's variables on to it.
+_runner_with_recording_bats() {
+  local proj="$1" fake="$2" record="$3"
   mkdir -p "$proj/tests" "$fake"
   cp tests/run "$proj/tests/run"
   : > "$proj/tests/stub.bats"
-  cat > "$fake/bats" <<'FAKEEOF'
-#!/usr/bin/env bash
-env | grep -E '^XDG_(CONFIG_HOME|DATA_HOME|STATE_HOME|CACHE_HOME)=' > "${RECORD_FILE}" || true
-printf '1..1\nok 1 stub\n'
-FAKEEOF
+  printf '#!/usr/bin/env bash\nenv > %q\nprintf "1..1\\nok 1 stub\\n"\n' "$record" > "$fake/bats"
   chmod +x "$fake/bats"
+}
 
-  XDG_CONFIG_HOME=/leak XDG_DATA_HOME=/leak XDG_STATE_HOME=/leak XDG_CACHE_HOME=/leak \
-    RECORD_FILE="$record" PATH="$fake:$PATH" run bash "$proj/tests/run"
+@test "tests/run scrubs XDG_* so a local run behaves like CI (a developer machine often points XDG_CONFIG_HOME at the installed config)" {
+  local proj="$BATS_TEST_TMPDIR/proj" fake="$BATS_TEST_TMPDIR/fake_bin" record="$BATS_TEST_TMPDIR/env_seen"
+  _runner_with_recording_bats "$proj" "$fake" "$record"
+
+  run env XDG_CONFIG_HOME=/leak XDG_DATA_HOME=/leak XDG_STATE_HOME=/leak XDG_CACHE_HOME=/leak \
+    PATH="$fake:$PATH" bash "$proj/tests/run"
 
   [ "$status" -eq 0 ] || { printf '# runner exited %s\n' "$status" >&3; printf '# %s\n' "$output" >&3; return 1; }
   [ -e "$record" ] || { printf '# the stand-in bats never ran\n' >&3; printf '# %s\n' "$output" >&3; return 1; }
-  [ ! -s "$record" ] || { printf '# XDG variables reached bats: %s\n' "$(tr '\n' ' ' < "$record")" >&3; return 1; }
+  # XDG_RUNTIME_DIR, XDG_DATA_DIRS... are system-wide and legitimately set: only the four user directories matter
+  run grep -E '^XDG_(CONFIG_HOME|DATA_HOME|STATE_HOME|CACHE_HOME)=' "$record"
+  [ "$status" -ne 0 ] || { printf '# XDG variables reached bats: %s\n' "$(tr '\n' ' ' <<< "$output")" >&3; return 1; }
+}
+
+@test "tests/run gives bats a minimal environment: what the caller exports reaches the tests only if it is on the list (GitHub runners export NVM_DIR, a developer shell exports VIMINIT, NO_COLOR, SHELL...)" {
+  local proj="$BATS_TEST_TMPDIR/proj" fake="$BATS_TEST_TMPDIR/fake_bin" record="$BATS_TEST_TMPDIR/env_seen"
+  _runner_with_recording_bats "$proj" "$fake" "$record"
+
+  run env NVM_DIR=/leak VIMINIT=leak NO_COLOR=1 SHELL=/bin/zsh TERMUX_VERSION=1 ZDOTDIR=/leak \
+    NVIM_CONFIG_LOG_DIR=/leak NVIM_CHEATSHEET_DIRS=/leak MISE_SHELL=leak GITHUB_TOKEN=leak CI=true \
+    UNLISTED_SENTINEL=leak PATH="$fake:$PATH" bash "$proj/tests/run"
+
+  [ "$status" -eq 0 ] || { printf '# runner exited %s\n' "$status" >&3; printf '# %s\n' "$output" >&3; return 1; }
+  [ -e "$record" ] || { printf '# the stand-in bats never ran\n' >&3; printf '# %s\n' "$output" >&3; return 1; }
+  # bash itself adds PWD, SHLVL, OLDPWD and _ to what it runs
+  local unexpected
+  unexpected="$(cut -d= -f1 "$record" | grep -vxE 'PATH|HOME|TERM|TMPDIR|LC_ALL|NVIM_HEADLESS_TESTS_SKIP|PWD|OLDPWD|SHLVL|_' || true)"
+  [ -z "$unexpected" ] || { printf '# variables that reached bats: %s\n' "$(tr '\n' ' ' <<< "$unexpected")" >&3; return 1; }
+}
+
+@test "tests/run keeps what bats and Neovim need (PATH, HOME, TERM), TMPDIR and the documented NVIM_HEADLESS_TESTS_SKIP when set, and fixes the locale" {
+  local proj="$BATS_TEST_TMPDIR/proj" fake="$BATS_TEST_TMPDIR/fake_bin" record="$BATS_TEST_TMPDIR/env_seen"
+  _runner_with_recording_bats "$proj" "$fake" "$record"
+
+  run env HOME=/kept/home TERM=xterm-kitty TMPDIR=/kept/tmp NVIM_HEADLESS_TESTS_SKIP=0 LC_ALL=fr_FR.UTF-8 LANG=fr_FR.UTF-8 \
+    PATH="$fake:$PATH" bash "$proj/tests/run"
+  [ "$status" -eq 0 ] || { printf '# %s\n' "$output" >&3; return 1; }
+  grep -qx 'HOME=/kept/home' "$record"
+  grep -qx 'TERM=xterm-kitty' "$record"
+  grep -qx 'TMPDIR=/kept/tmp' "$record"
+  grep -qx 'NVIM_HEADLESS_TESTS_SKIP=0' "$record"
+  grep -qx "PATH=$fake:$PATH" "$record"
+  grep -qx 'LC_ALL=C.UTF-8' "$record"
+  run grep -E '^LANG=' "$record"
+  [ "$status" -ne 0 ]
+
+  # unset on the caller's side stays unset (TERM gets a default, the optional ones do not appear)
+  run env -u TMPDIR -u NVIM_HEADLESS_TESTS_SKIP -u TERM PATH="$fake:$PATH" bash "$proj/tests/run"
+  [ "$status" -eq 0 ]
+  run grep -E '^(TMPDIR|NVIM_HEADLESS_TESTS_SKIP)=' "$record"
+  [ "$status" -ne 0 ]
+  grep -qx 'TERM=dumb' "$record"
 }
 
 @test "doctor lists yazi among the optional tools (it only enables the yazi.nvim integration)" {

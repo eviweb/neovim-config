@@ -28,9 +28,15 @@ that's fine.
    ```bash
    ./tests/run
    ```
-   The runner clears `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, `XDG_STATE_HOME` and
-   `XDG_CACHE_HOME` so that it behaves like CI; a test must not rely on your own
-   installed config (`~/.config/nvim`).
+   The runner starts bats with a minimal environment (`env -i`) so that it
+   behaves like CI: only `PATH`, `HOME`, `TERM`, `TMPDIR` (when set) and
+   `NVIM_HEADLESS_TESTS_SKIP` (when set) reach the tests, and the locale is
+   `C.UTF-8`. A test must not rely on your own shell: `XDG_*`, `NVM_DIR`,
+   `VIMINIT`, `SHELL`, `NO_COLOR`... are not there, and a test that needs one
+   sets it itself. Nor may it rely on your installed config (`~/.config/nvim`).
+   When you run a single file with `bats tests/foo.bats` your shell is not
+   scrubbed: the `setup()` of the bats files that change `HOME` also unsets
+   `XDG_*` (and `NVM_DIR` in `cli.bats`).
 5. Run [ShellCheck](https://www.shellcheck.net/) on the shell scripts you
    touched (CI checks all three):
    ```bash

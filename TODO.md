@@ -439,6 +439,25 @@ Order agreed with the maintainer; each item is its own branch and PR.
 
 ---
 
+## Phase 31 — Reliable tests and tooling (target 0.11.0)
+
+Order agreed with the maintainer on 2026-10-22; each item is its own branch and PR.
+
+- [x] `tests/run` hands bats a minimal environment (`env -i` with a whitelist: `PATH`, `HOME`, `TERM`, `TMPDIR`,
+  `NVIM_HEADLESS_TESTS_SKIP`, fixed locale) so a test cannot depend on the machine that runs it
+- [ ] CI pins up to date: `actions/checkout` (the runner warns that Node 20 is deprecated), Neovim v0.12.5 to the
+  current patch release with its SHA-256; procedure in CONTRIBUTING.md "Updating the pinned Neovim"
+- [ ] Release guard rails: add `scripts/extract-changelog.sh` (cited by `rules/release.md`, absent here) and a test
+  that `VERSION`, the `[X.Y.Z]` CHANGELOG section and the compare links agree
+- [ ] npm-gated language servers with one shared "only when `npm` is available" mechanism (replacing the ad hoc
+  `jsonls` gate): `bash-language-server` for the `shell` profile (and shellcheck dropped from nvim-lint for `sh`
+  buffers while it runs), `yaml-language-server` and `dockerfile-language-server` for `devops`; both paths tested.
+  The two matching entries under Deferred > Profiles move here once done
+- [ ] Missing treesitter parsers installed on the fly, after a confirmation prompt (the matching entry under
+  Deferred > Treesitter lists the trade-offs)
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.
