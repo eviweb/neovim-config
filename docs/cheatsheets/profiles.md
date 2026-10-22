@@ -30,7 +30,8 @@ python → python toml
 | `<Leader>fp`           | Open profile picker (Telescope)            |
 
 Picker: `<CR>` activate · `●` active · `○` inactive
-Plugin changes take effect after restart (LSP, null-ls and parsers apply immediately).
+Plugin changes take effect after restart. LSP servers, null-ls and parsers apply without one; missing
+servers and parsers install in the background.
 
 ### CLI
 ```

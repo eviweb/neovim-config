@@ -274,9 +274,10 @@ Switch the active profile without restarting Neovim:
 ```
 
 Or use the Telescope picker with `<Leader>fp` — active profiles are marked with ●,
-inactive with ○. Press `<CR>` to activate the selected profile. LSP servers and
-null-ls sources update immediately, the profile's treesitter parsers install in the
-background; plugin changes take effect after a restart.
+inactive with ○. Press `<CR>` to activate the selected profile. null-ls sources update
+immediately; the profile's language servers (installed servers are enabled at once, missing
+ones are installed by Mason and enabled when done), treesitter parsers and Mason tools
+install in the background; plugin changes take effect after a restart.
 
 ### Shell scripts
 
