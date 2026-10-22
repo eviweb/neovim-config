@@ -8,6 +8,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Neovim offers to install a missing treesitter parser** (`lua/treesitter_prompt.lua`). Opening a file whose
+  language nvim-treesitter has a parser for, and that is not installed, shows a menu: **Install**, **Not now**
+  (also what dismissing it means: silent until the next session) or **Never for <language>**, which is written to
+  `treesitter-declined` in the state directory (one language per line; delete the line to be asked again). Install
+  downloads and compiles the grammar, says so, and starts highlighting in the buffers already open, with no
+  restart. Nothing is asked when the installation could not work (the `tree-sitter` CLI, a C compiler, `curl` or
+  `tar` missing), for windows that are not files, for the languages the configuration installs itself at startup,
+  or without a user interface; a language is asked about once per session, and a failed install is reported once.
+  Checked with the real nvim-treesitter: `go` downloaded, compiled and installed, highlighting active on the open
+  buffer, the syntax tree parsed without error. That run also found that on a machine whose `site` directory did
+  not exist when Neovim started, Neovim lists it on the `runtimepath` yet does not search it until the option is
+  assigned again, so a parser installed in that session was not found; the module assigns it again after an install
 - `nvim-config doctor` has a section "Language servers that need npm": it lists the servers Neovim only requests
   when `npm` is on `PATH` and says whether npm was found, with the way to get it (`install deps --with-node`)
   when it was not. Until now the skipping was silent at startup and only the runtime `:NvimProfile` notice named

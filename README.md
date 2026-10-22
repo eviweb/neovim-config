@@ -355,6 +355,16 @@ folds or textobjects (`af`, `]m`, `]a`…). Parsers declared by the active profi
 are installed in the background at startup, and also when a profile is switched on
 at runtime.
 
+For any other language, Neovim asks before installing its parser: opening a `go` or `java`
+file with no parser installed shows a menu **Install / Not now / Never for go**. Installing
+downloads the grammar and compiles it (the `tree-sitter` CLI, a C compiler, `curl` and
+`tar`, and the network), then turns highlighting on in the buffers already open, without a
+restart. *Not now*, or dismissing the menu, only silences that language until the next
+session. *Never* writes the language to `treesitter-declined` in Neovim's state directory
+(`${XDG_STATE_HOME:-~/.local/state}/nvim/`), one language per line; delete the line to be
+asked again. Nothing is asked when it could not work (a tool is missing), for windows that
+are not files, for the languages installed at startup, or without a user interface.
+
 ### The `shell` profile
 
 Lints shell scripts with [shellcheck](https://www.shellcheck.net) (on save and when
