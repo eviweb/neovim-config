@@ -448,8 +448,9 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
 - [x] CI pins up to date: `actions/checkout` v4.4.0 to v7.0.1 (Node 20 is deprecated), Neovim v0.12.5 to v0.12.6
   with its SHA-256 checked against the downloaded archive; procedure in CONTRIBUTING.md "Updating the pinned
   Neovim", and a new "Updating a pinned action" section
-- [ ] Release guard rails: add `scripts/extract-changelog.sh` (cited by `rules/release.md`, absent here) and a test
-  that `VERSION`, the `[X.Y.Z]` CHANGELOG section and the compare links agree
+- [x] Release guard rails: `scripts/extract-changelog.sh` (cited by `rules/release.md`, absent until now) and
+  `tests/release.bats`, which checks that `VERSION`, the `[X.Y.Z]` CHANGELOG sections and the compare links agree;
+  the CI lint step must cover every script under `scripts/`
 - [ ] npm-gated language servers with one shared "only when `npm` is available" mechanism (replacing the ad hoc
   `jsonls` gate): `bash-language-server` for the `shell` profile (and shellcheck dropped from nvim-lint for `sh`
   buffers while it runs), `yaml-language-server` and `dockerfile-language-server` for `devops`; both paths tested.

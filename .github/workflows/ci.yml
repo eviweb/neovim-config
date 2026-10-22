@@ -79,7 +79,7 @@ jobs:
           persist-credentials: false
 
       - name: shellcheck
-        run: shellcheck bin/nvim-config scripts/ci-install-neovim tests/full-startup
+        run: shellcheck bin/nvim-config scripts/ci-install-neovim scripts/extract-changelog.sh tests/full-startup
 
   test:
     name: Test

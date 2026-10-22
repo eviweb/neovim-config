@@ -38,9 +38,9 @@ that's fine.
    scrubbed: the `setup()` of the bats files that change `HOME` also unsets
    `XDG_*` (and `NVM_DIR` in `cli.bats`).
 5. Run [ShellCheck](https://www.shellcheck.net/) on the shell scripts you
-   touched (CI checks all three):
+   touched (CI checks all of them):
    ```bash
-   shellcheck bin/nvim-config scripts/ci-install-neovim tests/full-startup
+   shellcheck bin/nvim-config scripts/ci-install-neovim scripts/extract-changelog.sh tests/full-startup
    ```
 6. Update `README.md` and `CHANGELOG.md` (`[Unreleased]` section) alongside
    any user-facing change, in the same PR.

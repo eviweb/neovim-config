@@ -185,3 +185,12 @@ CURLEOF
   run bash -c "awk '/^setup\\(\\) \\{/,/^}/' tests/cli.bats | grep -q 'unset NVM_DIR'"
   [ "$status" -eq 0 ]
 }
+
+@test "the CI lint step runs shellcheck on every script under scripts/ (a new helper must not escape it)" {
+  local ci_files missing="" script
+  ci_files="$(grep -oP 'run: shellcheck \K.*' .github/workflows/ci.yml)"
+  for script in scripts/*; do
+    [[ " $ci_files " == *" $script "* ]] || missing="$missing $script"
+  done
+  [ -z "$missing" ] || { echo "not linted by CI:$missing"; return 1; }
+}
