@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- `tests/run` hands bats a minimal environment (`env -i`) instead of the caller's. Only `PATH`, `HOME`, `TERM`,
+  `TMPDIR` (when set) and the documented `NVIM_HEADLESS_TESTS_SKIP` (when set) get through, and the locale is
+  `C.UTF-8`, as on a CI runner. Before, it only unset the four `XDG_*` variables, so anything else your shell
+  exports could make a test pass locally and fail in CI, or the reverse: that is how `XDG_CONFIG_HOME` and then
+  `NVM_DIR` (exported by GitHub's runners) each broke CI once. The whole suite passes under the minimal
+  environment, so no test was relying on the machine. Tests check what the runner passes on and what it drops,
+  and each rule was checked to fail when removed
+
 ## [0.10.0] - 2026-10-20
 
 ### Added

@@ -3,12 +3,22 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 
-# Run like CI does. A developer machine usually exports XDG_CONFIG_HOME & co,
-# and ~/.config/nvim there is a symlink to this repository (`install config`),
-# so tests that quietly depend on the installed config pass locally and fail on
-# a clean runner. Without these variables Neovim falls back to $HOME, which
-# the tests point at an empty temp directory.
-unset XDG_CONFIG_HOME XDG_DATA_HOME XDG_STATE_HOME XDG_CACHE_HOME
+# Run like CI does: bats gets a minimal, known environment instead of the
+# caller's. A developer shell exports things a clean runner does not (XDG_*,
+# VIMINIT, NO_COLOR, SHELL...) and a GitHub runner exports things a developer
+# shell does not (NVM_DIR), so a test that quietly depends on one of them passes
+# on one side and fails on the other. That is what broke CI twice: XDG_CONFIG_HOME
+# (~/.config/nvim is a symlink to this repository on a machine that ran
+# `install config`) and then NVM_DIR.
+# Kept: PATH and HOME (bats, nvim and mise shims need them), TERM, TMPDIR when
+# set (the only temp directory on Termux), and the documented override
+# NVIM_HEADLESS_TESTS_SKIP. The locale is fixed, as on a runner.
+_environment=(PATH="${PATH}" HOME="${HOME}" TERM="${TERM:-dumb}" LC_ALL=C.UTF-8)
+for _name in TMPDIR NVIM_HEADLESS_TESTS_SKIP; do
+    if [[ -n "${!_name+x}" ]]; then
+        _environment+=("${_name}=${!_name}")
+    fi
+done
 
 _pass=0
 _fail=0
@@ -19,7 +29,7 @@ for _f in tests/*.bats; do
     [[ -e "$_f" ]] || continue
     _stem=$(basename "$_f" .bats)
 
-    _out=$(bats --formatter tap "$_f" 2>&1) || true
+    _out=$(env -i "${_environment[@]}" bats --formatter tap "$_f" 2>&1) || true
     printf '%s\n\n' "$_out"
 
     while IFS= read -r _line; do
