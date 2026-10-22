@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- `scripts/extract-changelog.sh <X.Y.Z> [changelog-file]` prints the CHANGELOG section of a released version
+  without its heading, the starting point of the release notes (`gh release create 0.10.0 --notes-file
+  <(scripts/extract-changelog.sh 0.10.0)`). It stops at the next version or at the closing block of link
+  references, trims the blank lines, and fails with exit 1 and a clear message for an unknown version, an
+  empty section or a missing file, and with exit 2 for a missing, `v`-prefixed or malformed version
+- Release guard rails in `tests/release.bats`: `VERSION`, the CHANGELOG sections and its compare links must
+  agree. `[Unreleased]` comes first, the newest released section is `VERSION`, versions and dates are in
+  descending order and real dates, every version has its `compare/<previous>...<version>` link (the oldest one
+  its release tag), `[Unreleased]` compares `<VERSION>...HEAD`, and there is no stray link. Each kind of
+  inconsistency is tested on a broken copy, so a release commit that forgets to move a link is stopped by CI
+- A test requires the CI lint step to run `shellcheck` on every script under `scripts/`, so the next helper
+  cannot escape it
+
 ### Changed
 - `tests/run` hands bats a minimal environment (`env -i`) instead of the caller's. Only `PATH`, `HOME`, `TERM`,
   `TMPDIR` (when set) and the documented `NVIM_HEADLESS_TESTS_SKIP` (when set) get through, and the locale is
