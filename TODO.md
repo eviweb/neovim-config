@@ -451,10 +451,11 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
 - [x] Release guard rails: `scripts/extract-changelog.sh` (cited by `rules/release.md`, absent until now) and
   `tests/release.bats`, which checks that `VERSION`, the `[X.Y.Z]` CHANGELOG sections and the compare links agree;
   the CI lint step must cover every script under `scripts/`
-- [ ] npm-gated language servers with one shared "only when `npm` is available" mechanism (replacing the ad hoc
-  `jsonls` gate): `bash-language-server` for the `shell` profile (and shellcheck dropped from nvim-lint for `sh`
-  buffers while it runs), `yaml-language-server` and `dockerfile-language-server` for `devops`; both paths tested.
-  The two matching entries under Deferred > Profiles move here once done
+- [x] npm-gated language servers with one shared mechanism (`lua/lsp_requirements.lua`, replacing the ad hoc
+  `jsonls` gate and covering the web, php and python servers too): `bash-language-server` for `shell`,
+  `yaml-language-server` and `dockerfile-language-server` for `devops`. Checked with the real servers: bashls with
+  its own shellcheck off (nvim-lint keeps it), yamlls on schemastore and off the `yaml.github` buffers, dockerls
+  leaving three rules to hadolint
 - [ ] Missing treesitter parsers installed on the fly, after a confirmation prompt (the matching entry under
   Deferred > Treesitter lists the trade-offs)
 
@@ -515,20 +516,11 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
 
 ### Profiles
 
-- [ ] `devops` profile: `yaml-language-server` (with schemastore, already a plugin here) and
-  `dockerfile-language-server` — npm packages, so only when `npm` is available. Deferred for the
-  same reasons as the shell profile's language server
-
 - [ ] `lua` profile: StyLua through conform. Its defaults (tabs, double quotes) differ from this
   repository's style (4 spaces, single quotes) and there is no `stylua.toml` here, so it only makes
   sense with `require_cwd` (format only where a `stylua.toml` exists) — which would leave the profile
   inert in this repo. `lua_ls` already covers diagnostics and `luacheck` needs luarocks. Revisit when
   a Lua project with a `stylua.toml` shows up (e.g. a WezTerm config)
-
-- [ ] `shell` profile: `bash-language-server` (completion, go-to-definition, hover), only when
-  `npm` is available — it is an npm package and Node is optional here. It runs shellcheck itself,
-  so enabling it means dropping shellcheck from nvim-lint for `sh` buffers to avoid doubled
-  diagnostics, and keeping both paths (with and without npm) tested
 
 - [ ] `go` profile — `gopls`, parsers `go` `gomod` `gosum` `gowork`, Delve for DAP, formatter
   (gofumpt/goimports) and linter (golangci-lint) through conform/nvim-lint; detected by `go.mod`.

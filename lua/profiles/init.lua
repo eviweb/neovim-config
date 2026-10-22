@@ -358,8 +358,10 @@ function M.activate(name)
             end
         end
     end
-    if #servers > 0 then
-        vim.lsp.enable(servers)
+    local lsp_requirements = require('lsp_requirements')
+    local enabled_servers, skipped_servers = lsp_requirements.installable(servers)
+    if #enabled_servers > 0 then
+        vim.lsp.enable(enabled_servers)
     end
 
     -- Install treesitter parsers (async). Startup only installs the parsers of
@@ -426,6 +428,14 @@ function M.activate(name)
     end
     if #mason_packages > 0 then
         msg = msg .. '\nInstalling Mason packages in the background: ' .. table.concat(mason_packages, ', ')
+    end
+    if #skipped_servers > 0 then
+        local described = {}
+        for _, server in ipairs(skipped_servers) do
+            table.insert(described, server .. ' (needs ' .. lsp_requirements.requires[server] .. ')')
+        end
+        msg = msg .. '\nLanguage servers not enabled: ' .. table.concat(described, ', ')
+            .. '. Node.js is opt-in: nvim-config install deps --with-node'
     end
     vim.notify(msg, vim.log.levels.INFO)
 end

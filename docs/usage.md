@@ -9,7 +9,10 @@ For the full keymap reference, see [keymaps.md](keymaps.md).
 
 Language servers are managed by **Mason** and configured via `lua/config/lsp.lua`.
 Two servers are pre-configured and installed automatically: `jsonls` (JSON) and
-`lua_ls` (Lua). Additional servers can be installed interactively via `:Mason`.
+`lua_ls` (Lua). Additional servers can be installed interactively via `:Mason`, and
+the active profiles ask for theirs (`bashls` for `shell`; `yamlls` and `dockerls` for
+`devops`). Servers that are npm packages are only requested when `npm` is on `PATH`
+(Node.js is opt-in: `nvim-config install deps --with-node`); the others do not need it.
 
 ### First-time setup
 

@@ -71,6 +71,54 @@ vim.lsp.config('jsonls', {
     },
 })
 
+-- bash-language-server runs shellcheck itself; nvim-lint already does on sh
+-- buffers (lua/profiles/shell.lua), so the server's own integration is off
+-- (an empty path disables it) or every diagnostic would appear twice.
+-- Completion, hover, go to definition and symbols stay.
+vim.lsp.config('bashls', {
+    settings = {
+        bashIde = {
+            shellcheckPath = '',
+        },
+    },
+})
+
+-- yaml-language-server takes its schemas from SchemaStore.nvim, like jsonls
+-- above, instead of its own built-in catalogue.
+vim.lsp.config('yamlls', {
+    settings = {
+        yaml = {
+            schemaStore = { enable = false, url = '' },
+            schemas = schemastore.yaml.schemas(),
+        },
+    },
+})
+
+-- dockerfile-language-server reports its own rules next to hadolint's (nvim-lint,
+-- lua/profiles/devops.lua). Three conditions are checked by both, so they are
+-- left to hadolint (DL4003, DL4004, DL3012); the server keeps the others, such
+-- as the case of instructions, which hadolint does not check. Every rule is
+-- named because the server treats one it is not told about as off.
+vim.lsp.config('dockerls', {
+    settings = {
+        docker = {
+            languageserver = {
+                diagnostics = {
+                    deprecatedMaintainer = 'warning',
+                    directiveCasing = 'warning',
+                    emptyContinuationLine = 'warning',
+                    instructionCasing = 'warning',
+                    instructionCmdMultiple = 'ignore',
+                    instructionEntrypointMultiple = 'ignore',
+                    instructionHealthcheckMultiple = 'ignore',
+                    instructionJSONInSingleQuotes = 'warning',
+                    instructionWorkdirRelative = 'warning',
+                },
+            },
+        },
+    },
+})
+
 vim.lsp.config('lua_ls', {
     settings = {
         Lua = {
@@ -97,17 +145,13 @@ require('mason').setup()
 -- On Termux, Mason binaries are often unavailable for ARM; skip auto-install
 -- and rely on manually installed servers only.
 if not profiles.is_active('termux') then
-    -- lua_ls is a standalone binary and always auto-installs. jsonls (json-lsp)
-    -- is an npm package — Mason installs it via `npm install`, which fails with
-    -- a Mason error on every startup if Node.js isn't present. Node.js is
-    -- opt-in in this config (`install deps --with-node`), so skip jsonls
-    -- entirely when npm is missing rather than retrying a known failure.
-    local base_lsp_servers = { 'lua_ls' }
-    if vim.fn.executable('npm') == 1 then
-        table.insert(base_lsp_servers, 'jsonls')
-    end
+    -- lua_ls is a standalone binary and always auto-installs. Servers that are
+    -- npm packages (jsonls, and many of the profiles') fail with a Mason error
+    -- on every startup when Node.js is absent, and Node.js is opt-in here, so
+    -- lsp_requirements leaves them out rather than retrying a known failure.
+    local requested = vim.list_extend({ 'lua_ls', 'jsonls' }, profiles.get_lsp_servers())
     require('mason-lspconfig').setup({
-        ensure_installed = vim.list_extend(base_lsp_servers, profiles.get_lsp_servers()),
+        ensure_installed = require('lsp_requirements').installable(requested),
     })
 else
     require('mason-lspconfig').setup({})
