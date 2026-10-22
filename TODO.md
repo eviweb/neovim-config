@@ -458,7 +458,7 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
   leaving three rules to hadolint
 - [x] Language servers installed when a profile is switched on at runtime (`:NvimProfile`), not only at the next
   startup; found while doing the previous item. Checked with the real Mason
-- [ ] `nvim-config doctor` lists the language servers left out because `npm` is missing
+- [x] `nvim-config doctor` lists the language servers left out because `npm` is missing (read from `lua/lsp_requirements.lua`)
 - [ ] Missing treesitter parsers installed on the fly, after a confirmation prompt (the matching entry under
   Deferred > Treesitter lists the trade-offs)
 

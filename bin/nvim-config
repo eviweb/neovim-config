@@ -294,6 +294,24 @@ _check_mason_bin() {
   fi
 }
 
+# Language servers whose Mason package is installed by npm are only requested by
+# Neovim when npm is on PATH. The list is lua/lsp_requirements.lua, read here so
+# that there is a single one.
+_check_npm_language_servers() {
+  local requirements_file="${PROJECT_DIR}/lua/lsp_requirements.lua"
+  local servers
+  servers="$(grep -oP "^\s+\K[a-z_]+(?=\s*=\s*'npm')" "${requirements_file}" 2> /dev/null | paste -sd, - | sed 's/,/, /g')" || true
+  if [ -z "${servers}" ]; then
+    log_message "WARN" "  [!!]  could not read the npm language servers from ${requirements_file}"
+    return 0
+  fi
+  if command -v npm > /dev/null 2>&1; then
+    log_message "INFO" "  [ok]  npm found — Neovim installs these language servers when a profile asks for them: ${servers}"
+  else
+    log_message "WARN" "  [!!]  npm not found — Neovim does not install these language servers: ${servers} (run: nvim-config install deps --with-node)"
+  fi
+}
+
 _check_bin() {
   local bin="$1"
   if command -v "${bin}" > /dev/null 2>&1; then
@@ -349,6 +367,8 @@ run_doctor() {
     for bin in git make gcc rg fdfind node npm; do
       _check_bin "${bin}" || all_ok=0
     done
+    log_message "INFO" "=== Language servers that need npm ==="
+    _check_npm_language_servers
     log_message "INFO" "=== Optional tools ==="
     for bin in lazygit tmux mise yazi claude codex gemini; do
       _check_bin "${bin}" || true
