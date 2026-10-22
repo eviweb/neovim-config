@@ -415,3 +415,99 @@ end
 io.stdout:write('NOT_IGNORED=' .. table.concat(off, ',') .. ' NOT_WARNING=' .. table.concat(on, ',') .. '\n')"
   [[ "$output" == *"NOT_IGNORED= NOT_WARNING="* ]]
 }
+
+# ---------------------------------------------------------------------------
+# Switching a profile on installs its language servers (it used to enable them only)
+# ---------------------------------------------------------------------------
+
+# Mason and mason-lspconfig stand-ins. $1 of the state table is the package state:
+# missing | installed | installing. Calls are recorded for the assertions.
+_MASON_STUBS='
+local calls = { install = {}, enabled = {}, notices = {} }
+local state = { ["bash-language-server"] = os.getenv("BASHLS_STATE") or "missing", ["yaml-language-server"] = "missing" }
+package.preload["mason-registry"] = function()
+  return { get_package = function(name)
+    local st = state[name]
+    if st == nil then error("Package not found: " .. name) end
+    return {
+      is_installed = function() return st == "installed" end,
+      is_installing = function() return st == "installing" end,
+      install = function() assert(st ~= "installing", "Package is already installing."); table.insert(calls.install, name) end,
+    }
+  end }
+end
+package.preload["mason-lspconfig.mappings"] = function()
+  return { get_mason_map = function() return { lspconfig_to_package = { bashls = "bash-language-server", yamlls = "yaml-language-server" } } end }
+end
+vim.lsp.enable = function(servers) for _, s in ipairs(type(servers) == "table" and servers or { servers }) do table.insert(calls.enabled, s) end end
+vim.notify = function(msg) table.insert(calls.notices, msg) end
+local function report()
+  io.stdout:write("INSTALLED=" .. table.concat(calls.install, ",") .. "\n")
+  io.stdout:write("ENABLED=" .. table.concat(calls.enabled, ",") .. "\n")
+  io.stdout:write("NOTICE=" .. (table.concat(calls.notices, " | "):gsub("\n", " / ")) .. "\n")
+end
+'
+
+@test "switching a profile on installs a missing language server through Mason; mason-lspconfig enables it once installed, so it is not enabled before" {
+  NPM_PRESENT=1 _nvim_probe "${_MASON_STUBS}
+require('profiles').activate('shell')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=bash-language-server" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=" ]
+  [[ "$output" == *"Installing language servers in the background: bashls"* ]]
+}
+
+@test "switching a profile on enables an already installed language server at once, without installing it again" {
+  BASHLS_STATE=installed NPM_PRESENT=1 _nvim_probe "${_MASON_STUBS}
+require('profiles').activate('shell')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=bashls" ]
+  [[ "$output" != *"Installing language servers"* ]]
+}
+
+@test "switching a profile on does not start a second install of a language server that is already being installed (Mason raises an error if asked)" {
+  BASHLS_STATE=installing NPM_PRESENT=1 _nvim_probe "${_MASON_STUBS}
+require('profiles').activate('shell')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=" ]
+  [[ "$output" == *"Installing language servers in the background: bashls"* ]]
+}
+
+@test "switching a profile on enables at once a server Mason has no package for, and installs the one it has" {
+  NPM_PRESENT=1 _nvim_probe "${_MASON_STUBS}
+require('profiles').activate('devops')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=yaml-language-server" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=dockerls" ]
+  [[ "$output" == *"Installing language servers in the background: yamlls"* ]]
+}
+
+@test "switching a profile on enables the server as before when Mason does not know its package" {
+  NPM_PRESENT=1 _nvim_probe "${_MASON_STUBS}
+state['bash-language-server'] = nil
+require('profiles').activate('shell')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=bashls" ]
+}
+
+@test "switching a profile on without npm installs nothing and says which servers were left out" {
+  NPM_PRESENT=0 _nvim_probe "${_MASON_STUBS}
+require('profiles').activate('shell')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=" ]
+  [[ "$output" == *"bashls (needs npm)"* ]]
+}
+
+@test "on Termux, switching a profile on enables the server without asking Mason to install it (Mason has no ARM binaries)" {
+  mkdir -p "$BATS_TEST_TMPDIR/empty-project"
+  printf 'termux\n' > "$BATS_TEST_TMPDIR/empty-project/.nvim-profile"
+  NPM_PRESENT=1 _nvim_probe "${_MASON_STUBS}
+require('profiles').activate('shell')
+report()"
+  [ "$(grep -o 'INSTALLED=.*' <<< "$output")" = "INSTALLED=" ]
+  [ "$(grep -o 'ENABLED=.*' <<< "$output")" = "ENABLED=bashls" ]
+}

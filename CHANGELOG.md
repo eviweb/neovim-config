@@ -35,6 +35,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   cannot escape it
 
 ### Changed
+- **Switching a profile on with `:NvimProfile` now installs its language servers.** It used to enable them only,
+  so the first buffer of that type tried to start a binary that was not there (installing happened at the next
+  startup, through `ensure_installed`). A server already installed is enabled at once; a missing one is installed
+  by Mason and mason-lspconfig, which listens for `package:install:success`, enables it when done, so it attaches
+  to buffers that are already open. The notice lists the servers being installed, a package already being
+  installed is not started twice (Mason raises an error if asked), a server Mason has no package for is enabled
+  as before, and nothing is installed on Termux. Checked with the real Mason in an isolated data directory:
+  `:NvimProfile shell` installed `bash-language-server`, and `bashls` attached to a `.sh` buffer; the same run on
+  the previous code installed nothing and nothing attached
 - **One mechanism decides which language servers are requested**, `lua/lsp_requirements.lua`: a server whose Mason
   package is installed by npm is asked for only when `npm` is on `PATH`. It replaces the check that existed for
   `jsonls` alone and now covers `ts_ls`, `vue_ls`, `svelte` (web), `intelephense` (php) and `pyright` (python) too,

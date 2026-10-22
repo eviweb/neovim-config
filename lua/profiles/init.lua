@@ -243,6 +243,37 @@ function M.install_mason_packages(names)
 end
 
 -- Return Mason package names for DAP adapters required by active profiles.
+-- Ask Mason to install the packages of language servers, given by lspconfig
+-- name. mason-lspconfig enables a server by itself when its package finishes
+-- installing, so enabling it here would only make Neovim try to start a binary
+-- that is not there yet. Returns `installing, ready`: the servers being
+-- installed, and the ones to enable right now (already installed, or with no
+-- Mason package, or Mason not available).
+function M.install_lsp_servers(servers)
+    local installing, ready = {}, {}
+    local ok_registry, registry = pcall(require, 'mason-registry')
+    local ok_mappings, mappings = pcall(require, 'mason-lspconfig.mappings')
+    if not (ok_registry and ok_mappings) then
+        return installing, vim.deepcopy(servers)
+    end
+    local to_package = mappings.get_mason_map().lspconfig_to_package
+    for _, server in ipairs(servers) do
+        local found, pkg = false, nil
+        if to_package[server] then
+            found, pkg = pcall(registry.get_package, to_package[server])
+        end
+        if found and not pkg:is_installed() then
+            if not pkg:is_installing() then
+                pkg:install()
+            end
+            table.insert(installing, server)
+        else
+            table.insert(ready, server)
+        end
+    end
+    return installing, ready
+end
+
 function M.get_dap_mason_packages()
     local packages = {}
     for _, name in ipairs(M.active_profiles()) do
@@ -359,9 +390,14 @@ function M.activate(name)
         end
     end
     local lsp_requirements = require('lsp_requirements')
-    local enabled_servers, skipped_servers = lsp_requirements.installable(servers)
-    if #enabled_servers > 0 then
-        vim.lsp.enable(enabled_servers)
+    local installable_servers, skipped_servers = lsp_requirements.installable(servers)
+    -- Not on Termux: Mason has no ARM binaries, as at startup.
+    local installing_servers, ready_servers = {}, installable_servers
+    if not M.is_active('termux') then
+        installing_servers, ready_servers = M.install_lsp_servers(installable_servers)
+    end
+    if #ready_servers > 0 then
+        vim.lsp.enable(ready_servers)
     end
 
     -- Install treesitter parsers (async). Startup only installs the parsers of
@@ -428,6 +464,9 @@ function M.activate(name)
     end
     if #mason_packages > 0 then
         msg = msg .. '\nInstalling Mason packages in the background: ' .. table.concat(mason_packages, ', ')
+    end
+    if #installing_servers > 0 then
+        msg = msg .. '\nInstalling language servers in the background: ' .. table.concat(installing_servers, ', ')
     end
     if #skipped_servers > 0 then
         local described = {}

@@ -456,6 +456,9 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
   `yaml-language-server` and `dockerfile-language-server` for `devops`. Checked with the real servers: bashls with
   its own shellcheck off (nvim-lint keeps it), yamlls on schemastore and off the `yaml.github` buffers, dockerls
   leaving three rules to hadolint
+- [x] Language servers installed when a profile is switched on at runtime (`:NvimProfile`), not only at the next
+  startup; found while doing the previous item. Checked with the real Mason
+- [ ] `nvim-config doctor` lists the language servers left out because `npm` is missing
 - [ ] Missing treesitter parsers installed on the fly, after a confirmation prompt (the matching entry under
   Deferred > Treesitter lists the trade-offs)
 

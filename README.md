@@ -409,12 +409,19 @@ Pin a profile for the current project by writing `.nvim-profile` at the project 
 
 ### Runtime switching
 
-Switch the active profile without restarting Neovim (LSP and null-ls update immediately,
-treesitter parsers install in the background; plugin changes require a restart):
+Switch the active profile without restarting Neovim (null-ls updates immediately; its
+language servers, treesitter parsers and Mason tools install in the background; plugin
+changes require a restart):
 
 ```vim
 :NvimProfile web
 ```
+
+A language server that is already installed is enabled at once. A missing one is installed
+by Mason, and mason-lspconfig enables it as soon as the install succeeds, so it attaches to
+the buffers that are already open without a restart. The notice lists the servers being
+installed, and the ones left out because `npm` is missing. On Termux, where Mason has no ARM
+binaries, nothing is installed.
 
 Or use the Telescope picker: `<Leader>fp` — shows active (●) / inactive (○) profiles.
 
