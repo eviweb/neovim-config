@@ -445,8 +445,9 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
 
 - [x] `tests/run` hands bats a minimal environment (`env -i` with a whitelist: `PATH`, `HOME`, `TERM`, `TMPDIR`,
   `NVIM_HEADLESS_TESTS_SKIP`, fixed locale) so a test cannot depend on the machine that runs it
-- [ ] CI pins up to date: `actions/checkout` (the runner warns that Node 20 is deprecated), Neovim v0.12.5 to the
-  current patch release with its SHA-256; procedure in CONTRIBUTING.md "Updating the pinned Neovim"
+- [x] CI pins up to date: `actions/checkout` v4.4.0 to v7.0.1 (Node 20 is deprecated), Neovim v0.12.5 to v0.12.6
+  with its SHA-256 checked against the downloaded archive; procedure in CONTRIBUTING.md "Updating the pinned
+  Neovim", and a new "Updating a pinned action" section
 - [ ] Release guard rails: add `scripts/extract-changelog.sh` (cited by `rules/release.md`, absent here) and a test
   that `VERSION`, the `[X.Y.Z]` CHANGELOG section and the compare links agree
 - [ ] npm-gated language servers with one shared "only when `npm` is available" mechanism (replacing the ad hoc

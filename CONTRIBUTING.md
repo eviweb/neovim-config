@@ -76,6 +76,22 @@ them in agreement). To move to a new version:
 
 bats-core is pinned by commit (`6636e2c`, v1.9.0), not by tag. Nothing here is bumped automatically.
 
+## Updating a pinned action
+
+Every `uses:` in `ci.yml` is a full commit SHA with its version in a trailing comment (`# v7.0.1`), because a tag
+can be moved; a test checks it. To move one, resolve the tag to its commit and read which runtime it declares:
+
+```bash
+gh api repos/actions/checkout/git/ref/tags/v7.0.1 --jq '.object.type, .object.sha'
+# if the type is "tag" (annotated), resolve it once more:
+gh api repos/actions/checkout/git/tags/<sha> --jq .object.sha
+gh api "repos/actions/checkout/contents/action.yml?ref=<commit>" --jq .content | base64 -d | grep using:
+```
+
+Prefer the newest release whose `using:` is a supported Node runtime (`actions/checkout` must be v5 or newer,
+which a test enforces), read its release notes for changes that touch how the workflow uses it, and replace
+the SHA and the comment together on every line.
+
 ## Reporting bugs
 
 Open an issue with:
