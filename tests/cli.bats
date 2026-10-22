@@ -1793,3 +1793,65 @@ _logfile_in() { ls "$1"/nvim-config-*.log 2> /dev/null | head -1; }
   run grep -c "source-file" "$HOME/.tmux.conf"
   [ "$output" -eq 1 ]
 }
+
+# ---------------------------------------------------------------------------
+# doctor lists the language servers Neovim will not install without npm
+# ---------------------------------------------------------------------------
+
+# A directory holding only the few tools doctor itself needs, to be used as the
+# whole PATH: npm, and every other tool, is then absent. Prints the directory.
+_minimal_tools_dir() {
+  local dir="$BATS_TEST_TMPDIR/minimal_bin" tool
+  mkdir -p "$dir"
+  for tool in bash env readlink dirname date head grep paste sed tr cat awk; do
+    ln -sf "$(type -P "$tool")" "$dir/$tool"
+  done
+  printf '%s' "$dir"
+}
+
+@test "doctor lists the language servers Neovim will not install when npm is missing, with the way to get them" {
+  local tools; tools="$(_minimal_tools_dir)"
+  PATH="$tools" run ./bin/nvim-config --no-log --no-color doctor
+  [[ "$output" == *"=== Language servers that need npm ==="* ]]
+  [[ "$output" == *"[!!]  npm not found"*"jsonls"*"ts_ls"*"pyright"*"bashls"*"yamlls"*"dockerls"*"nvim-config install deps --with-node"* ]]
+}
+
+@test "doctor says the same language servers are installed on demand when npm is there" {
+  local tools; tools="$(_minimal_tools_dir)"
+  printf '#!/bin/sh\nexit 0\n' > "$tools/npm"; chmod +x "$tools/npm"
+  PATH="$tools" run ./bin/nvim-config --no-log --no-color doctor
+  [[ "$output" == *"=== Language servers that need npm ==="* ]]
+  [[ "$output" == *"[ok]  npm found"*"jsonls"*"bashls"*"dockerls"* ]]
+  [[ "$output" != *"npm not found"* ]]
+}
+
+@test "doctor reads the npm language servers from lua/lsp_requirements.lua, the one list Neovim uses" {
+  local tools proj="$BATS_TEST_TMPDIR/proj"; tools="$(_minimal_tools_dir)"
+  mkdir -p "$proj/bin" "$proj/lua"
+  cp bin/nvim-config "$proj/bin/"; cp VERSION "$proj/"; cp lua/lsp_requirements.lua "$proj/lua/"
+  sed -i "s|^    jsonls .*|&\n    brand_new_server = 'npm',|" "$proj/lua/lsp_requirements.lua"
+  PATH="$tools" run "$proj/bin/nvim-config" --no-log --no-color doctor
+  [[ "$output" == *"npm not found"*"brand_new_server"* ]]
+}
+
+@test "doctor does not list a server that needs nothing special (only the npm ones)" {
+  local tools; tools="$(_minimal_tools_dir)"
+  PATH="$tools" run ./bin/nvim-config --no-log --no-color doctor
+  [[ "$output" != *"lua_ls"* ]]
+  [[ "$output" != *"rust_analyzer"* ]]
+}
+
+@test "doctor leaves the section out on Termux, where Neovim installs no language server" {
+  local tools; tools="$(_minimal_tools_dir)"
+  TERMUX_VERSION=0.118 PATH="$tools" run ./bin/nvim-config --no-log --no-color doctor
+  [[ "$output" != *"Language servers that need npm"* ]]
+}
+
+@test "doctor still completes, with a warning, when the list of npm language servers cannot be read" {
+  local tools proj="$BATS_TEST_TMPDIR/proj"; tools="$(_minimal_tools_dir)"
+  mkdir -p "$proj/bin"
+  cp bin/nvim-config "$proj/bin/"; cp VERSION "$proj/"
+  PATH="$tools" run "$proj/bin/nvim-config" --no-log --no-color doctor
+  [[ "$output" == *"could not read the npm language servers"* ]]
+  [[ "$output" == *"=== Build tools (optional) ==="* ]]
+}

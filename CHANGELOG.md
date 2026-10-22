@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `nvim-config doctor` has a section "Language servers that need npm": it lists the servers Neovim only requests
+  when `npm` is on `PATH` and says whether npm was found, with the way to get it (`install deps --with-node`)
+  when it was not. Until now the skipping was silent at startup and only the runtime `:NvimProfile` notice named
+  the servers. The list is read from `lua/lsp_requirements.lua`, the one Neovim uses, so a server added there
+  shows up in `doctor` with no other change. The section is left out on Termux, where Neovim installs no
+  language server, and a list that cannot be read gives a warning instead of stopping the check
 - **Language servers for the `shell` and `devops` profiles**, which had none: `bash-language-server` (`bashls`)
   for `shell`, and `yaml-language-server` (`yamlls`) and `dockerfile-language-server` (`dockerls`) for
   `devops`. All three are npm packages, so they are requested only when `npm` is on `PATH`; without it the

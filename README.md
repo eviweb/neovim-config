@@ -47,9 +47,11 @@ Required by Mason-managed LSP servers (TypeScript, ESLint, and others).
 Without `npm` on `PATH`, Neovim does not ask Mason for the language servers that are npm
 packages (`jsonls`, `ts_ls`, `vue_ls`, `svelte`, `intelephense`, `pyright`, `bashls`,
 `yamlls`, `dockerls`) instead of failing to install them at every startup. It says nothing
-at startup; switching a profile on with `:NvimProfile` lists the servers it left out. The
-other servers (`lua_ls`, `rust_analyzer`) and the linters and formatters are not affected.
-The list lives in `lua/lsp_requirements.lua`.
+at startup; switching a profile on with `:NvimProfile` lists the servers it left out, and
+`nvim-config doctor` shows the whole list under "Language servers that need npm", saying
+whether npm was found. The other servers (`lua_ls`, `rust_analyzer`) and the linters and
+formatters are not affected. The list lives in `lua/lsp_requirements.lua`, which `doctor`
+reads.
 
 - Minimum version: **Node 18+**
 - Recommended: manage Node via [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm) rather than via apt — the apt package is often outdated and may conflict with an existing Node setup.
@@ -534,7 +536,7 @@ Requires Node.js / npm. Use `install deps --with-node` if not already installed.
 
 ```bash
 ./bin/nvim-config status    # Neovim version, UI variant, theme, active profile
-./bin/nvim-config doctor    # check required and optional binaries
+./bin/nvim-config doctor    # check required and optional binaries, and the npm language servers
 ./bin/nvim-config keymaps   # open keymaps reference in $PAGER
 ```
 
