@@ -479,8 +479,9 @@ on the commit that will be tagged.
   goes through `lua/treesitter_install.lua`, shared with the parser menu; checked with the real nvim-treesitter
 - [ ] Optional, to discuss: a CI job that installs the configuration on a clean runner and starts it (not a required
   check; network, duration, instability), since every defect of the last cycle came from a fresh-state condition
-- [ ] Refresh the pinned plugins of `lazy-lock.json` (`:Lazy check` first, then `tests/full-startup`); a risky update
-  goes to 0.12.0 rather than delaying the fixes
+- [x] Refresh the pinned plugins of `lazy-lock.json` (`:Lazy check` first, then `tests/full-startup`): six plugins
+  that follow their branch, 20 commits, none breaking; the three tag-pinned ones were already on their latest tag.
+  Checked at the new commits with the real Mason, mason-lspconfig, nvim-lspconfig and nvim-treesitter
 - [ ] Check the release candidate on Termux (`doctor`, `:NvimProfile`, the parser menu), a declared target that has
   not been verified since 0.11.0 touched its branches
 
