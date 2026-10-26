@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **Pinned plugins refreshed** in `lazy-lock.json`: the six plugins that follow their branch and were behind, 20
+  commits in all. `nvim-lspconfig` (6: the `tofu_ls` filetype, Copilot telemetry off by default, docs and CI),
+  `mason-lspconfig.nvim` (4, regenerated mapping data), `nvim-treesitter` (1, new parser revisions), `gitsigns.nvim`
+  (2: deleted lines at the end of a file, detached worktrees), `schemastore.nvim` (6, catalogue updates) and
+  `mini.icons` (1, an icon for `Projects`). None of the commits is a breaking change. The three plugins that
+  follow tags (`yazi.nvim` v14.0.2, `mini.ai` v0.18.0, `toggleterm.nvim` v2.13.1) are already on their latest tag, so
+  the commits `:Lazy check` counts for them are all after the tag and are left alone. Checked at the new commits:
+  `tests/full-startup` starts the configuration, and, with the real Mason, mason-lspconfig, nvim-lspconfig and
+  nvim-treesitter, `:NvimProfile shell` installs `bash-language-server` and `bashls` attaches, the parser menu and
+  the startup install both install and colour a Go and a TOML buffer. Run `:Lazy restore` to bring your own
+  checkouts to these commits
+
 ### Fixed
 - **The parsers installed at startup are usable in the session that installs them.** On a machine where Neovim's
   `site` directory did not exist at startup (the first run on a fresh machine), Neovim lists it on the `runtimepath`
