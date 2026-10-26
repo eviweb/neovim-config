@@ -30,11 +30,12 @@ local function startup_parsers()
     return vim.list_extend(vim.deepcopy(parsers), require('profiles').get_treesitter_parsers())
 end
 
--- Install missing parsers once on startup (async, non-blocking).
+-- Install missing parsers once on startup (async, non-blocking). What it
+-- installs is usable in this session: see lua/treesitter_install.lua.
 vim.api.nvim_create_autocmd('VimEnter', {
     once     = true,
     callback = function()
-        require('nvim-treesitter').install(startup_parsers())
+        require('treesitter_install').install(startup_parsers())
     end,
     desc = 'Install missing treesitter parsers',
 })

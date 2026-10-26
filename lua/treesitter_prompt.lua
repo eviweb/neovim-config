@@ -102,49 +102,13 @@ local function language_for(bufnr)
     return lang
 end
 
--- nvim-treesitter installs into <data>/site and relies on Neovim searching that
--- directory. On a fresh machine it did not exist at startup: Neovim lists it on
--- the runtimepath but built its cache of searchable directories without it, so
--- a parser installed in this session would not be found until a restart.
--- Assigning the option again makes Neovim look again (checked with the real
--- plugin: runtime files for the new parser go from 0 to 1).
-local function make_install_dir_visible()
-    local ok, config = pcall(require, 'nvim-treesitter.config')
-    if ok then
-        local site = vim.fs.normalize(vim.fs.dirname(config.get_install_dir('parser')))
-        local listed = false
-        for _, entry in ipairs(vim.opt.runtimepath:get()) do
-            if vim.fs.normalize(entry) == site then
-                listed = true
-            end
-        end
-        if not listed then
-            vim.opt.runtimepath:prepend(site)
-        end
-    end
-    vim.o.runtimepath = vim.o.runtimepath
-end
-
-local function start_highlighting(lang)
-    for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
-        if
-            vim.api.nvim_buf_is_loaded(bufnr)
-            and vim.bo[bufnr].buftype == ''
-            and vim.treesitter.language.get_lang(vim.bo[bufnr].filetype) == lang
-        then
-            pcall(vim.treesitter.start, bufnr)
-        end
-    end
-end
-
 local function install(lang)
     vim.notify(('Installing the %s parser...'):format(lang), vim.log.levels.INFO)
     local started, task = pcall(require('nvim-treesitter').install, { lang })
     local function finished(err, success)
         if started and not err and success then
             vim.notify(('The %s parser is installed.'):format(lang), vim.log.levels.INFO)
-            make_install_dir_visible()
-            start_highlighting(lang)
+            require('treesitter_install').activate({ lang })
         else
             local detail = (not started and task) or err
             vim.notify(

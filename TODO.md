@@ -474,9 +474,9 @@ on the commit that will be tagged.
 - [x] `.nvim-profile` naming several profiles (`web,php`) is read as Neovim reads it by `profile info`, `profile list`
   and `update dap-adapters` (they failed on it), and `profile set` accepts a list and refuses an unknown name (a typo
   such as `wbe` was written silently and listed as active by Neovim)
-- [ ] The parsers installed at startup are found in the first session on a fresh machine (the `site` directory did
-  not exist at startup, so Neovim does not search it until `runtimepath` is assigned again); same cause as the
-  fix made for the parser menu, not yet tested for the startup install
+- [x] The parsers installed at startup are found in the first session on a fresh machine (the `site` directory did
+  not exist at startup, so Neovim does not search it until `runtimepath` is assigned again): the startup install now
+  goes through `lua/treesitter_install.lua`, shared with the parser menu; checked with the real nvim-treesitter
 - [ ] Optional, to discuss: a CI job that installs the configuration on a clean runner and starts it (not a required
   check; network, duration, instability), since every defect of the last cycle came from a fresh-state condition
 - [ ] Refresh the pinned plugins of `lazy-lock.json` (`:Lazy check` first, then `tests/full-startup`); a risky update
