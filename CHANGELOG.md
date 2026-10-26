@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+- **The parsers installed at startup are usable in the session that installs them.** On a machine where Neovim's
+  `site` directory did not exist at startup (the first run on a fresh machine), Neovim lists it on the `runtimepath`
+  but does not search it until the option is assigned again, so a parser installed in that session was on disk yet
+  not found, and files opened before the install stayed uncoloured until a restart. The startup install now goes
+  through `lua/treesitter_install.lua`, shared with the parser menu: once it is over, whatever it actually installed
+  makes the install directory visible and starts highlighting in the buffers already open; it does nothing when
+  nothing was installed, and ignores what failed. Checked with the real nvim-treesitter from an empty data directory
+  with a Go and a TOML buffer already open: the previous call installed both parsers and left both buffers
+  uncoloured, the new one coloured both. This is the same cause as the fix made for the parser menu in 0.11.0
 - **`.nvim-profile` can name several profiles in the CLI, as it already could for Neovim.** Neovim reads the first
   line of the file as a comma-separated list (`web,php`), but `profile info` answered "Profile file not found:
   .../web,php.lua", `profile list` marked no profile as active, and `update dap-adapters` failed the same way. They

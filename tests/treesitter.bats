@@ -327,3 +327,92 @@ say('QUESTIONS', #calls.select)"
   run grep -n "managed" lua/config/treesitter.lua
   [ "$status" -eq 0 ]
 }
+
+# ---------------------------------------------------------------------------
+# The parsers installed at startup are usable in the session that installs them
+# (lua/treesitter_install.lua)
+# ---------------------------------------------------------------------------
+
+@test "once the startup install is done, the buffers of the languages it installed get highlighting without a restart" {
+  _probe "local installer = require('treesitter_install')
+buffer('php'); buffer('php'); buffer('java')
+installer.install({ 'php', 'lua' })
+say('INSTALL_CALLS', table.concat(calls.install, ';'))
+say('STARTED_BEFORE', #calls.started)
+table.insert(installed, 'php')
+finish_install(nil, true)
+say('STARTED_AFTER', #calls.started)"
+  [ "$(_value INSTALL_CALLS)" = "php,lua" ]
+  [ "$(_value STARTED_BEFORE)" = "0" ]
+  [ "$(_value STARTED_AFTER)" = "2" ]
+}
+
+@test "when the startup install changed nothing (every parser already there) no buffer is touched and the runtimepath keeps its value" {
+  INSTALLED=lua,php _probe "local installer = require('treesitter_install')
+buffer('php')
+local rtp = vim.o.runtimepath
+installer.install({ 'php', 'lua' })
+finish_install(nil, true)
+say('STARTED', #calls.started)
+say('RTP_UNCHANGED', tostring(vim.o.runtimepath == rtp))"
+  [ "$(_value STARTED)" = "0" ]
+  [ "$(_value RTP_UNCHANGED)" = "true" ]
+}
+
+@test "when only some startup parsers could be installed, only those get highlighting" {
+  _probe "local installer = require('treesitter_install')
+buffer('php'); buffer('java')
+installer.install({ 'php', 'java' })
+table.insert(installed, 'php')   -- java failed
+finish_install(nil, false)
+say('STARTED', #calls.started)"
+  [ "$(_value STARTED)" = "1" ]
+}
+
+@test "a startup install that raises an error starts nothing and raises none of its own" {
+  _probe "local installer = require('treesitter_install')
+buffer('php')
+installer.install({ 'php' })
+finish_install('boom', nil)
+say('STARTED', #calls.started)"
+  [ "$(_value STARTED)" = "0" ]
+  [[ "$output" != *"Error"* ]]
+}
+
+@test "on a fresh machine a parser installed at startup is found in the same session (the default site directory did not exist when Neovim started)" {
+  local data="$BATS_TEST_TMPDIR/fresh-data"
+  [ ! -e "$data" ]
+  XDG_DATA_HOME="$data" INSTALL_ROOT="$data/nvim/site" _probe "local installer = require('treesitter_install')
+buffer('php')
+installer.install({ 'php' })
+vim.fn.mkdir(os.getenv('INSTALL_ROOT') .. '/parser', 'p')
+vim.fn.writefile({ 'x' }, os.getenv('INSTALL_ROOT') .. '/parser/fakelang.so')
+say('VISIBLE_BEFORE', #vim.api.nvim_get_runtime_file('parser/fakelang.*', true))
+table.insert(installed, 'php')
+finish_install(nil, true)
+say('VISIBLE_AFTER', #vim.api.nvim_get_runtime_file('parser/fakelang.*', true))"
+  [ "$(_value VISIBLE_BEFORE)" = "0" ]
+  [ "$(_value VISIBLE_AFTER)" = "1" ]
+}
+
+@test "requiring treesitter_install changes nothing by itself (no autocommand, no install)" {
+  run nvim --headless --noplugin -u NONE --cmd "set rtp+=$PWD" -c "lua
+    local before = #vim.api.nvim_get_autocmds({})
+    require('treesitter_install')
+    io.stdout:write('NEW_AUTOCMDS=' .. (#vim.api.nvim_get_autocmds({}) - before) .. '\n')" -c "qa!"
+  [[ "$output" == *"NEW_AUTOCMDS=0"* ]]
+}
+
+@test "the treesitter config installs its startup parsers through treesitter_install, once, on VimEnter" {
+  run grep -n "treesitter_install" lua/config/treesitter.lua
+  [ "$status" -eq 0 ]
+  run grep -n "require('nvim-treesitter').install(" lua/config/treesitter.lua
+  [ "$status" -eq 1 ]
+  run grep -c "VimEnter" lua/config/treesitter.lua
+  [ "$output" -ge 1 ]
+}
+
+@test "the parser menu uses the same steps once its install is done (one place to fix)" {
+  run grep -n "treesitter_install" lua/treesitter_prompt.lua
+  [ "$status" -eq 0 ]
+}
