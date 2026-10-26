@@ -439,7 +439,7 @@ Order agreed with the maintainer; each item is its own branch and PR.
 
 ---
 
-## Phase 31 — Reliable tests and tooling (target 0.11.0)
+## Phase 31 — Reliable tests and tooling (0.11.0)
 
 Order agreed with the maintainer on 2026-10-22; each item is its own branch and PR.
 
