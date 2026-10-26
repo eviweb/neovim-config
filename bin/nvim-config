@@ -124,7 +124,8 @@ Commands:
                         Manage per-project Neovim profiles
                           list   — list available profiles (marks active with *)
                           detect — detect profiles for the current directory
-                          set    — write .nvim-profile in the current directory
+                          set    — write .nvim-profile in the current directory (one name, or
+                                   several separated by commas: web,php); names are checked
                           unset  — remove .nvim-profile from the current directory
                           create — generate a new profile template in lua/profiles/
                           info   — show active profile details (LSP servers, DAP packages)
@@ -262,11 +263,31 @@ _read_active_ui() {
   fi
 }
 
-_read_active_profile() {
+# The profile names pinned in .nvim-profile of the current directory, one per
+# line. Neovim reads the first line only, as a comma-separated list, trims each
+# name and drops the empty ones: so does this (and a name is kept once).
+_pinned_profile_names() {
   local profile_file="${PWD}/.nvim-profile"
-  if [ -f "${profile_file}" ]; then
-    tr -d '[:space:]' < "${profile_file}"
-  fi
+  [ -f "${profile_file}" ] || return 0
+  head -n1 "${profile_file}" | tr ',' '\n' | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | awk 'NF && !seen[$0]++'
+}
+
+# The same, as one comma-separated list (empty when nothing is pinned).
+_read_active_profile() {
+  _pinned_profile_names | paste -sd, -
+}
+
+# The profiles that exist (lua/profiles/*.lua without the manager and the
+# picker), one per line.
+_profile_names() {
+  local lua_file name
+  for lua_file in "${PROJECT_DIR}/lua/profiles"/*.lua; do
+    name="$(basename "${lua_file}" .lua)"
+    case "${name}" in
+      init | picker) continue ;;
+    esac
+    printf '%s\n' "${name}"
+  done
 }
 
 # Extract single-quoted string values from a Lua list declaration.
@@ -1115,18 +1136,22 @@ run_update_plugins() {
 }
 
 run_update_dap_adapters() {
-  local profile; profile="$(_read_active_profile)"
-  if [ -z "${profile}" ]; then
+  local names; names="$(_pinned_profile_names)"
+  if [ -z "${names}" ]; then
     log_message "INFO" "No active profile — nothing to update"
     return 0
   fi
-  local lua_file="${PROJECT_DIR}/lua/profiles/${profile}.lua"
-  if [ ! -f "${lua_file}" ]; then
-    log_message "ERROR" "Profile file not found: ${lua_file}"
-    return 1
-  fi
-  local pkgs
-  pkgs="$(_extract_lua_list "${lua_file}" "dap_mason_packages" 2>/dev/null || true)"
+  local profile lua_file pkgs=""
+  while IFS= read -r profile; do
+    lua_file="${PROJECT_DIR}/lua/profiles/${profile}.lua"
+    if [ ! -f "${lua_file}" ]; then
+      log_message "ERROR" "Profile file not found: ${lua_file}"
+      return 1
+    fi
+    pkgs+="$(_extract_lua_list "${lua_file}" "dap_mason_packages" 2>/dev/null || true)"$'\n'
+  done <<< "${names}"
+  pkgs="$(awk 'NF && !seen[$0]++' <<< "${pkgs}")"
+  profile="$(paste -sd, - <<< "${names}")"
   if [ -z "${pkgs}" ]; then
     log_message "INFO" "No DAP packages declared for profile '${profile}'"
     return 0
@@ -1249,30 +1274,35 @@ run_profile_list() {
     log_message "ERROR" "No profiles directory found at ${profiles_dir}"
     return 1
   fi
-  local active; active="$(_read_active_profile)"
-  for f in "${profiles_dir}"/*.lua; do
-    local name
-    name="$(basename "$f" .lua)"
-    if [ "${name}" = "init" ] || [ "${name}" = "picker" ]; then
-      continue
-    fi
-    if [ "${name}" = "${active}" ]; then
+  local active; active="$(_pinned_profile_names)"
+  local name
+  while IFS= read -r name; do
+    if grep -qxF -- "${name}" <<< "${active}"; then
       log_message "INFO" "* ${name}"
     else
       log_message "INFO" "  ${name}"
     fi
-  done
+  done < <(_profile_names)
   if [ -z "${active}" ]; then
     log_message "INFO" "(no active profile in current directory)"
   fi
 }
 
 run_profile_info() {
-  local profile; profile="$(_read_active_profile)"
-  if [ -z "${profile}" ]; then
+  local names; names="$(_pinned_profile_names)"
+  if [ -z "${names}" ]; then
     log_message "INFO" "Active profile: (none)"
     return 0
   fi
+  local profile status=0
+  while IFS= read -r profile; do
+    _show_profile_info "${profile}" || status=1
+  done <<< "${names}"
+  return "${status}"
+}
+
+_show_profile_info() {
+  local profile="$1"
   local lua_file="${PROJECT_DIR}/lua/profiles/${profile}.lua"
   log_message "INFO" "Active profile: ${profile}"
   if [ ! -f "${lua_file}" ]; then
@@ -1334,15 +1364,32 @@ run_profile_detect() {
   fi
 }
 
+# One profile name, or several separated by commas (as Neovim reads the file).
+# Every name must be a profile that exists: Neovim ignores an unknown one without
+# a word, so a typo would otherwise write a file that does nothing.
 run_profile_set() {
-  local name="${1:?Missing profile name for: profile set}"
+  local input="${1:?Missing profile name for: profile set}"
   local profile_file="${PWD}/.nvim-profile"
+  local available names name joined
+  available="$(_profile_names)"
+  names="$(tr ',' '\n' <<< "${input}" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' | awk 'NF && !seen[$0]++')"
+  if [ -z "${names}" ]; then
+    log_message "ERROR" "no profile name in '${input}' — available: $(paste -sd, - <<< "${available}" | sed 's/,/, /g')"
+    return 2
+  fi
+  while IFS= read -r name; do
+    if ! grep -qxF -- "${name}" <<< "${available}"; then
+      log_message "ERROR" "Unknown profile '${name}' — available: $(paste -sd, - <<< "${available}" | sed 's/,/, /g')"
+      return 2
+    fi
+  done <<< "${names}"
+  joined="$(paste -sd, - <<< "${names}")"
   if [ "${DRY_RUN}" -eq 1 ]; then
-    log_message "INFO" "printf '%s\\n' '${name}' > ${profile_file}"
+    log_message "INFO" "printf '%s\\n' '${joined}' > ${profile_file}"
     return 0
   fi
-  printf '%s\n' "${name}" > "${profile_file}"
-  log_message "INFO" "Profile '${name}' written to ${profile_file}"
+  printf '%s\n' "${joined}" > "${profile_file}"
+  log_message "INFO" "Profile '${joined}' written to ${profile_file}"
 }
 
 run_profile_unset() {

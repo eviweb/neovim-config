@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`.nvim-profile` can name several profiles in the CLI, as it already could for Neovim.** Neovim reads the first
+  line of the file as a comma-separated list (`web,php`), but `profile info` answered "Profile file not found:
+  .../web,php.lua", `profile list` marked no profile as active, and `update dap-adapters` failed the same way. They
+  now read the file as Neovim does (first line, spaces around the names ignored, empty and repeated names dropped)
+  and show or use every pinned profile; `status` shows the normalised list. A name with no profile file is reported
+  by name while the others are still shown
+- **`profile set` accepts a list and checks the names.** `profile set web,php` writes `web,php` (spaces and
+  duplicates removed); an unknown name, an empty list, or the profile manager and picker files (`init`, `picker`)
+  are refused with exit 2 and the list of valid profiles, also under `--dry-run`. Before, `profile set wbe` wrote
+  the file without a word and Neovim then listed `wbe` as active while it did nothing
+
 ## [0.11.0] - 2026-10-26
 
 ### Added

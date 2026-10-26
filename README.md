@@ -416,8 +416,15 @@ Pin a profile for the current project by writing `.nvim-profile` at the project 
 
 ```bash
 ./bin/nvim-config profile set web
+./bin/nvim-config profile set web,php    # several profiles, separated by commas
 ./bin/nvim-config profile unset
 ```
+
+`profile set` checks every name against the profiles that exist and refuses an unknown one (exit 2, with the list of
+valid names): Neovim itself ignores an unknown name without a word, so a typo would otherwise write a file that does
+nothing. Neovim reads the first line of `.nvim-profile` as a comma-separated list, ignoring spaces around the names;
+`profile list`, `profile info`, `update dap-adapters` and `status` read it the same way, so they show every pinned
+profile.
 
 ### Runtime switching
 

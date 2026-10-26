@@ -261,9 +261,11 @@ a project:
 
 ```bash
 ./bin/nvim-config profile set web
+./bin/nvim-config profile set web,php    # several profiles
 ```
 
-This writes `.nvim-profile` at the current directory root.
+This writes `.nvim-profile` at the current directory root. Every name must be an existing profile (an
+unknown one is refused with the list of valid names), and the file may hold several, separated by commas.
 
 ### Runtime switching
 
