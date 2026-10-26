@@ -466,6 +466,26 @@ Order agreed with the maintainer on 2026-10-22; each item is its own branch and 
 
 ---
 
+## Phase 32 — Multiple profiles and the first run (target 0.11.1)
+
+Order agreed with the maintainer on 2026-10-26; each item is its own branch and PR, and the Termux check comes last,
+on the commit that will be tagged.
+
+- [x] `.nvim-profile` naming several profiles (`web,php`) is read as Neovim reads it by `profile info`, `profile list`
+  and `update dap-adapters` (they failed on it), and `profile set` accepts a list and refuses an unknown name (a typo
+  such as `wbe` was written silently and listed as active by Neovim)
+- [ ] The parsers installed at startup are found in the first session on a fresh machine (the `site` directory did
+  not exist at startup, so Neovim does not search it until `runtimepath` is assigned again); same cause as the
+  fix made for the parser menu, not yet tested for the startup install
+- [ ] Optional, to discuss: a CI job that installs the configuration on a clean runner and starts it (not a required
+  check; network, duration, instability), since every defect of the last cycle came from a fresh-state condition
+- [ ] Refresh the pinned plugins of `lazy-lock.json` (`:Lazy check` first, then `tests/full-startup`); a risky update
+  goes to 0.12.0 rather than delaying the fixes
+- [ ] Check the release candidate on Termux (`doctor`, `:NvimProfile`, the parser menu), a declared target that has
+  not been verified since 0.11.0 touched its branches
+
+---
+
 ## Deferred / Under Consideration
 
 > Items intentionally set aside — not yet prioritised or waiting for a relevant project context.

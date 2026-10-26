@@ -37,7 +37,7 @@ servers and parsers install in the background.
 ```
 nvim-config profile list
 nvim-config profile detect
-nvim-config profile set <name>
+nvim-config profile set <name>[,<name>...]
 nvim-config profile unset
 nvim-config profile create <name>
 ```

@@ -1855,3 +1855,151 @@ _minimal_tools_dir() {
   [[ "$output" == *"could not read the npm language servers"* ]]
   [[ "$output" == *"=== Build tools (optional) ==="* ]]
 }
+
+# ---------------------------------------------------------------------------
+# .nvim-profile may name several profiles ("web,php"), as Neovim reads it
+# ---------------------------------------------------------------------------
+
+# Runs the CLI from a throwaway project directory that holds the given
+# .nvim-profile (exact bytes, via printf). Usage: _cli_in_project '<printf format>' args...
+_cli_in_project() {
+  local content="$1"; shift
+  local cli; cli="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/bin/nvim-config"
+  PROJECT="$BATS_TEST_TMPDIR/pinned"; mkdir -p "$PROJECT"
+  if [ -n "$content" ]; then printf "$content" > "$PROJECT/.nvim-profile"; fi
+  cd "$PROJECT"
+  run "$cli" --no-log --no-color "$@"
+}
+
+@test "profile info shows every profile named in .nvim-profile, with its own language servers" {
+  _cli_in_project 'web,php\n' profile info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Active profile: web"* ]]
+  [[ "$output" == *"Active profile: php"* ]]
+  [[ "$output" == *"ts_ls"* ]]
+  [[ "$output" == *"intelephense"* ]]
+  [[ "$output" != *"not found"* ]]
+}
+
+@test "profile info reads the file the way Neovim does: first line only, spaces around names ignored, empty names dropped" {
+  _cli_in_project ' web , ,php \nrust\n' profile info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Active profile: web"* ]]
+  [[ "$output" == *"Active profile: php"* ]]
+  [[ "$output" != *"rust"* ]]
+}
+
+@test "a profile named twice in .nvim-profile is shown once by profile info (Neovim keeps it once too)" {
+  _cli_in_project 'web,web, web\n' profile info
+  [ "$status" -eq 0 ]
+  [ "$(grep -c 'Active profile: web' <<< "$output")" -eq 1 ]
+}
+
+@test "profile info with a single name prints what it always did" {
+  _cli_in_project 'web\n' profile info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Active profile: web"* ]]
+  [[ "$output" == *"LSP servers:"* ]]
+  [[ "$output" == *"DAP packages:"* ]]
+}
+
+@test "profile info names the one profile of the list that has no file, and still shows the others" {
+  _cli_in_project 'web,wbe\n' profile info
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Active profile: web"* ]]
+  [[ "$output" == *"ts_ls"* ]]
+  [[ "$output" == *"Profile file not found"*"/lua/profiles/wbe.lua"* ]]
+  [[ "$output" != *"web,wbe"* ]]
+}
+
+@test "profile list marks every profile named in .nvim-profile" {
+  _cli_in_project 'web,php\n' profile list
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"* web"* ]]
+  [[ "$output" == *"* php"* ]]
+  [[ "$output" != *"* rust"* ]]
+  [[ "$output" != *"no active profile"* ]]
+}
+
+@test "update dap-adapters lists the debug adapters of every pinned profile, once each" {
+  _cli_in_project 'web,php,web\n' --dry-run update dap-adapters
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"js-debug-adapter"* ]]
+  [[ "$output" == *"php-debug-adapter"* ]]
+  [ "$(grep -c 'js-debug-adapter' <<< "$output")" -eq 1 ]
+}
+
+@test "update dap-adapters stops with the missing profile's name when one of the pinned names has no file" {
+  _cli_in_project 'web,wbe\n' --dry-run update dap-adapters
+  [ "$status" -eq 1 ]
+  [[ "$output" == *"Profile file not found"*"/lua/profiles/wbe.lua"* ]]
+  [[ "$output" != *"web,wbe"* ]]
+}
+
+@test "status shows the pinned profiles as one normalised list" {
+  _cli_in_project ' web , php \n' status
+  [[ "$output" == *"Profile : web,php"* ]]
+}
+
+@test "profile set writes a list of profiles without spaces or duplicates" {
+  _cli_in_project '' profile set 'web, php,web'
+  [ "$status" -eq 0 ]
+  [ "$(cat "$PROJECT/.nvim-profile")" = "web,php" ]
+}
+
+@test "profile set with one name writes it as before" {
+  _cli_in_project '' profile set rust
+  [ "$status" -eq 0 ]
+  [ "$(cat "$PROJECT/.nvim-profile")" = "rust" ]
+}
+
+@test "profile set refuses an unknown profile with exit 2, names the valid ones, and writes nothing" {
+  _cli_in_project '' profile set wbe
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"Unknown profile 'wbe'"* ]]
+  [[ "$output" == *"available:"*"devops"*"php"*"web"* ]]
+  [ ! -e "$PROJECT/.nvim-profile" ]
+}
+
+@test "profile set refuses a list that contains an unknown profile and leaves the existing file alone" {
+  _cli_in_project 'rust\n' profile set web,wbe
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"Unknown profile 'wbe'"* ]]
+  [ "$(cat "$PROJECT/.nvim-profile")" = "rust" ]
+}
+
+@test "profile set --dry-run refuses an unknown profile too" {
+  _cli_in_project '' --dry-run profile set wbe
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"Unknown profile 'wbe'"* ]]
+}
+
+@test "profile set --dry-run shows the normalised list it would write, and writes nothing" {
+  _cli_in_project '' --dry-run profile set 'web , php'
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"'web,php'"* ]]
+  [ ! -e "$PROJECT/.nvim-profile" ]
+}
+
+@test "profile set refuses an empty list" {
+  _cli_in_project '' profile set ' , '
+  [ "$status" -eq 2 ]
+  [[ "$output" == *"no profile name"* ]]
+  [ ! -e "$PROJECT/.nvim-profile" ]
+}
+
+@test "profile set does not take the profile manager or the picker for profiles" {
+  _cli_in_project '' profile set init
+  [ "$status" -eq 2 ]
+  _cli_in_project '' profile set picker
+  [ "$status" -eq 2 ]
+}
+
+@test "profile set accepts every profile that profile list shows" {
+  local cli; cli="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)/bin/nvim-config"
+  local names; names="$("$cli" --no-log --no-color profile list | sed 's/^.*\] //' | grep -v '^(' | tr -d '* ' | paste -sd, -)"
+  [ -n "$names" ]
+  _cli_in_project '' profile set "$names"
+  [ "$status" -eq 0 ]
+  [ "$(cat "$PROJECT/.nvim-profile")" = "$names" ]
+}
