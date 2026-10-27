@@ -290,7 +290,9 @@ _profile_names() {
   done
 }
 
-# Extract single-quoted string values from a Lua list declaration.
+# Extract single-quoted string values from a Lua list declaration, one per line.
+# Whole quoted strings only: matching "everything after a quote" would also return
+# what lies between two strings (", ") and after the last one (" },").
 # Usage: _extract_lua_list <file> <key>
 _extract_lua_list() {
   local file="$1"
@@ -299,7 +301,7 @@ _extract_lua_list() {
     $0 ~ k"[[:space:]]*=" { in_list=1 }
     in_list { print }
     /}/ { if (in_list) { in_list=0 } }
-  ' "${file}" | grep -oP "'\K[^']+"
+  ' "${file}" | grep -o "'[^']*'" | tr -d "'"
 }
 
 # Mason installs its tools under Neovim's data directory: that is on Neovim's
@@ -1169,8 +1171,10 @@ run_update_dap_adapters() {
     [ -n "${pkg}" ] && mason_cmds+=("+MasonInstall ${pkg}")
   done <<< "${pkgs}"
   log_message "INFO" "Installing DAP adapters via Mason (this may take a moment)..."
-  # shellcheck disable=SC2068
-  nvim --headless -u "${PROJECT_DIR}/init.lua" ${mason_cmds[@]} +qa 2>/dev/null || true
+  # Each "+MasonInstall <package>" is one argument: unquoted, the shell splits it
+  # in two and Neovim runs :MasonInstall with no package (in headless mode it
+  # waits for the installs and exits non-zero on an invalid package name).
+  nvim --headless -u "${PROJECT_DIR}/init.lua" "${mason_cmds[@]}" +qa 2>/dev/null || true
   log_message "INFO" "Done — verify inside Neovim with :Mason"
 }
 

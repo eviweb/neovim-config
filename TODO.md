@@ -482,6 +482,10 @@ on the commit that will be tagged.
 - [x] Refresh the pinned plugins of `lazy-lock.json` (`:Lazy check` first, then `tests/full-startup`): six plugins
   that follow their branch, 20 commits, none breaking; the three tag-pinned ones were already on their latest tag.
   Checked at the new commits with the real Mason, mason-lspconfig, nvim-lspconfig and nvim-treesitter
+- [x] Lists read from a profile file (`profile info`, `update dap-adapters`) return only the quoted names, and
+  `update dap-adapters` hands Neovim one `+MasonInstall <package>` argument per package: found while preparing the
+  Termux check (stray `},` lines), then a second defect behind it (the command installed nothing since it was
+  written); checked with the real Mason
 - [ ] Check the release candidate on Termux (`doctor`, `:NvimProfile`, the parser menu), a declared target that has
   not been verified since 0.11.0 touched its branches
 
