@@ -2003,3 +2003,97 @@ _cli_in_project() {
   [ "$status" -eq 0 ]
   [ "$(cat "$PROJECT/.nvim-profile")" = "$names" ]
 }
+
+# ---------------------------------------------------------------------------
+# The lists read from a profile file are the quoted names, and nothing between them
+# ---------------------------------------------------------------------------
+
+# Entries printed by `profile info` under "LSP servers:" and "DAP packages:",
+# as "lsp:<entry>" / "dap:<entry>" lines, from the output of the last `run`.
+_info_entries() {
+  local line section="" entry
+  while IFS= read -r line; do
+    line="${line#*\] \[INFO\] }"
+    case "$line" in
+      "LSP servers:") section=lsp ;;
+      "DAP packages:") section=dap ;;
+      "Active profile:"*) section="" ;;
+      "  "*) entry="${line#  }"; [ -n "$section" ] && printf '%s:%s\n' "$section" "$entry" ;;
+    esac
+  done <<< "$output"
+}
+
+@test "profile info prints the language servers and debug packages of a profile and nothing else (no separators, no closing brace)" {
+  _cli_in_project 'web\n' profile info
+  [ "$status" -eq 0 ]
+  [ "$(_info_entries | tr '\n' ' ')" = "lsp:ts_ls lsp:vue_ls lsp:svelte dap:js-debug-adapter " ]
+}
+
+@test "for every profile, profile info lists exactly what Neovim reads in lsp_servers and dap_mason_packages" {
+  local repo cli profile_file name expected actual mismatches=""
+  repo="$(cd "$(dirname "$BATS_TEST_FILENAME")/.." && pwd)"
+  cli="${repo}/bin/nvim-config"
+  for profile_file in "${repo}"/lua/profiles/*.lua; do
+    name="$(basename "$profile_file" .lua)"
+    case "$name" in init | picker) continue ;; esac
+    expected="$(nvim --headless --noplugin -u NONE -c "lua local p = dofile('${repo}/lua/profiles/${name}.lua')
+      for _, s in ipairs(p.lsp_servers or {}) do io.stdout:write('lsp:' .. s .. '\n') end
+      for _, s in ipairs(p.dap_mason_packages or {}) do io.stdout:write('dap:' .. s .. '\n') end" -c 'qa!' 2>&1 | tr -d '\r' | sed '/^$/d' | sort)"
+    _cli_in_project "${name}\n" profile info
+    actual="$(_info_entries | sort)"
+    [ "$expected" = "$actual" ] || mismatches="${mismatches}${name} (expected: $(echo $expected) / got: $(echo $actual)); "
+  done
+  [ -z "$mismatches" ] || { echo "profiles whose info differs from the Lua file: ${mismatches}"; return 1; }
+}
+
+@test "update dap-adapters --dry-run lists the debug packages as bare names" {
+  _cli_in_project 'web,php\n' --dry-run update dap-adapters
+  [ "$status" -eq 0 ]
+  local listed; listed="$(grep -E '^\[.*\]   ' <<< "$output" | sed 's/^.*\]   //' | tr '\n' ' ')"
+  [ "$listed" = "js-debug-adapter php-debug-adapter " ]
+}
+
+@test "update dap-adapters hands Neovim one MasonInstall per package and no other argument (a fake nvim records them)" {
+  local fake="$BATS_TEST_TMPDIR/fake_nvim_bin" record="$BATS_TEST_TMPDIR/nvim_args"
+  mkdir -p "$fake"
+  printf '#!/usr/bin/env bash\nprintf "%%s\\n" "$@" > %q\n' "$record" > "$fake/nvim"; chmod +x "$fake/nvim"
+  PATH="$fake:$PATH" _cli_in_project 'web,php\n' update dap-adapters
+  [ "$status" -eq 0 ]
+  [ -e "$record" ]
+  [ "$(grep -c '^+MasonInstall' "$record")" -eq 2 ]
+  grep -qx '+MasonInstall js-debug-adapter' "$record"
+  grep -qx '+MasonInstall php-debug-adapter' "$record"
+  run grep -E '[},]' "$record"
+  [ "$status" -ne 0 ]
+}
+
+@test "a list written over several lines in a profile file is read whole, one entry per name" {
+  local proj="$BATS_TEST_TMPDIR/copy"
+  mkdir -p "$proj/bin" "$proj/lua/profiles"
+  cp bin/nvim-config "$proj/bin/"; cp VERSION "$proj/"
+  cat > "$proj/lua/profiles/multi.lua" <<'LUA'
+return {
+    name = 'multi',
+    lsp_servers = {
+        'alpha',
+        'beta-ls',
+    },
+    dap_mason_packages = {
+        'one',
+    },
+}
+LUA
+  mkdir -p "$BATS_TEST_TMPDIR/pinned"; printf 'multi\n' > "$BATS_TEST_TMPDIR/pinned/.nvim-profile"
+  cd "$BATS_TEST_TMPDIR/pinned"
+  run "$proj/bin/nvim-config" --no-log --no-color profile info
+  [ "$status" -eq 0 ]
+  [ "$(_info_entries | tr '\n' ' ')" = "lsp:alpha lsp:beta-ls dap:one " ]
+}
+
+@test "a profile with empty lists prints no list heading" {
+  _cli_in_project 'laravel\n' profile info
+  [ "$status" -eq 0 ]
+  [[ "$output" == *"Active profile: laravel"* ]]
+  [[ "$output" != *"LSP servers:"* ]]
+  [[ "$output" != *"DAP packages:"* ]]
+}

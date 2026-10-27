@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **`nvim-config update dap-adapters` installed nothing.** It handed Neovim `+MasonInstall <package>` through an
+  unquoted array, so the shell split each one in two: Neovim ran `:MasonInstall` with no package (`E471: Argument
+  required: MasonInstall`, hidden by `2>/dev/null`), took the package name for a file to open, exited 0, and the CLI
+  printed "Done". Each command is now one argument. In headless mode `:MasonInstall` waits for the install and
+  exits non-zero on an invalid package name. Checked with the real Mason in an isolated data directory, the same
+  arguments both ways: the old form installed nothing, the new one installed `js-debug-adapter`. A test runs the
+  command with a fake `nvim` that records its arguments
+- **`profile info` printed stray lines under the language servers and debug packages** (`, ` between two names and
+  ` },` after the last one). The function that reads a list from a profile file (`_extract_lua_list`) returned
+  everything after each quote, so the text between two strings came back as if it were a name; the same lines
+  went into the list of packages that `update dap-adapters` installs. It now returns only the quoted names, on one
+  line or on several. A test compares, for every profile, what `profile info` prints with the `lsp_servers` and
+  `dap_mason_packages` that Neovim reads from the same file. The defect dates from 0.9.0 at the latest
+
 ### Changed
 - **Pinned plugins refreshed** in `lazy-lock.json`: the six plugins that follow their branch and were behind, 20
   commits in all. `nvim-lspconfig` (6: the `tofu_ls` filetype, Copilot telemetry off by default, docs and CI),
